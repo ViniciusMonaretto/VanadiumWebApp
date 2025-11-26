@@ -1,0 +1,22 @@
+<div style="    height: 100%;">
+  <div class="group-header">{{name}}</div>
+  <div style="height: calc(100% - 56px); overflow-y: auto;">
+    <div class="main-group-div" [ngStyle]="getGridStyle()">
+      <sensor class="flex-item"
+              [style]="getStyleOfCell()"
+             *ngFor="let sensor of sensorArray" 
+              [sensorInfo]="sensor" 
+              [canEdit]="canEdit"
+              (clickCallback)="openSensorDialog($event)" 
+              (deleteCallback)="removeSensorCallback($event)">
+      </sensor>
+      <div *ngIf="false">
+        <io-button style="height: 30px;" variant="primary" (clicked)="addSensor(group)">
+          <mat-icon >add</mat-icon>
+        </io-button>
+      </div>
+      
+    </div>
+  </div>
+  
+</div> 

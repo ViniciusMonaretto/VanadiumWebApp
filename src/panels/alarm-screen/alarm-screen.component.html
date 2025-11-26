@@ -1,0 +1,12 @@
+<div class="main-div-display">
+    <div class="group-header">Eventos</div>
+    <div style="height: 40px;">
+        <io-button style="height: 25px;" variant="secondary" (clicked)="eraseAllEvents()">
+            Limpar eventos
+        </io-button >
+    </div>
+    <div class="table-div">
+        <io-cloud-table [headerInfo]="headerInfo" [models]="getEvents().reverse()">
+        </io-cloud-table>
+    </div>
+</div>

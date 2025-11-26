@@ -1,0 +1,22 @@
+.main-group-div {
+  // Only keep non-layout styles here if needed
+}
+
+.flex-item {
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.group-header{
+  width: 100%;
+  color:#262626;
+  font-size: 20px;
+  padding-bottom: 20px;
+}
+
+.add-button{
+  height: 100px;
+  align-items: center;
+  display: flex;
+}
+  

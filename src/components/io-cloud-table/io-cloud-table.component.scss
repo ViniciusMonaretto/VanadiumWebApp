@@ -1,0 +1,28 @@
+.rowsContainer{
+    height: calc(100% - 75px);
+    overflow: auto;
+}
+
+.rowTable{
+    display: flex;
+}
+
+.bodyCell{
+    background-color: transparent;
+    flex: 1;
+    border-bottom-style: solid;
+    height: 70px;
+    font-size: 16px;
+    display: flex;
+    border-bottom-width: 1px;
+    border-color: #adadad;
+    justify-content: center;
+    align-items: center;
+    color: #6B7280;
+}
+
+.headerCell{
+    font-weight: bold;
+    font-size: 18px;
+    color: #6B7280;
+}

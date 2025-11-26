@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>Gerar Relatório</h2>
+<mat-dialog-content>
+    <div style="width: 100%;" appearance="fill">
+        <mat-label>Selecionar Sensores</mat-label>
+        <sensor-tree [panelsInfo]="uiConfig" [selectedSensors]="selectedSensors"></sensor-tree>
+    </div>
+    <div class="time-choice-div">
+        <div>
+            <mat-label>Selecionar Intervalo de Tempo</mat-label>
+        </div>
+      <mat-radio-group style="display: flex; flex-direction: row; gap: 10px;" [(ngModel)]="timeRangeChoice" (change)="setTimeRange(timeRangeChoice)">
+        <mat-radio-button value="lastHour">Última hora</mat-radio-button>
+        <mat-radio-button value="lastDay">Último dia</mat-radio-button>
+        <mat-radio-button value="lastWeek">Última semana</mat-radio-button>
+        <mat-radio-button value="custom">Personalizado</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <div class="date-container" *ngIf="timeRangeChoice === 'custom'">
+        <div class="date-picker-class">
+            <mat-form-field appearance="outline">
+                <mat-label>Data de Início</mat-label>
+                <input matInput [matDatepicker]="pickerStart" [(ngModel)]="startDate">
+                <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
+                <mat-datepicker #pickerStart></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label></mat-label>
+                <input matInput type="time" (change)="setTime($event, startDate)">
+            </mat-form-field>
+        </div>
+        
+        <div class="date-picker-class">
+            <mat-form-field appearance="outline">
+                <mat-label>Data de Fim</mat-label>
+                <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="endDate">
+                <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
+                <mat-datepicker #pickerEnd></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+                <mat-label></mat-label>
+                <input matInput type="time" (change)="setTime($event, endDate)">
+            </mat-form-field>
+        </div>
+        
+    </div>
+</mat-dialog-content>
+<mat-dialog-actions style="display: flex; gap: 10px;">
+    <io-button style="height: 30px;" variant="secondary" (clicked)="onCancel()">Cancelar</io-button>
+    <io-button style="height: 30px;" variant="primary" [disabled]="!validForm()" (clicked)="onApply()" cdkFocusInitial>Aplicar</io-button>
+</mat-dialog-actions>
