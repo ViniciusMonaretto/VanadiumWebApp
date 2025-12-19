@@ -56,11 +56,10 @@ export class SensorAddWindowComponent {
       this.sensorModule.sensorType = this.settedType
     return {
       "name": this.sensorModule.name,
-      "gateway": this.sensorModule.gateway,
-      "topic": this.sensorModule.topic,
+      "gateway": this.sensorModule.gatewayId,
       "sensorType": this.sensorModule.sensorType,
       "group": this.group,
-      "indicator": this.sensorModule.indicator.toString(),
+      "indicator": this.sensorModule.index.toString(),
       "color": this.sensorModule.color
     }
   }
@@ -68,9 +67,8 @@ export class SensorAddWindowComponent {
   validForm()
   {
     return this.sensorModule.name != "" &&
-           this.sensorModule.gateway != "" &&
-           this.sensorModule.topic != "" &&
-           this.sensorModule.indicator >= 0 
+           this.sensorModule.gatewayId != "" &&
+           this.sensorModule.index >= 0 
   }
 
   onAddCLick(): void{

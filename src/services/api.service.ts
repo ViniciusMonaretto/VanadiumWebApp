@@ -13,6 +13,7 @@ export const WS_URL_TOKEN = new InjectionToken<string>('wsUrl');
 export class ApiService {
     public connection: signalR.HubConnection | null = null;
     onConnectCallbacks: Function[] = [];
+    private pendingListeners: Array<{ eventName: string; callback: (...args: any[]) => void }> = [];
 
     baseUrl = "";
 
@@ -38,6 +39,12 @@ export class ApiService {
             .start()
             .then(() => {
                 console.log('Conexão SignalR iniciada.')
+                // Register all pending listeners
+                for (const listener of this.pendingListeners) {
+                    this.connection!.on(listener.eventName, listener.callback);
+                }
+                this.pendingListeners = [];
+                // Call all onConnect callbacks
                 for(var callback of this.onConnectCallbacks) {
                     callback();
                 }
@@ -47,7 +54,8 @@ export class ApiService {
 
     addListener(eventName: string, callback: (...args: any[]) => void) {
         if (!this.connection) {
-            console.error('Connection not initialized. Call startConnection() first.');
+            // Queue the listener to be registered when connection starts
+            this.pendingListeners.push({ eventName, callback });
             return;
         }
         this.connection.on(eventName, callback);
@@ -59,7 +67,10 @@ export class ApiService {
             return Promise.reject('Connection not initialized');
         }
         return this.connection.invoke(eventName, data)
-            .catch(err => console.error(err));
+            .catch(err => {
+                console.error(`Error invoking '${eventName}':`, err);
+                return Promise.reject(err);
+            });
     }
 
     addOnConnectCallback(callback: Function) {

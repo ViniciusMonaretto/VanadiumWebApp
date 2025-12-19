@@ -7,7 +7,6 @@ import { APP_INITIALIZER } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 
 import { routes } from './app.routes';
-import { WS_URL_TOKEN } from '../services/server-conector.service';
 import { ApiService } from '../services/api.service';
 
 // Factory function to create WebSocket URL based on current browser location
@@ -18,7 +17,10 @@ function createWebSocketUrl(): string {
 }
 
 export function initConfig(config: ApiService) {
-  return () => config.load();
+  return async () => {
+    await config.load();
+    config.startConnection();
+  };
 }
 
 export const appConfig: ApplicationConfig = {
@@ -26,7 +28,6 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideCharts(),
-    { provide: WS_URL_TOKEN, useFactory: createWebSocketUrl },
     provideHttpClient(),
     {
       provide: APP_INITIALIZER,

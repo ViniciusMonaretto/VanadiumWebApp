@@ -4,10 +4,9 @@ import { AlarmModule } from "./alarm-module";
 export class SensorModule{
     public id: number = 0
     public name: string = "";
-    public gateway: string = "";
-    public topic: string = "";
+    public gatewayId: string = "";
     public color: string = "#000000"
-    public indicator: number = 0
+    public index: number = 0
     public sensorType: SensorTypesEnum = SensorTypesEnum.PREASSURE
     public value: Number|null = null
     public isActive: boolean = false
@@ -22,7 +21,7 @@ export class SensorModule{
     }
 }
 
-export function GetTableName(gateway:string, table: string, indicator: string)
+export function GetTableName(gateway:string, indicator: string)
 {
-    return gateway == "*"?table:gateway + '-' + table + '-' + indicator
+    return gateway  + '-' + indicator
 }

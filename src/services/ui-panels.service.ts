@@ -27,7 +27,7 @@ export class PanelInfo {
 export class UiPanelService {
     
     groups: {[id: string]:  GroupInfo} = {}
-    subscriptioMap: {[id: string]: Array<SensorModule | Function>} = {}
+    subscriptioMap: {[id: string]: Array<SensorModule & {topic: string} | Function>} = {}
 
     groupSelected: string = ""
 
@@ -38,11 +38,11 @@ export class UiPanelService {
     
     constructor(private api: ApiService, private dialogHelper: DialogHelper  ) 
     { 
-      this.api.addListener("uiConfig", (uiConfig: any) => 
+      this.api.addListener("updateGroupsInfo", (uiConfig: any) => 
         {
-          this.SetNewUiConfig(uiConfig["message"]["PanelsInfo"])
+          this.SetNewUiConfig(uiConfig)
   
-          if (uiConfig["message"]["calibrateUpdate"]) {
+          if (uiConfig["calibrateUpdate"]) {
             this.dialogHelper.openInfoDialog("Novo valor calibrado no Sensor, verifique o valor.", "Calibração concluída")
           }
         })
@@ -88,7 +88,7 @@ export class UiPanelService {
       this.openSpinnerDialog("Removendo sensor")
       this.api.send("removePanel", sensorData).then(() => {
         this.closeSpinnerDialog();
-        var fullTopic = GetTableName(sensorData.gateway, sensorData.topic, sensorData.indicator.toString())
+        var fullTopic = GetTableName(sensorData.gateway, sensorData.indicator.toString())
         this.subscriptioMap[fullTopic] = this.subscriptioMap[fullTopic].filter(x=> x != sensorData)
       })
     }
@@ -157,6 +157,7 @@ export class UiPanelService {
     
     AddSensorToPanel(sensor: SensorModule, groupId: string)
     {
+      this.groups[groupId].panels.temperature.push(sensor)
       switch(sensor.sensorType)
       {
         case SensorTypesEnum.TEMPERATURE:
@@ -185,7 +186,7 @@ export class UiPanelService {
     addPanelAndSubscribe(panel: SensorModule, groupId: string)
     {
       this.AddSensorToPanel(panel, groupId);
-      let fullTopic = GetTableName(panel.gateway, panel.topic, panel.indicator.toString())
+      let fullTopic = GetTableName(panel.gatewayId, panel.index.toString())
       this.AddSubscription(fullTopic, panel)
     }
 
@@ -220,7 +221,7 @@ export class UiPanelService {
       })
     }
 
-    AddSubscription(fullTopic: string, callbackObj: Function | SensorModule)
+    AddSubscription(fullTopic: string, callbackObj: any)
     {
       if(! (fullTopic in this.subscriptioMap) )
       {
@@ -275,22 +276,19 @@ export class UiPanelService {
         {
           let info = {}
 
-          let panel = this.groups[infoArray.group].panels.temperature.find(x=> GetTableName(x.gateway, 
-                                                                               x.topic, 
-                                                                               x.indicator.toString()) == tableName)
+          let panel = this.groups[infoArray.group].panels.temperature.find(x=> GetTableName(x.gatewayId,
+                                                                               x.index.toString()) == tableName)
 
           if(!panel)
           {
-            panel = this.groups[infoArray.group].panels.pressure.find(x=> GetTableName(x.gateway, 
-              x.topic, 
-              x.indicator.toString()) == tableName)
+            panel = this.groups[infoArray.group].panels.pressure.find(x=> GetTableName(x.gatewayId, 
+              x.index.toString()) == tableName)
           }
 
           if(!panel)
           {
-            panel = this.groups[infoArray.group].panels.power.find(x=> GetTableName(x.gateway, 
-              x.topic, 
-              x.indicator.toString()) == tableName)
+            panel = this.groups[infoArray.group].panels.power.find(x=> GetTableName(x.gatewayId, 
+              x.index.toString()) == tableName)
           }
                                                                                
           if(panel)
@@ -318,7 +316,7 @@ export class UiPanelService {
     OnSubscriptionUpdate(topic: string, status_update: any)
     {
       let topicInfo = topic.split('-')
-      let tableFullName = GetTableName(topicInfo[0], topicInfo[1], topicInfo[2])
+      let tableFullName = GetTableName(topicInfo[0], topicInfo[1])
       
       if(tableFullName in this.subscriptioMap)
       {
@@ -341,7 +339,7 @@ export class UiPanelService {
           }
           else
           {
-            callbackObj(tableFullName, status_update)
+            (callbackObj as Function)(tableFullName, status_update)
           }
           
         }

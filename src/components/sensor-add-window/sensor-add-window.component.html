@@ -6,15 +6,11 @@
   </mat-form-field>
   <mat-form-field appearance="fill">
     <mat-label>Gateway</mat-label>
-    <input matInput [(ngModel)]="sensorModule.gateway" />
-  </mat-form-field>
-  <mat-form-field appearance="fill">
-    <mat-label>Tópico</mat-label>
-    <input matInput [(ngModel)]="sensorModule.topic" />
+    <input matInput [(ngModel)]="sensorModule.gatewayId" />
   </mat-form-field>
   <mat-form-field appearance="fill">
     <mat-label>Indicador</mat-label>
-    <input matInput type="number" [(ngModel)]="sensorModule.indicator" />
+    <input matInput type="number" [(ngModel)]="sensorModule.index" />
   </mat-form-field>
   <mat-form-field appearance="fill" *ngIf="!this.settedType">
     <mat-label>Tipo</mat-label>

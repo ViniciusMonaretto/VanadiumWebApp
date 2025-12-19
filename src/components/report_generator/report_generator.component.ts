@@ -126,9 +126,8 @@ export class ReportGeneratorComponent {
 
     for (let sensor of Object.values(this.selectedSensors)) {
       selectedPanels.push({
-        "gateway": sensor.gateway,
-        "topic": sensor.topic,
-        "indicator": sensor.indicator
+        "gateway": sensor.gatewayId,
+        "indicator": sensor.index
       })
     }
 

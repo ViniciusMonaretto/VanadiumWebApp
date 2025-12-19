@@ -63,9 +63,8 @@ export class SensorInfoDialogComponent {
 
     this.enableAlarms = this.maxAlarm != null || this.minAlarm != null;
 
-    this.gateway = data.sensorInfo.gateway
-    this.topic = data.sensorInfo.topic
-    this.indicator = data.sensorInfo.indicator
+    this.gateway = data.sensorInfo.gatewayId
+    this.indicator = data.sensorInfo.index
     this.onApplyAction = data.callback;
     this.canEdit = data.canEdit
     this.color = data.sensorInfo.color
