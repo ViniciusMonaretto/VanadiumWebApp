@@ -30,24 +30,30 @@ export class ApiService {
 
     startConnection() {
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(this.baseUrl) // URL do seu Hub
+            .withUrl(this.baseUrl)
             .withAutomaticReconnect()
             .configureLogging(signalR.LogLevel.Information)
             .build();
-
+    
+        // 🔥 Escuta o evento do servidor
+        this.connection.on('Connected', () => {
+            console.log('Hub fully connected');
+    
+            for (const callback of this.onConnectCallbacks) {
+                callback();
+            }
+        });
+    
         this.connection
             .start()
             .then(() => {
-                console.log('Conexão SignalR iniciada.')
-                // Register all pending listeners
+                console.log('Transporte SignalR iniciado.');
+                
+                // registra listeners pendentes
                 for (const listener of this.pendingListeners) {
                     this.connection!.on(listener.eventName, listener.callback);
                 }
                 this.pendingListeners = [];
-                // Call all onConnect callbacks
-                for(var callback of this.onConnectCallbacks) {
-                    callback();
-                }
             })
             .catch(err => console.log('Erro ao iniciar conexão: ' + err));
     }
@@ -61,10 +67,17 @@ export class ApiService {
         this.connection.on(eventName, callback);
     }
 
-    send(eventName: string, data: any): Promise<any> {
+    send(eventName: string, data: any | undefined = null): Promise<any> {
         if (!this.connection) {
             console.error('Connection not initialized. Call startConnection() first.');
             return Promise.reject('Connection not initialized');
+        }
+        if (data === null) {
+            return this.connection.invoke(eventName)
+                .catch(err => {
+                    console.error(`Error invoking '${eventName}':`, err);
+                    return Promise.reject(err);
+                });
         }
         return this.connection.invoke(eventName, data)
             .catch(err => {

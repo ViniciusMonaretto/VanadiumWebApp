@@ -10,7 +10,8 @@ export class EventAlarmManagerService {
     private events: Array<EventAlarmModule> = []
     constructor(private api: ApiService, private uiPanelService: UiPanelService) {
         this.api.addOnConnectCallback(() => {
-            this.api.send("requestEvents", {}).then((events: []) => {
+            // Call the hub method to request all alarm events
+            this.api.send("GetAllAlarmEvents").then((events: []) => {
                 if (events && Array.isArray(events)) {
                     var newEvents: Array<EventAlarmModule> = []
                     events.forEach((evt) => 
@@ -20,10 +21,21 @@ export class EventAlarmManagerService {
                     this.receiveEventsCallback(newEvents, true)
                 }
             }).catch((err) => {
-                // Server method may not exist, silently handle the error
-                console.warn('requestEvents method not available on server:', err);
+                console.warn('GetAllAlarmEvents method not available on server:', err);
             })
         })
+
+        // Listen for the response from the hub
+        this.api.addListener("ReceiveAllAlarmEvents", (events: []) => {
+            if (events && Array.isArray(events)) {
+                var newEvents: Array<EventAlarmModule> = []
+                events.forEach((evt) => 
+                {
+                    newEvents.push(this.createEventModel(evt))
+                })
+                this.receiveEventsCallback(newEvents, true)
+            }
+        });
 
         this.api.addListener("eventInfoUpdate", (events: []) => {
             if (events && Array.isArray(events)) {

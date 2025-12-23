@@ -121,8 +121,8 @@ export class UiPanelService {
         }
         
         // Update group info
-        this.groups[groupId].name = uiConfig[groupId].groupName
-        this.groups[groupId].id = uiConfig[groupId].groupId
+        this.groups[groupId].name = uiConfig[groupId].name
+        this.groups[groupId].id = parseInt(groupId)
       }
     }
 
