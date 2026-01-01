@@ -153,7 +153,7 @@ export class GraphRequestWindowComponent implements OnInit {
   }
 
   onAddCLick() {
-    let selectedPanels = []
+    let selectedPanels: { [id: string]: any } = {}
 
     // Check if date range is greater than 2 weeks
     if (this.startDate != null) {
@@ -172,10 +172,11 @@ export class GraphRequestWindowComponent implements OnInit {
     }
 
     for (let panel of this.selectedSensors) {
-      selectedPanels.push({
-        "gateway": panel.gatewayId,
-        "indicator": panel.index
-      })
+      selectedPanels[panel.id + ''] = {
+        "name": panel.name,
+        "realName": panel.id + '',
+        "color": panel.color,
+      }; 
     }
 
     let obj = {

@@ -47,9 +47,12 @@ export class UiPanelService {
           }
         })
 
-        this.api.addListener("sensorUpdate", (sensorsUpdate: Array<any>) => {
-          for (let sensorData of sensorsUpdate) {
-            this.OnSubscriptionUpdate(sensorData["subStatusName"], sensorData)
+        this.api.addListener("sensorDataReceived", (sensorsUpdate: any) => {
+          let sensorData = sensorsUpdate['gatewayData']['sensors']
+          let gatewayId = sensorsUpdate['gatewayId']
+
+          for (let index in sensorData) {
+            this.OnSubscriptionUpdate(gatewayId + '-' + index, sensorData[index])
           }
         })
     }
@@ -163,7 +166,7 @@ export class UiPanelService {
         case SensorTypesEnum.TEMPERATURE:
           this.groups[groupId].panels.temperature.push(sensor)
           break
-        case SensorTypesEnum.PREASSURE:
+        case SensorTypesEnum.PRESSURE:
           this.groups[groupId].panels.pressure.push(sensor)
           break
         case SensorTypesEnum.TENSION:
@@ -252,20 +255,20 @@ export class UiPanelService {
     }
 
     public sendRequestForTableInfo(sensorInfos: Array<any>,
-      callback: Function,
       beginDate?: Date | null,
-      endDate?: Date | null) {
-      let obj: any = { "sensorInfos": sensorInfos }
+      endDate?: Date | null): Promise<any> {
+      let obj: any = { "SensorInfos": sensorInfos }
       if (beginDate) {
-        obj["beginDate"] = formatLocalDateToCustomString(beginDate)
+        obj["StartDate"] = beginDate.toISOString()
         if (endDate) {
-          obj["endDate"] = formatLocalDateToCustomString(endDate)
+          obj["EndDate"] = endDate.toISOString()
         }
       }
   
       this.openSpinnerDialog("Buscando dados");
-      this.api.send("getStatusHistory", obj).then((response: any) => {
-        this.OnStatusInfoUpdate(response["requestId"], callback);
+      return this.api.send("GetMultiplePanelReadings", obj).then((response: any) => {
+        this.closeSpinnerDialog();
+        return response;
       })
     }
   
@@ -322,10 +325,10 @@ export class UiPanelService {
       {
         for(let callbackObj of this.subscriptioMap[tableFullName])
         {
-          if("topic" in callbackObj )
+          if("gatewayId" in callbackObj )
           {
             callbackObj.value = status_update.value
-            callbackObj.isActive = status_update.isActive
+            callbackObj.isActive = status_update.active
             if(tableFullName in this.sensorCachedCurrentInfo)
             {
               this.sensorCachedCurrentInfo[tableFullName].push({

@@ -7,7 +7,7 @@ export class SensorModule{
     public gatewayId: string = "";
     public color: string = "#000000"
     public index: number = 0
-    public sensorType: SensorTypesEnum = SensorTypesEnum.PREASSURE
+    public sensorType: SensorTypesEnum = SensorTypesEnum.TEMPERATURE
     public value: Number|null = null
     public isActive: boolean = false
     public gain: number = 0

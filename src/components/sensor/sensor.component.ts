@@ -35,7 +35,7 @@ export class SensorComponent implements OnInit {
       scaleString = "k";
     }
 
-    if (this.sensorInfo.sensorType == SensorTypesEnum.PREASSURE) {
+    if (this.sensorInfo.sensorType == SensorTypesEnum.PRESSURE) {
       return scaleString + "Pa"
     }
     if (this.sensorInfo.sensorType == SensorTypesEnum.TEMPERATURE) {

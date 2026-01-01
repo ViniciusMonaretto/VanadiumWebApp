@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UiPanelService } from "../../services/ui-panels.service"
+import { PanelInfo, UiPanelService } from "../../services/ui-panels.service"
 import { MatDialog } from '@angular/material/dialog';
 
 import { CommonModule } from '@angular/common';
@@ -8,6 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { DrawingMode, GraphComponent } from '../../components/graph/graph.component';
 
 import { GraphRequestWindowComponent } from '../../components/graph-request-window/graph-request-window.component';
+import { SensorModule } from '../../models/sensor-module';
 
 @Component({
     selector: 'graph-view',
@@ -34,7 +35,7 @@ export class GraphViewComponent implements OnInit {
 
   ngOnInit(): void { }
 
-  onGraphUpdate: Function = (tableInfo: {name: string, realName: string, color: string}, infoArr: Array<any>) => {
+  onGraphUpdate(tableInfo: {name: string, realName: string, color: string}, infoArr: Array<any>) {
     let chartId = this.lineChartData.findIndex(x => x.realName == tableInfo.realName);
 
     if (chartId == -1) {
@@ -54,7 +55,7 @@ export class GraphViewComponent implements OnInit {
     let newSeries: { x: number, y: number }[] = [];
 
     for (let info of infoArr) {
-      let timestamp = info['timestamp'];
+      let timestamp = info['readingTime'];
       if (timestamp && !isNaN(new Date(timestamp).getTime())) {
         let dt = new Date(timestamp);
         newSeries.push({ x: dt.getTime(), y: info["value"] });
@@ -155,10 +156,16 @@ export class GraphViewComponent implements OnInit {
 
   getTable(sensorData: any): void {
     this.removeAllLines();
-    this.uiPanelService.sendRequestForTableInfo(sensorData['selectedSensors'],
-                                                this.onGraphUpdate, 
+    var selectedSensors = sensorData['selectedSensors'];
+    this.uiPanelService.sendRequestForTableInfo(Object.keys(selectedSensors)
+                                                      .map(id => Number.parseInt(id)),
                                                  sensorData['startDate'],
                                                  sensorData['endDate'])
+    .then((response: { [id: string]: any[] }) => {
+      for (let id in response) {
+        this.onGraphUpdate(selectedSensors[id], response[id]);
+      }
+    })
   }
 
 }

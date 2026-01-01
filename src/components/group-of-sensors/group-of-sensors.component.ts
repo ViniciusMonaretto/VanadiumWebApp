@@ -27,7 +27,7 @@ export class GroupOfSensorsComponent implements OnInit {
   @Input() canEdit: boolean = false;
   @Input() name: string = "";
   @Input() group: number = 0;
-  @Input() type: string = "";
+  @Input() type: number = 0;
   @Input() sensorArray: Array<SensorModule> = [];
   @Input() width: string | undefined
 

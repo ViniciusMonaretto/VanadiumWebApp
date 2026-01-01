@@ -10,7 +10,7 @@ export class EventAlarmModule{
     public name: string = ""
 
     public panelName: string = ""
-    public panelType: SensorTypesEnum = SensorTypesEnum.PREASSURE
+    public panelType: SensorTypesEnum = SensorTypesEnum.PRESSURE
 
     constructor(){
         
