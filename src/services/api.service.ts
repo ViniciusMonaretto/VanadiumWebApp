@@ -2,7 +2,9 @@ import { Injectable, Inject, InjectionToken } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import { HttpClient } from '@angular/common/http';
 import { DialogHelper } from './dialog-helper.service';
-import { firstValueFrom } from 'rxjs';
+import { delay, firstValueFrom } from 'rxjs';
+import { MatDialogRef } from '@angular/material/dialog';
+import { SpinnerComponent } from '../components/spinner/spinner.component';
 
 
 export const WS_URL_TOKEN = new InjectionToken<string>('wsUrl');
@@ -14,7 +16,7 @@ export class ApiService {
     public connection: signalR.HubConnection | null = null;
     onConnectCallbacks: Function[] = [];
     private pendingListeners: Array<{ eventName: string; callback: (...args: any[]) => void }> = [];
-
+    private spinnerDialogRef: MatDialogRef<SpinnerComponent> | null = null;
     baseUrl = "";
 
     constructor(private Http: HttpClient, private dialogHelper: DialogHelper) {
@@ -28,7 +30,35 @@ export class ApiService {
         this.baseUrl = config["apiUrl"];
     }
 
+    connectToTheServer() {
+        if (!this.connection) {
+            return;
+        }
+
+        this.connection
+            .start()
+            .then(() => {
+                console.log('Transporte SignalR iniciado.');
+                
+                // registra listeners pendentes
+                for (const listener of this.pendingListeners) {
+                    this.connection!.on(listener.eventName, listener.callback);
+                }
+                this.pendingListeners = [];
+            })
+            .catch(err => {
+                console.log('Erro ao iniciar conexão: ' + err)
+                setTimeout(() => {
+                    this.connectToTheServer();
+                }, 5000);
+            });
+    }
+
     startConnection() {
+        if (!this.spinnerDialogRef) {
+            this.spinnerDialogRef = this.dialogHelper.showSpinnerDialog("Iniciando conexão com o servidor", true);
+        }
+        
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(this.baseUrl)
             .withAutomaticReconnect()
@@ -42,20 +72,11 @@ export class ApiService {
             for (const callback of this.onConnectCallbacks) {
                 callback();
             }
+            this.spinnerDialogRef?.close();
+            this.spinnerDialogRef = null;
         });
     
-        this.connection
-            .start()
-            .then(() => {
-                console.log('Transporte SignalR iniciado.');
-                
-                // registra listeners pendentes
-                for (const listener of this.pendingListeners) {
-                    this.connection!.on(listener.eventName, listener.callback);
-                }
-                this.pendingListeners = [];
-            })
-            .catch(err => console.log('Erro ao iniciar conexão: ' + err));
+        this.connectToTheServer();
     }
 
     addListener(eventName: string, callback: (...args: any[]) => void) {
