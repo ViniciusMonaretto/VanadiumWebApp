@@ -2,7 +2,6 @@ import { Component, Input, Output } from '@angular/core';
 import { MatTreeModule, MatTreeNestedDataSource } from '@angular/material/tree';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { CommonModule } from '@angular/common';
-import { PanelInfo } from '../../services/ui-panels.service';
 import { SensorModule } from '../../models/sensor-module';
 import { NestedTreeControl } from '@angular/cdk/tree';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -30,7 +29,7 @@ export class SensorTreeComponent {
   treeControl = new NestedTreeControl<TreeNode>(node => node.children);
   dataSource = new MatTreeNestedDataSource<TreeNode>();
   
-  @Input() panelsInfo: { [id: string]: PanelInfo } = {};
+  @Input() groupsInfos: { [id: string]: SensorModule[] } = {};
   @Input() selectedSensors!: { [id: string]: SensorModule }; // mutable
 
   constructor()
@@ -62,25 +61,27 @@ export class SensorTreeComponent {
     }
   }
 
-  private getPanelSensors(panel: PanelInfo): SensorModule[] {
-    return [...panel.temperature, ...panel.pressure, ...panel.power];
-  }
-
   private buildTreeData(): void {
     const tree: TreeNode[] = []
 
-    for (const panelId in this.panelsInfo) {
-      const panel = this.panelsInfo[panelId];
+    for (const panelId in this.groupsInfos) {
+      const panel = this.groupsInfos[panelId];
+
+
+      const temperatureSensors = panel.filter(sensor => sensor.type == SensorTypesEnum.TEMPERATURA);
+      const pressureSensors = panel.filter(sensor => sensor.type == SensorTypesEnum.PRESSAO);
+      const powerSensors = panel.filter(sensor => sensor.type == SensorTypesEnum.POTENCIA);
+
       const panelNode: TreeNode = {
         name: panelId,
         icon: "dashboard",
-        object: this.getPanelSensors(panel),
+        object: panel,
         children: [
           {
             name: "Temperatura",
-            object: panel.temperature,
+            object: temperatureSensors,
             icon: "whatshot",
-            children: panel.temperature.map(sensor => ({
+            children: temperatureSensors.map(sensor => ({
               name: sensor.name,
               icon: "av_timer",
               object: sensor
@@ -88,9 +89,9 @@ export class SensorTreeComponent {
           },
           {
             name: "Pressão",
-            object: panel.pressure,
+            object: pressureSensors,
             icon: "av_timer",
-            children: panel.pressure.map(sensor => ({
+            children: pressureSensors.map(sensor => ({
               name: sensor.name,  
               object: sensor,
               icon: "av_timer"
@@ -98,9 +99,9 @@ export class SensorTreeComponent {
           },
           {
             name: "Potência", 
-            object: panel.power,
+            object: powerSensors,
             icon: "offline_bolt",
-            children: panel.power.map(sensor => ({
+            children: powerSensors.map(sensor => ({
               name: sensor.name,
               icon: "av_timer",
               object: sensor

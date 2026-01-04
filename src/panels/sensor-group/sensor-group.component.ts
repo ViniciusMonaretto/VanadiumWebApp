@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PanelInfo, UiPanelService } from "../../services/ui-panels.service"
+import { UiPanelService } from "../../services/ui-panels.service"
 import { MatCardModule } from '@angular/material/card';
 
 import { CommonModule } from '@angular/common';
@@ -26,7 +26,7 @@ export class SensorGroupComponent implements OnInit {
   getInfoOfGroup() {
     let info = this.UiPanelsService.GetSelectedGroupInfo()
     if (!info) {
-      return new PanelInfo()
+      return []
     }
     return info.panels
   }

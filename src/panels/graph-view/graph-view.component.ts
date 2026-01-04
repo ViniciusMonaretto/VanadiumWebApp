@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PanelInfo, UiPanelService } from "../../services/ui-panels.service"
+import { UiPanelService } from "../../services/ui-panels.service"
 import { MatDialog } from '@angular/material/dialog';
 
 import { CommonModule } from '@angular/common';

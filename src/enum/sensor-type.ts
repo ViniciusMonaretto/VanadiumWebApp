@@ -1,9 +1,9 @@
 export enum SensorTypesEnum {
-    TEMPERATURE = 0,
-    PRESSURE = 1,
-    FLOW = 2,
-    POWER = 3,
-    CURRENT = 4,
-    TENSION = 5,
-    POWER_FACTOR = 6,
+    TEMPERATURA = 0,
+    PRESSAO = 1,
+    VAZAO = 2,
+    POTENCIA = 3,
+    CORRENTE = 4,
+    TENSÃO = 5,
+    FATOR_DE_POTENCIA = 6,
 }

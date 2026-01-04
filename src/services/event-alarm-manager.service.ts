@@ -73,7 +73,7 @@ export class EventAlarmManagerService {
         evt.timestamp = eventInfo["timestamp"]
 
         if (panel) {
-            evt.panelType = panel.sensorType
+            evt.panelType = panel.type
             evt.panelName = panel.name
         }
 

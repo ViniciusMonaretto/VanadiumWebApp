@@ -10,7 +10,7 @@ export class EventAlarmModule{
     public name: string = ""
 
     public panelName: string = ""
-    public panelType: SensorTypesEnum = SensorTypesEnum.PRESSURE
+    public panelType: SensorTypesEnum = SensorTypesEnum.PRESSAO
 
     constructor(){
         
@@ -21,7 +21,7 @@ export class EventAlarmModule{
         if (panel)
         {
             this.panelName = panel.name
-            this.panelType = panel.sensorType
+            this.panelType = panel.type
         }
     }
 }

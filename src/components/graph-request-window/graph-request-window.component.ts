@@ -6,13 +6,14 @@ import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatNativeDateModule } f
 import { BrazilianDateAdapter } from '../../app/brazilian-date-adapter';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelectModule, MatSelectChange } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { SensorModule } from '../../models/sensor-module';
 import { GroupInfo } from '../../services/ui-panels.service';
 import { IoButtonComponent } from '../io-button/io-button.component';
 import { DialogHelper } from '../../services/dialog-helper.service';
+import { SensorTypesEnum } from '../../enum/sensor-type';
 
 export const MY_DATE_FORMATS = {
   parse: {
@@ -53,6 +54,7 @@ export class GraphRequestWindowComponent implements OnInit {
   uiConfig: { [id: string]: GroupInfo } = {}
 
   selectedSensors: Array<SensorModule> = []
+  optionSensors: Array<SensorModule> = []
   selectedGroup: GroupInfo | null = null
 
   startDate: Date | null = null
@@ -130,16 +132,7 @@ export class GraphRequestWindowComponent implements OnInit {
     if (this.selectedGroup == null) {
       return []
     }
-    switch (this.option) {
-      case "temperature":
-        return this.selectedGroup.panels.temperature
-      case "pressure":
-        return this.selectedGroup.panels.pressure
-      case "power":
-        return this.selectedGroup.panels.power
-      default:
-        return []
-    }
+    return this.selectedGroup.panels
   }
 
   validForm() {
@@ -188,6 +181,25 @@ export class GraphRequestWindowComponent implements OnInit {
 
     this.data.callback(obj)
     this.dialogRef.close();
+  }
+
+  onOptionChange(event: MatSelectChange) {
+    this.option = event.value;
+    if (this.option == "temperature") {
+      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.TEMPERATURA) || [];
+    } else if (this.option == "pressure") {
+      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.PRESSAO) || [];
+    } else if (this.option == "flow") {
+      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.VAZAO) || [];
+    } else if (this.option == "power") {
+      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.POTENCIA) || [];
+    } else if (this.option == "current") {
+      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.CORRENTE) || [];
+    } else if (this.option == "voltage") {
+      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.TENSÃO) || [];
+    } else if (this.option == "powerFactor") {
+      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.FATOR_DE_POTENCIA) || [];
+    }
   }
 
 }

@@ -12,13 +12,7 @@ import { formatLocalDateToCustomString } from '../utils/date-util';
 export class GroupInfo {
   public id: number = -1
   public name: string = ""
-  public panels: PanelInfo = new PanelInfo()
-}
-
-export class PanelInfo {
-  public temperature: Array<SensorModule> = [];
-  public pressure: Array<SensorModule>  = [];
-  public power: Array<SensorModule> = [];
+  public panels: SensorModule[] = []
 }
 
 @Injectable({
@@ -134,21 +128,7 @@ export class UiPanelService {
       for(var groupPanelsId in this.groups)
       {
         var group = this.groups[groupPanelsId]
-        var panel = group.panels.temperature.find(x=>x.id == panelId)
-        if (panel)
-        {
-          return panel
-        }
-        var panel = group.panels.pressure.find(x=>x.id == panelId)
-        if (panel)
-        {
-          return panel
-        }
-        var panel = group.panels.power.find(x=>x.id == panelId)
-        if (panel)
-        {
-          return panel
-        }
+        return group.panels.find(x=>x.id == panelId);
       }
       return null
     }
@@ -160,22 +140,7 @@ export class UiPanelService {
     
     AddSensorToPanel(sensor: SensorModule, groupId: string)
     {
-      this.groups[groupId].panels.temperature.push(sensor)
-      switch(sensor.sensorType)
-      {
-        case SensorTypesEnum.TEMPERATURE:
-          this.groups[groupId].panels.temperature.push(sensor)
-          break
-        case SensorTypesEnum.PRESSURE:
-          this.groups[groupId].panels.pressure.push(sensor)
-          break
-        case SensorTypesEnum.TENSION:
-        case SensorTypesEnum.CURRENT:
-        case SensorTypesEnum.POWER_FACTOR:
-        case SensorTypesEnum.POWER:
-          this.groups[groupId].panels.power.push(sensor)
-          break
-      }
+      this.groups[groupId].panels.push(sensor);
     }
 
     RemoveAllSensorModuleSubscription()
@@ -279,20 +244,8 @@ export class UiPanelService {
         {
           let info = {}
 
-          let panel = this.groups[infoArray.group].panels.temperature.find(x=> GetTableName(x.gatewayId,
+          let panel = this.groups[infoArray.group].panels.find(x=> GetTableName(x.gatewayId,
                                                                                x.index.toString()) == tableName)
-
-          if(!panel)
-          {
-            panel = this.groups[infoArray.group].panels.pressure.find(x=> GetTableName(x.gatewayId, 
-              x.index.toString()) == tableName)
-          }
-
-          if(!panel)
-          {
-            panel = this.groups[infoArray.group].panels.power.find(x=> GetTableName(x.gatewayId, 
-              x.index.toString()) == tableName)
-          }
                                                                                
           if(panel)
           {

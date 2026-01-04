@@ -33,7 +33,12 @@ export class SensorAddWindowComponent {
   public showPicker: boolean = false
   public sensorModule: SensorModule = new SensorModule()
 
-  public sensorTypes = Object.values(SensorTypesEnum);
+  public sensorTypes = Object.keys(SensorTypesEnum)
+    .filter(key => isNaN(Number(key)))
+    .map(key => ({
+      name: key,
+      value: SensorTypesEnum[key as keyof typeof SensorTypesEnum]
+    }));
 
   settedType?: SensorTypesEnum
   group: string = ""
@@ -53,11 +58,11 @@ export class SensorAddWindowComponent {
   getSensorData()
   {
     if(this.settedType != undefined)
-      this.sensorModule.sensorType = this.settedType
+      this.sensorModule.type = this.settedType
     return {
       "name": this.sensorModule.name,
       "gateway": this.sensorModule.gatewayId,
-      "sensorType": this.sensorModule.sensorType,
+      "sensorType": this.sensorModule.type,
       "group": this.group,
       "indicator": this.sensorModule.index.toString(),
       "color": this.sensorModule.color

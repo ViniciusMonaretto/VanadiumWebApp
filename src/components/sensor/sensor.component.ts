@@ -35,22 +35,22 @@ export class SensorComponent implements OnInit {
       scaleString = "k";
     }
 
-    if (this.sensorInfo.sensorType == SensorTypesEnum.PRESSURE) {
+    if (this.sensorInfo.type == SensorTypesEnum.PRESSAO) {
       return scaleString + "Pa"
     }
-    if (this.sensorInfo.sensorType == SensorTypesEnum.TEMPERATURE) {
+    if (this.sensorInfo.type == SensorTypesEnum.TEMPERATURA) {
       return scaleString + "ºC"
     }
-    if (this.sensorInfo.sensorType == SensorTypesEnum.POWER) {
+    if (this.sensorInfo.type == SensorTypesEnum.POTENCIA) {
       return scaleString + "W"
     }
-    if (this.sensorInfo.sensorType == SensorTypesEnum.CURRENT) {
+    if (this.sensorInfo.type == SensorTypesEnum.CORRENTE) {
       return scaleString + "A"
     }
-    if (this.sensorInfo.sensorType == SensorTypesEnum.TENSION) {
+    if (this.sensorInfo.type == SensorTypesEnum.TENSÃO) {
       return scaleString + "V"
     }
-    if (this.sensorInfo.sensorType == SensorTypesEnum.POWER_FACTOR) {
+    if (this.sensorInfo.type == SensorTypesEnum.FATOR_DE_POTENCIA) {
       return scaleString + "%"
     }
 

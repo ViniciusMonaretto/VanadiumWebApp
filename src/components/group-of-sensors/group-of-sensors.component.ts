@@ -27,7 +27,6 @@ export class GroupOfSensorsComponent implements OnInit {
   @Input() canEdit: boolean = false;
   @Input() name: string = "";
   @Input() group: number = 0;
-  @Input() type: number = 0;
   @Input() sensorArray: Array<SensorModule> = [];
   @Input() width: string | undefined
 
@@ -57,8 +56,7 @@ export class GroupOfSensorsComponent implements OnInit {
       data: {callback: (sensorData: any)=>{
         sensorData["group"] = groupId
         this.addNewSensorCallback(sensorData)
-      },
-      sensorType: this.type
+      }
     }
     });
   }
@@ -78,7 +76,7 @@ export class GroupOfSensorsComponent implements OnInit {
     const dialogRef = this.dialog.open(SensorInfoDialogComponent, {
       width: '450px',
       data: {sensorInfo: sensorInfo,
-      sensorType: this.type,
+      sensorType: sensorInfo.type,
       canEdit: this.canEdit,
       callback: (calibrateInfo: any) => {
         this.uiPanelService.UpdatePanelInfo(calibrateInfo)

@@ -10,9 +10,9 @@
               (clickCallback)="openSensorDialog($event)" 
               (deleteCallback)="removeSensorCallback($event)">
       </sensor>
-      <div *ngIf="false">
-        <io-button style="height: 30px;" variant="primary" (clicked)="addSensor(group)">
-          <mat-icon >add</mat-icon>
+      <div *ngIf="canEdit">
+        <io-button style="height: 122px; width: 402px; " variant="primary" (clicked)="addSensor(group)">
+          <mat-icon style="font-size: 50px; height: 50px; width: 50px;">add</mat-icon>
         </io-button>
       </div>
       

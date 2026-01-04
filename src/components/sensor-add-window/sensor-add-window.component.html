@@ -14,8 +14,8 @@
   </mat-form-field>
   <mat-form-field appearance="fill" *ngIf="!this.settedType">
     <mat-label>Tipo</mat-label>
-    <mat-select  [(ngModel)]="sensorModule.sensorType">
-      <mat-option  *ngFor="let typeSensor of sensorTypes" [value]="typeSensor">{{typeSensor}}</mat-option>
+    <mat-select  [(ngModel)]="sensorModule.type">
+      <mat-option  *ngFor="let typeSensor of sensorTypes" [value]="typeSensor.value">{{typeSensor.name}}</mat-option>
     </mat-select>
   </mat-form-field>
 
