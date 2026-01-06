@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../services/auth.service';
+import { DialogHelper } from '../../services/dialog-helper.service';
 
 @Component({
     selector: 'app-login',
@@ -26,12 +27,12 @@ import { AuthService } from '../../services/auth.service';
 export class LoginComponent implements OnInit {
 
     loginForm: FormGroup;
-    errorMessage: string = '';
 
     constructor(
         private formBuilder: FormBuilder,
         private authService: AuthService,
-        private router: Router
+        private router: Router,
+        private dialogHelper: DialogHelper
     ) {
         this.loginForm = this.formBuilder.group({
             username: ['', [Validators.required]],
@@ -47,21 +48,18 @@ export class LoginComponent implements OnInit {
             const username = this.loginForm.get('username')?.value;
             const password = this.loginForm.get('password')?.value;
             
-            this.authService.login(username, password).subscribe({
-                next: (success) => {
-                    if (success) {
-                        this.router.navigate(['/main']);
-                    } else {
-                        this.errorMessage = 'Invalid username or password';
-                    }
-                },
-                error: (error) => {
-                    this.errorMessage = 'An error occurred during login. Please try again.';
-                    console.error('Login error:', error);
+            this.authService.login(username, password).then((success) => {
+                if (success) {
+                    this.router.navigate(['/main']);
+                } else {
+                    this.dialogHelper.openErrorDialog('Email ou senha inválidos');
                 }
+            }).catch((error) => {
+                this.dialogHelper.openErrorDialog('Ocorreu um erro ao fazer login. Por favor, tente novamente.');
+                console.error('Login error:', error);
             });
         } else {
-            this.errorMessage = 'Please fill in all required fields';
+            this.dialogHelper.openErrorDialog('Por favor, preencha todos os campos obrigatórios');
         }
     }
 

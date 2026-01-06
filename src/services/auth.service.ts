@@ -7,48 +7,42 @@ import { ApiService } from './api.service';
     providedIn: 'root'
 })
 export class AuthService {
-    private isAuthenticated: boolean = false;
     private currentUser: string | null = null;
+    private userToken: string | null = null;
 
     constructor(private api: ApiService) {
         // Check if user is already authenticated (e.g., from localStorage)
-        const storedAuth = localStorage.getItem('isAuthenticated');
-        const storedUser = localStorage.getItem('currentUser');
-        if (storedAuth === 'true' && storedUser) {
-            this.isAuthenticated = true;
-            this.currentUser = storedUser;
+        const storedToken = localStorage.getItem('storedToken');
+        if (storedToken) {
+            this.userToken = storedToken;
         }
     }
 
-    login(username: string, password: string): Observable<boolean> {
+    login(username: string, password: string): Promise<boolean> {
         // TODO: Replace with actual API call to your authentication endpoint
         // For now, this is a placeholder that simulates an API call
-        return of({ success: true }).pipe(
-            delay(500), // Simulate network delay
-            map(() => {
-                // Placeholder authentication logic
-                // In a real application, you would make an HTTP call to your backend
-                if (username && password) {
-                    this.isAuthenticated = true;
-                    this.currentUser = username;
-                    localStorage.setItem('isAuthenticated', 'true');
-                    localStorage.setItem('currentUser', username);
-                    return true;
+        return this.api.send("Login", { email: username, password: password })
+            .then((response) => {
+                if (response == null)
+                {
+                    return false;
                 }
+                this.userToken = response.token;
+                //localStorage.setItem('storedToken', this.userToken ?? '');
+                return true;
+            }).catch((error) => {
+                console.error('Login error:', error);
                 return false;
-            })
-        );
+            });
     }
 
     logout(): void {
-        this.isAuthenticated = false;
         this.currentUser = null;
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('currentUser');
+        localStorage.removeItem('storedToken');
     }
 
     isLoggedIn(): boolean {
-        return this.isAuthenticated;
+        return this.userToken !== null && this.userToken !== '';
     }
 
     getCurrentUser(): string | null {
