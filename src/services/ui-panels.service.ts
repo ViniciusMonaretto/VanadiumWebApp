@@ -8,6 +8,7 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { SpinnerComponent } from '../components/spinner/spinner.component';
 import { ApiService } from './api.service';
 import { formatLocalDateToCustomString } from '../utils/date-util';
+import { Enterprise } from '../models/enterprise';
 
 export class GroupInfo {
   public id: number = -1
@@ -20,6 +21,7 @@ export class GroupInfo {
 })
 export class UiPanelService {
 
+  selectedEnterprise: Enterprise | null = null;
   groups: { [id: string]: GroupInfo } = {}
   subscriptioMap: { [id: string]: Array<SensorModule & { topic: string } | Function> } = {}
 
@@ -39,16 +41,22 @@ export class UiPanelService {
         this.OnSubscriptionUpdate(gatewayId + '-' + index, sensorData[index])
       }
     })
+  }
 
-
-    this.api.send("GetAllGroups").then((groups: any) => {
-      this.SetNewUiConfig(groups)
-
-      if (groups["calibrateUpdate"]) {
-        this.dialogHelper.openInfoDialog("Novo valor calibrado no Sensor, verifique o valor.", "Calibração concluída")
-      }
-    })
+  public RequestSelectedEnterpriseGroups(enterprise: Enterprise): Promise<boolean> | null
+  {
+    if (!enterprise) {
+      return null;
     }
+    return this.api.send("GetAllGroups", enterprise.id ).then((groups: any) => {
+      this.SetNewUiConfig(groups)
+      return true;
+    }).catch((error: any) => {
+      this.dialogHelper.openErrorDialog("Erro ao buscar grupos da empresa " + 
+        enterprise.name + ": " + error.message);
+      return false;
+    });
+  }
 
   public AddGroup(groupName: any) {
     this.openSpinnerDialog("Adicionando grupo")
@@ -273,6 +281,14 @@ export class UiPanelService {
 
   public GetSelectedSensor(): SensorModule | null {
     return this.selectedSensor
+  }
+
+  public setSelectedEnterprise(enterprise: Enterprise | null) {
+    this.selectedEnterprise = enterprise;
+  }
+
+  public getSelectedEnterprise(): Enterprise | null {
+    return this.selectedEnterprise;
   }
 
 }

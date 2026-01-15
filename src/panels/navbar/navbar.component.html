@@ -7,31 +7,45 @@
                     font-size: 24px;
                     color: #3E5CAF;">IoCloud</div>
     </div>
-    <side-nav-option [icon]="'assets/icon/homeIcon.svg'"
+
+    <side-nav-option [icon]="'assets/icon/logout.svg'"
+        [iconSelected]="'assets/icon/logout.svg'" [componentText]="'Logout'"
+        (buttonCallback)="logout()" [isSelected]="false"></side-nav-option>
+
+    <side-nav-option *ngIf="hasEnterpriseSelected()" [icon]="'assets/icon/graphIcon.svg'"
+        [iconSelected]="'assets/icon/graphSelectedIcon.svg'" [componentText]="'Selecionar Empresa'"
+        (buttonCallback)="selectEnterprise()" [isSelected]="false"></side-nav-option>
+
+
+
+    <side-nav-option *ngIf="hasEnterpriseSelected()" [icon]="'assets/icon/homeIcon.svg'"
         [iconSelected]="'assets/icon/homeSelectedIcon.svg'" [componentText]="'Status Sensores'"
         [isSelected]="isPanelSelected(panelOptions.SENSORS)">
         <side-nav-option *ngFor="let group of getGroupSensorUi()" [isSuboption]="true"
             [icon]="'assets/icon/homeIcon.svg'" [iconSelected]="'assets/icon/homeSelectedIcon.svg'"
-            [componentText]="group.name" (buttonCallback)="setSensor(group.id.toString())"
-            [canEdit]="false" (deleteCallback)="deleteGroup(group.id)"
+            [componentText]="group.name" (buttonCallback)="setSensor(group.id.toString())" [canEdit]="false"
+            (deleteCallback)="deleteGroup(group.id)"
             [isSelected]="isPanelSelected(panelOptions.SENSORS) && checkIfGroupIsSelected(group.id.toString())">
         </side-nav-option>
-        <side-nav-option *ngIf="false" [isSuboption]="true"
-            [icon]="'assets/icon/plusIcon.svg'" [componentText]="'Novo'" (buttonCallback)="addNewGroup()">
+        <side-nav-option *ngIf="false" [isSuboption]="true" [icon]="'assets/icon/plusIcon.svg'" [componentText]="'Novo'"
+            (buttonCallback)="addNewGroup()">
         </side-nav-option>
     </side-nav-option>
-    <side-nav-option [icon]="'assets/icon/graphIcon.svg'" [iconSelected]="'assets/icon/graphSelectedIcon.svg'"
-        [componentText]="'Gráficos'" (buttonCallback)="setStatusLog()"
-        [isSelected]="isPanelSelected(panelOptions.STATUS_LOG)"></side-nav-option>
-    <side-nav-option [icon]="'assets/icon/eventsIcon.svg'" [iconSelected]="'assets/icon/eventsSelectedIcon.svg'"
-        [componentText]="'Alarmes'" (buttonCallback)="setAlertScreen()"
-        [isSelected]="isPanelSelected(panelOptions.ALERT_VIEW)"></side-nav-option>
-    <side-nav-option [icon]="'assets/icon/gatewayIcon.svg'" [iconSelected]="'assets/icon/gatewaySelectedIcon.svg'"
-        [componentText]="'Gateways'" [isSelected]="isPanelSelected(panelOptions.GATEWAY_VIEW)"
-         (buttonCallback)="setGatewayScreen()"></side-nav-option>
-    <side-nav-option [icon]="'assets/icon/downloadIcon.svg'" [iconSelected]="'assets/icon/downloadSelectedIcon.svg'"
-        [componentText]="'Relatórios'" (buttonCallback)="openReportGenerator()"></side-nav-option>
-    
-    <side-nav-option [icon]="'assets/icon/pencilIcon.svg'" [iconSelected]="'assets/icon/pencilIcon.svg'"
-        [componentText]="CanEdit()?'Desabilitar':'Editar'" (buttonCallback)="toogleEdit()"></side-nav-option>
+    <side-nav-option *ngIf="hasEnterpriseSelected()" [icon]="'assets/icon/graphIcon.svg'"
+        [iconSelected]="'assets/icon/graphSelectedIcon.svg'" [componentText]="'Gráficos'"
+        (buttonCallback)="setStatusLog()" [isSelected]="isPanelSelected(panelOptions.STATUS_LOG)"></side-nav-option>
+    <side-nav-option *ngIf="hasEnterpriseSelected()" [icon]="'assets/icon/eventsIcon.svg'"
+        [iconSelected]="'assets/icon/eventsSelectedIcon.svg'" [componentText]="'Alarmes'"
+        (buttonCallback)="setAlertScreen()" [isSelected]="isPanelSelected(panelOptions.ALERT_VIEW)"></side-nav-option>
+    <side-nav-option *ngIf="hasEnterpriseSelected()" [icon]="'assets/icon/gatewayIcon.svg'"
+        [iconSelected]="'assets/icon/gatewaySelectedIcon.svg'" [componentText]="'Gateways'"
+        [isSelected]="isPanelSelected(panelOptions.GATEWAY_VIEW)"
+        (buttonCallback)="setGatewayScreen()"></side-nav-option>
+    <side-nav-option *ngIf="hasEnterpriseSelected()" [icon]="'assets/icon/downloadIcon.svg'"
+        [iconSelected]="'assets/icon/downloadSelectedIcon.svg'" [componentText]="'Relatórios'"
+        (buttonCallback)="openReportGenerator()"></side-nav-option>
+
+    <side-nav-option *ngIf="hasEnterpriseSelected()" [icon]="'assets/icon/pencilIcon.svg'"
+        [iconSelected]="'assets/icon/pencilIcon.svg'" [componentText]="CanEdit()?'Desabilitar':'Editar'"
+        (buttonCallback)="toogleEdit()"></side-nav-option>
 </div>

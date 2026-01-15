@@ -50,7 +50,7 @@ export class LoginComponent implements OnInit {
             
             this.authService.login(username, password).then((success) => {
                 if (success) {
-                    this.router.navigate(['/main']);
+                    this.router.navigate(['/enterprise-selection']);
                 } else {
                     this.dialogHelper.openErrorDialog('Email ou senha inválidos');
                 }

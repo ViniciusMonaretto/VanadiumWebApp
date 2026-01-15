@@ -12,6 +12,8 @@ import { GroupAddWindowComponent } from '../../components/group-add-window/group
 import { TransitionCheckState } from '@angular/material/checkbox';
 import { DialogHelper } from '../../services/dialog-helper.service';
 import { ReportService } from '../../services/report.service';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -28,11 +30,27 @@ export class NavbarComponent implements OnInit {
     private dialogHelper: DialogHelper,
     private mainScreenService: MainScreenSelector,
     private UiPanelsService: UiPanelService,
-    private reportService: ReportService) { }
+    private reportService: ReportService,
+    private authService: AuthService,
+    private router: Router) { }
 
  
 
   ngOnInit(): void {
+  }
+
+  hasEnterpriseSelected(): boolean {
+    return this.UiPanelsService.getSelectedEnterprise() !== null;
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  selectEnterprise(): void {
+    this.UiPanelsService.setSelectedEnterprise(null);
+    this.router.navigate(['/enterprise-selection']);
   }
 
   addNewSensorCallback(sensorData: any): void {
