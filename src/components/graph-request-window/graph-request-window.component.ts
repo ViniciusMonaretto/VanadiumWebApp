@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
-import { SensorAddWindowComponent } from '../sensor-add-window/sensor-add-window.component';
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { BrazilianDateAdapter } from '../../app/brazilian-date-adapter';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -62,7 +61,7 @@ export class GraphRequestWindowComponent implements OnInit {
 
   option: string = ""
 
-  constructor(public dialogRef: MatDialogRef<SensorAddWindowComponent>, private dialogHelper: DialogHelper,
+  constructor(public dialogRef: MatDialogRef<GraphRequestWindowComponent>, private dialogHelper: DialogHelper,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.uiConfig = data.uiConfig

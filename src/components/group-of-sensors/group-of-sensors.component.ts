@@ -52,7 +52,7 @@ export class GroupOfSensorsComponent implements OnInit {
 
   addSensor(groupId: number): void {
     const dialogRef = this.dialog.open(SensorAddWindowComponent, {
-      width: '300px',
+      width: '450px',
       data: {callback: (sensorData: any)=>{
         sensorData["group"] = groupId
         this.addNewSensorCallback(sensorData)

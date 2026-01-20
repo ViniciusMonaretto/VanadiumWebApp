@@ -1,35 +1,44 @@
 <h2 mat-dialog-title>Adicionar Novo Sensor</h2>
 <mat-dialog-content>
-  <mat-form-field appearance="fill">
-    <mat-label>Nome</mat-label>
-    <input matInput [(ngModel)]="sensorModule.name" />
-  </mat-form-field>
-  <mat-form-field appearance="fill">
-    <mat-label>Gateway</mat-label>
-    <input matInput [(ngModel)]="sensorModule.gatewayId" />
-  </mat-form-field>
-  <mat-form-field appearance="fill">
-    <mat-label>Indicador</mat-label>
-    <input matInput type="number" [(ngModel)]="sensorModule.index" />
-  </mat-form-field>
-  <mat-form-field appearance="fill" *ngIf="!this.settedType">
-    <mat-label>Tipo</mat-label>
-    <mat-select  [(ngModel)]="sensorModule.type">
-      <mat-option  *ngFor="let typeSensor of sensorTypes" [value]="typeSensor.value">{{typeSensor.name}}</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <mat-form-field appearance="fill">
-    <mat-label>Cor Representativa</mat-label>
-    <input matInput [value]="this.sensorModule.color" readonly (click)="showPicker = !showPicker" />
-  </mat-form-field>
-
-  <div *ngIf="showPicker">
-    <color-chrome [(color)]="this.sensorModule.color"></color-chrome>
-  </div>
   
+  <div>
+    <div>Nome</div>
+    <mat-form-field style="width: 100%;" appearance="fill">
+      <input matInput [(ngModel)]="sensorModule.name" />
+    </mat-form-field>
+  </div>
+  <div>
+    <div>Gateway</div>
+    <mat-form-field style="width: 100%;" appearance="fill">
+      <input matInput [(ngModel)]="sensorModule.gatewayId" />
+    </mat-form-field>
+  </div>
+  <div>
+    <div>Indicador</div>
+    <mat-form-field style="width: 100%;" appearance="fill">
+      <input matInput [(ngModel)]="sensorModule.index" />
+    </mat-form-field>
+  </div>
+  <div>
+    <mat-label>Tipo</mat-label>
+    <mat-select [(ngModel)]="sensorModule.type">
+      <mat-option *ngFor="let typeSensor of sensorTypes" [value]="typeSensor.value">{{typeSensor.name}}</mat-option>
+    </mat-select>
+  </div>
+  <div>
+    <div>Cor</div>
+    <mat-form-field style="width: 100%;" appearance="fill">
+      <input matInput [value]="this.sensorModule.color" readonly (click)="showPicker = !showPicker" />
+    </mat-form-field>
+
+    <div *ngIf="showPicker">
+      <color-chrome [(color)]="this.sensorModule.color"></color-chrome>
+    </div>
+  </div>
+
 </mat-dialog-content>
-<mat-dialog-actions style="display: flex; gap: 10px;"> 
+<mat-dialog-actions style="display: flex; gap: 10px;">
   <io-button style="height: 30px;" variant="secondary" (clicked)="onNoClick()">Cancelar</io-button>
-  <io-button style="height: 30px;" variant="primary" [disabled]="!validForm()" (clicked)="onAddCLick()" cdkFocusInitial>Adicionar</io-button>
+  <io-button style="height: 30px;" variant="primary" [disabled]="!validForm()" (clicked)="onAddCLick()"
+    cdkFocusInitial>Adicionar</io-button>
 </mat-dialog-actions>

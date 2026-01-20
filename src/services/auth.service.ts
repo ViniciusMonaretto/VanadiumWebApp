@@ -3,6 +3,8 @@ import { Observable, of } from 'rxjs';
 import { delay, map } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { Enterprise } from '../models/enterprise';
+import { Router } from '@angular/router';
+import { DialogHelper } from './dialog-helper.service';
 
 @Injectable({
     providedIn: 'root'
@@ -13,24 +15,38 @@ export class AuthService {
     private enterprises: Enterprise[] = [];
     
     
-    constructor(private api: ApiService) {
+    constructor(private api: ApiService, private router: Router, private dialogHelper: DialogHelper) {
         // Check if user is already authenticated (e.g., from localStorage)
         const storedToken = localStorage.getItem('storedToken');
         if (storedToken) {
             this.userToken = storedToken;
         }
+        this.api.setUnauthorizedCallback(() => {
+            this.logout();
+            this.router.navigate(['/login']);
+        });
+
+        this.api.addOnConnectCallback(() => {
+            if (this.userToken != null) {
+                this.dialogHelper.openErrorDialog('Sua sessão expirou. Por favor, faça login novamente.');
+            }
+
+            this.logout();
+            this.router.navigate(['/login']);
+        });
     }
 
     login(username: string, password: string): Promise<boolean> {
         // TODO: Replace with actual API call to your authentication endpoint
         // For now, this is a placeholder that simulates an API call
-        return this.api.send("Login", { email: username, password: password })
+        return this.api.send("Login", { username: username, password: password })
             .then((response) => {
                 if (response == null)
                 {
                     return false;
                 }
                 this.userToken = response.token;
+                this.api.setAuthToken(this.userToken ?? '');
                 this.enterprises = response.enterprises;
                 //localStorage.setItem('storedToken', this.userToken ?? '');
                 return true;
@@ -43,6 +59,7 @@ export class AuthService {
     logout(): void {
         this.currentUser = null;
         this.userToken = null;
+        this.api.setAuthToken('');
         localStorage.removeItem('storedToken');
     }
 

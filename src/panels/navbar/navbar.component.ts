@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { SensorAddWindowComponent } from '../../components/sensor-add-window/sensor-add-window.component'
 import { MainScreenSelector } from "../../services/main-screen-selector.service"
 import { MainScreenOptions } from "../../enum/screen-type"
 import { UiPanelService } from '../../services/ui-panels.service';
@@ -9,7 +8,6 @@ import { CommonModule } from '@angular/common';
 import { SideNavOptionComponent } from '../../components/side-nav-option/side-nav-option.component';
 import { ReportGeneratorComponent } from '../../components/report_generator/report_generator.component';
 import { GroupAddWindowComponent } from '../../components/group-add-window/group-add-window.component';
-import { TransitionCheckState } from '@angular/material/checkbox';
 import { DialogHelper } from '../../services/dialog-helper.service';
 import { ReportService } from '../../services/report.service';
 import { AuthService } from '../../services/auth.service';
@@ -61,13 +59,6 @@ export class NavbarComponent implements OnInit {
   isPanelSelected(panel: number)
   {
     return this.mainScreenService.GetScreen() == panel
-  }
-
-  addSensor(): void {
-    const dialogRef = this.dialog.open(SensorAddWindowComponent, {
-      width: '250px',
-      data: { callback: this.addNewSensorCallback.bind(this) }
-    });
   }
 
   addNewGroup(): void {

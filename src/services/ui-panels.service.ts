@@ -41,6 +41,15 @@ export class UiPanelService {
         this.OnSubscriptionUpdate(gatewayId + '-' + index, sensorData[index])
       }
     })
+
+    this.api.addOnConnectCallback(() => {
+      this.selectedEnterprise = null;
+      this.groups = {};
+      this.subscriptioMap = {};
+      this.groupSelected = "";
+      this.sensorCachedCurrentInfo = {};
+      this.selectedSensor = null;
+    });
   }
 
   public RequestSelectedEnterpriseGroups(enterprise: Enterprise): Promise<boolean> | null
@@ -48,7 +57,7 @@ export class UiPanelService {
     if (!enterprise) {
       return null;
     }
-    return this.api.send("GetAllGroups", enterprise.id ).then((groups: any) => {
+    return this.api.send("SetSelectedEnterprise", {enterpriseId: enterprise.id }).then((groups: any) => {
       this.SetNewUiConfig(groups)
       return true;
     }).catch((error: any) => {

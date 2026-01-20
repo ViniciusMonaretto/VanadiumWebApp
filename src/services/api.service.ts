@@ -5,6 +5,7 @@ import { DialogHelper } from './dialog-helper.service';
 import { delay, firstValueFrom } from 'rxjs';
 import { MatDialogRef } from '@angular/material/dialog';
 import { SpinnerComponent } from '../components/spinner/spinner.component';
+import { AuthService } from './auth.service';
 
 
 export const WS_URL_TOKEN = new InjectionToken<string>('wsUrl');
@@ -18,6 +19,8 @@ export class ApiService {
     private pendingListeners: Array<{ eventName: string; callback: (...args: any[]) => void }> = [];
     private spinnerDialogRef: MatDialogRef<SpinnerComponent> | null = null;
     baseUrl = "";
+    authToken: string | null = null;
+    unauthorizedCallback: Function | null = null;
 
     constructor(private Http: HttpClient, private dialogHelper: DialogHelper) {
     }
@@ -75,6 +78,31 @@ export class ApiService {
             this.spinnerDialogRef?.close();
             this.spinnerDialogRef = null;
         });
+
+        // Listen for authentication errors from the hub
+        this.connection.on('Error', (errorMessage: string) => {
+            console.error('Hub authentication error:', errorMessage);
+            if (errorMessage === 'Authentication required' || errorMessage === 'Invalid or expired token') {
+                // Clear token on authentication errors
+                this.authToken = null;
+            }
+        });
+
+        // Reconnection event handlers
+        this.connection.onreconnecting((error) => {
+            if (!this.spinnerDialogRef) {
+                this.spinnerDialogRef = this.dialogHelper.showSpinnerDialog("Reconectando com o servidor", true);
+            }
+        });
+
+        this.connection.onreconnected((connectionId) => {
+            this.spinnerDialogRef?.close();
+            this.spinnerDialogRef = null;
+
+            for (const callback of this.onConnectCallbacks) {
+                callback();
+            }
+        });
     
         this.connectToTheServer();
     }
@@ -88,23 +116,47 @@ export class ApiService {
         this.connection.on(eventName, callback);
     }
 
+    setAuthToken(token: string) {
+        this.authToken = token;
+    }
+
     send(eventName: string, data: any | undefined = null): Promise<any> {
         if (!this.connection) {
             console.error('Connection not initialized. Call startConnection() first.');
             return Promise.reject('Connection not initialized');
         }
-        if (data === null) {
-            return this.connection.invoke(eventName)
-                .catch(err => {
-                    console.error(`Error invoking '${eventName}':`, err);
-                    return Promise.reject(err);
-                });
+        
+        // Login method doesn't need authToken (it's the authentication method itself)
+        // All other methods should pass authToken as a separate parameter (last parameter)
+        let invokePromise: Promise<any>;
+        
+        if (eventName === "Login") {
+            // Login doesn't include token - it receives credentials and returns token
+            invokePromise = this.connection.invoke(eventName, data);
+        } else {
+            // For all other methods, pass token as a separate parameter (last parameter)
+            // The Hub expects: methodName(data, token) or methodName(token) if no data
+            if (data === null || data === undefined) {
+                // No data, only pass token
+                invokePromise = this.connection.invoke(eventName, this.authToken);
+            } else {
+                // Pass data first, then token as the last parameter
+                invokePromise = this.connection.invoke(eventName, data, this.authToken);
+            }
         }
-        return this.connection.invoke(eventName, data)
+        
+        return invokePromise
             .catch(err => {
+                if (err.message.contains("Unauthorized")) {
+                    this.unauthorizedCallback?.();
+                }
                 console.error(`Error invoking '${eventName}':`, err);
                 return Promise.reject(err);
             });
+    }
+
+    setUnauthorizedCallback(callback: Function) {
+        this.unauthorizedCallback = callback;
     }
 
     addOnConnectCallback(callback: Function) {

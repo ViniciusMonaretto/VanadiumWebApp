@@ -41,6 +41,9 @@ export class SensorComponent implements OnInit {
     if (this.sensorInfo.type == SensorTypesEnum.TEMPERATURA) {
       return scaleString + "ºC"
     }
+    if (this.sensorInfo.type == SensorTypesEnum.VAZAO) {
+      return scaleString + "l/h"
+    }
     if (this.sensorInfo.type == SensorTypesEnum.POTENCIA) {
       return scaleString + "W"
     }
