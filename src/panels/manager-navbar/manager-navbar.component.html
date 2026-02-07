@@ -1,0 +1,27 @@
+<div style="height: 100%; display: flex; flex-direction: column;">
+    <div style="flex: 1;">
+        <div style="display: flex; gap:5px; padding: 24px;">
+            <img src="assets/icon/ioCloudLogo.svg" alt="ioCloud Logo" style="height: 32px;" />
+            <div style="display: flex;
+                        height: 32px;
+                        align-items: center;
+                        font-size: 24px;
+                        color: #3E5CAF;">IoCloud <br> Manager </div>
+        </div>
+        <side-nav-option [icon]="'assets/icon/homeIcon.svg'"
+            [iconSelected]="'assets/icon/homeSelectedIcon.svg'" [componentText]="'Empresas'"
+            (buttonCallback)="selectEmpresas()" [isSelected]="isEmpresasSelected()"></side-nav-option>
+        <side-nav-option [icon]="'assets/icon/graphIcon.svg'"
+            [iconSelected]="'assets/icon/graphSelectedIcon.svg'" [componentText]="'Usuários gerenciados'"
+            *ngIf="isUserManager()"
+            (buttonCallback)="selectUsuarios()" [isSelected]="isUsuariosSelected()"></side-nav-option>
+    </div>
+    <div>
+        <side-nav-option *ngIf="hasEnterpriseSelected()" [icon]="'assets/icon/graphIcon.svg'"
+            [iconSelected]="'assets/icon/graphSelectedIcon.svg'" [componentText]="'Ir para aplicação'"
+            (buttonCallback)="goToMain()" [isSelected]="false"></side-nav-option>
+
+        <side-nav-option [icon]="'assets/icon/logout.svg'" [iconSelected]="'assets/icon/logout.svg'"
+            [componentText]="'Logout'" (buttonCallback)="logout()" [isSelected]="false"></side-nav-option>
+    </div>
+</div>

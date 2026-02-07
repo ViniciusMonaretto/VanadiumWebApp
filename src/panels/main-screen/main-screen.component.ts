@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {MainScreenSelector} from "../../services/main-screen-selector.service"
-import {MainScreenOptions} from "../../enum/screen-type"
+import { Router } from '@angular/router';
+import { MainScreenSelector } from '../../services/main-screen-selector.service';
+import { MainScreenOptions } from '../../enum/screen-type';
+import { UiPanelService } from '../../services/ui-panels.service';
 
 import { CommonModule } from '@angular/common';
 
@@ -21,30 +23,34 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 })
 export class MainScreenComponent implements OnInit {
 
-  constructor(private mainScreenSelectorServce: MainScreenSelector, 
-    private alarmService: EventAlarmManagerService) { }
+  constructor(
+    private mainScreenSelectorServce: MainScreenSelector,
+    private uiPanelService: UiPanelService,
+    private alarmService: EventAlarmManagerService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    if (this.uiPanelService.getSelectedEnterprise() === null) {
+      this.router.navigate(['/manager']);
+      return;
+    }
+    this.mainScreenSelectorServce.SelectScreen(MainScreenOptions.SENSORS, null);
   }
 
-  isSensorSelected()
-  {
-    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.SENSORS
+  isSensorSelected() {
+    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.SENSORS;
   }
 
-  isStatusLogSelected()
-  {
-    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.STATUS_LOG
+  isStatusLogSelected() {
+    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.STATUS_LOG;
   }
 
-  isStatusAlertSelected()
-  {
-    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.ALERT_VIEW
+  isStatusAlertSelected() {
+    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.ALERT_VIEW;
   }
 
-  isGatewaySelected()
-  {
-    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.GATEWAY_VIEW
+  isGatewaySelected() {
+    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.GATEWAY_VIEW;
   }
-
 }

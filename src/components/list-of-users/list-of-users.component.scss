@@ -1,0 +1,85 @@
+.main-group-div {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 10px;
+  padding-bottom: 10px;
+}
+
+.flex-item {
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.group-header {
+  width: 100%;
+  color: #262626;
+  font-size: 20px;
+  padding-bottom: 20px;
+}
+
+.user-card {
+  max-width: 380px;
+  max-height: 120px;
+  min-height: 100px;
+  border: solid;
+  border-width: thin;
+  border-color: #E5E7EB;
+  border-radius: 8px;
+  color: #6B7280;
+  box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  &--editable .user-card-header {
+    padding-right: 8px;
+  }
+}
+
+.user-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 15px;
+  min-height: 30px;
+}
+
+.user-card-name {
+  font-weight: 500;
+  color: #262626;
+}
+
+.user-card-email {
+  color: #6B7280;
+  font-size: 14px;
+}
+
+.user-card-type {
+  font-size: 12px;
+  color: #9CA3AF;
+}
+
+.delete-btn {
+  color: #6B7280;
+  line-height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    color: #DC2626;
+    background-color: rgba(220, 38, 38, 0.08);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.add-wrapper {
+  display: flex;
+  align-items: flex-start;
+}

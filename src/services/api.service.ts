@@ -147,7 +147,7 @@ export class ApiService {
         
         return invokePromise
             .catch(err => {
-                if (err.message.contains("Unauthorized")) {
+                if (err.message?.includes("Unauthorized")) {
                     this.unauthorizedCallback?.();
                 }
                 console.error(`Error invoking '${eventName}':`, err);

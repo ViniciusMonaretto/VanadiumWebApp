@@ -1,0 +1,29 @@
+<h2 mat-dialog-title>Adicionar usuário gerenciado</h2>
+<mat-dialog-content>
+  <form>
+    <mat-form-field style="width: 100%;" appearance="fill">
+      <mat-label>Nome</mat-label>
+      <input matInput [(ngModel)]="name" name="name" placeholder="Nome do usuário" required />
+    </mat-form-field>
+    <mat-form-field style="width: 100%;" appearance="fill">
+      <mat-label>Usuário</mat-label>
+      <input matInput [(ngModel)]="username" name="username" placeholder="Nome de usuário para login" required />
+    </mat-form-field>
+    <mat-form-field style="width: 100%;" appearance="fill">
+      <mat-label>E-mail</mat-label>
+      <input matInput type="email" [(ngModel)]="email" name="email" placeholder="E-mail" required />
+    </mat-form-field>
+    <mat-form-field style="width: 100%;" appearance="fill">
+      <mat-label>Empresa</mat-label>
+      <input matInput [(ngModel)]="company" name="company" placeholder="Empresa (opcional)" />
+    </mat-form-field>
+    <mat-form-field style="width: 100%;" appearance="fill">
+      <mat-label>Senha</mat-label>
+      <input matInput type="password" [(ngModel)]="password" name="password" placeholder="Senha" required />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions style="display: flex; gap: 10px;">
+  <io-button style="height: 30px;" variant="secondary" (clicked)="onCancelClick()">Cancelar</io-button>
+  <io-button style="height: 30px;" variant="primary" [disabled]="!validForm() || submitting" (clicked)="onAddClick()" cdkFocusInitial>Adicionar</io-button>
+</mat-dialog-actions>

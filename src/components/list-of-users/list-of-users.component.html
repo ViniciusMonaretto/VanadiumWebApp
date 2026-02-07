@@ -1,0 +1,24 @@
+<div style="height: 100%;">
+  <div class="group-header">Usuários</div>
+  <div style="height: calc(100% - 56px); overflow-y: auto;">
+    <div class="main-group-div" [ngStyle]="getGridStyle()">
+      <div class="user-card flex-item"
+           *ngFor="let user of users"
+           [class.user-card--editable]="canEdit">
+        <div class="user-card-header">
+          <span class="user-card-name">{{ user.name }}</span>
+          <button *ngIf="canEdit" type="button" class="delete-btn" (click)="removeUser.emit(user)" mat-icon-button aria-label="Remover">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="user-card-email">{{ user.email }}</div>
+        <div class="user-card-type">{{ getUserTypeLabel(user.userType) }}</div>
+      </div>
+      <div *ngIf="canEdit" class="add-wrapper">
+        <io-button style="height: 122px; width: 402px;" variant="primary" (clicked)="addUser.emit()">
+          <mat-icon style="font-size: 50px; height: 50px; width: 50px;">add</mat-icon>
+        </io-button>
+      </div>
+    </div>
+  </div>
+</div>

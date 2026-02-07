@@ -1,6 +1,7 @@
 export enum MainScreenOptions {
     SENSORS = 1,
-    STATUS_LOG=2,
+    STATUS_LOG = 2,
     ALERT_VIEW = 3,
-    GATEWAY_VIEW = 4
+    GATEWAY_VIEW = 4,
+    MANAGED_USERS = 5
 }

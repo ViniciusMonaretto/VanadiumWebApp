@@ -48,7 +48,7 @@ export class NavbarComponent implements OnInit {
 
   selectEnterprise(): void {
     this.UiPanelsService.setSelectedEnterprise(null);
-    this.router.navigate(['/enterprise-selection']);
+    this.router.navigate(['/manager']);
   }
 
   addNewSensorCallback(sensorData: any): void {

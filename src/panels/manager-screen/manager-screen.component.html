@@ -1,0 +1,34 @@
+<mat-drawer-container class="manager-container" style="height: 100%;">
+  <mat-drawer #drawer style="width: 170px;" mode="side" opened>
+    <app-manager-navbar
+      [activeOption]="activeOption"
+      (optionChange)="onOptionChange($event)">
+    </app-manager-navbar>
+  </mat-drawer>
+
+  <div style="height: 100%; display: block; background-color: #F7F9FC;">
+    <ng-container *ngIf="activeOption === 'empresas'">
+      <div class="tab-content application-selector-container">
+        <div class="applications-grid">
+          <mat-card
+            *ngFor="let enterprise of getEnterprises()"
+            class="application-card"
+            (click)="setEnterprise(enterprise)">
+            <mat-card-content>
+              <div class="application-name">{{ enterprise.name }}</div>
+              <div class="application-id">ID: {{ enterprise.id }}</div>
+            </mat-card-content>
+          </mat-card>
+        </div>
+        <div *ngIf="getEnterprises().length === 0" class="no-applications">
+          <p>Nenhuma empresa disponível</p>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="activeOption === 'usuarios'">
+      <div class="tab-content users-content">
+        <app-managed-users [forceCanEdit]="true"></app-managed-users>
+      </div>
+    </ng-container>
+  </div>
+</mat-drawer-container>
