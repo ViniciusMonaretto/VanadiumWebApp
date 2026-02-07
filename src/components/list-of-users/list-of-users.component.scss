@@ -35,6 +35,15 @@
   &--editable .user-card-header {
     padding-right: 8px;
   }
+
+  &--clickable {
+    cursor: pointer;
+
+    &:hover {
+      border-color: #9CA3AF;
+      background-color: #F9FAFB;
+    }
+  }
 }
 
 .user-card-header {

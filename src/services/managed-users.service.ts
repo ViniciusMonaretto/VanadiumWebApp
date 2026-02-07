@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { User, CreateManagedUserDto } from '../models/user';
+import { Enterprise } from '../models/enterprise';
 import { DialogHelper } from './dialog-helper.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { SpinnerComponent } from '../components/spinner/spinner.component';
@@ -75,6 +76,33 @@ export class ManagedUsersService {
         return this.api.send('GetAvailableUsersToManage', null)
             .then((response: any) => Array.isArray(response) ? response : (response ?? []))
             .catch(() => []);
+    }
+
+    getManagedUserEnterprises(userId: number): Promise<Enterprise[]> {
+        return this.api.send('GetUserEnterprises', userId)
+            .then((response: any) => Array.isArray(response) ? response : (response?.enterprises ?? response ?? []))
+            .catch((err) => {
+                this.dialogHelper.openErrorDialog('Erro ao carregar empresas do usuário: ' + (err?.message ?? err));
+                return [];
+            });
+    }
+
+    addManagedUserToEnterprise(userId: number, enterpriseId: number): Promise<void> {
+        return this.api.sendWithArgs('AddUserToEnterprise', userId, enterpriseId)
+            .then(() => {})
+            .catch((err) => {
+                this.dialogHelper.openErrorDialog('Erro ao adicionar usuário à empresa: ' + (err?.message ?? err));
+                throw err;
+            });
+    }
+
+    removeManagedUserFromEnterprise(userId: number, enterpriseId: number): Promise<void> {
+        return this.api.sendWithArgs('RemoveUserFromEnterprise', userId, enterpriseId)
+            .then(() => {})
+            .catch((err) => {
+                this.dialogHelper.openErrorDialog('Erro ao remover usuário da empresa: ' + (err?.message ?? err));
+                throw err;
+            });
     }
 
     private openSpinnerDialog(message: string): void {

@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 8px 0;
+}
+
+.enterprise-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #E5E7EB;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.enterprise-name {
+  color: #374151;
+}
+
+.empty-hint {
+  color: #6B7280;
+  font-size: 13px;
+  padding: 8px 0;
+}

@@ -5,7 +5,9 @@ import { MainScreenSelector } from '../../services/main-screen-selector.service'
 import { ManagedUsersService } from '../../services/managed-users.service';
 import { ListOfUsersComponent } from '../../components/list-of-users/list-of-users.component';
 import { ManagedUserAddWindowComponent } from '../../components/managed-user-add-window/managed-user-add-window.component';
+import { UserEnterprisesDialogComponent } from '../../components/user-enterprises-dialog/user-enterprises-dialog.component';
 import { User } from '../../models/user';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-managed-users',
@@ -23,6 +25,7 @@ export class ManagedUsersComponent implements OnInit {
     constructor(
         private mainScreenService: MainScreenSelector,
         private managedUsersService: ManagedUsersService,
+        private authService: AuthService,
         private dialog: MatDialog
     ) {}
 
@@ -49,6 +52,17 @@ export class ManagedUsersComponent implements OnInit {
 
     onRemoveUser(user: User): void {
         this.managedUsersService.removeManagedUser(user.id).then(() => this.refreshList());
+    }
+
+    onUserClick(user: User): void {
+        this.dialog.open(UserEnterprisesDialogComponent, {
+            width: '480px',
+            data: {
+                user,
+                managerEnterprises: this.authService.getEnterprises(),
+                onSuccess: () => this.refreshList()
+            }
+        });
     }
 
     private refreshList(): void {

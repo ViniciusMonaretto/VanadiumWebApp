@@ -10,7 +10,8 @@
                     [canEdit]="canEdit()"
                     [users]="getManagedUsers()"
                     (addUser)="onAddUser()"
-                    (removeUser)="onRemoveUser($event)">
+                    (removeUser)="onRemoveUser($event)"
+                    (userClick)="onUserClick($event)">
                 </list-of-users>
             </div>
         </div>

@@ -4,10 +4,12 @@
     <div class="main-group-div" [ngStyle]="getGridStyle()">
       <div class="user-card flex-item"
            *ngFor="let user of users"
-           [class.user-card--editable]="canEdit">
+           [class.user-card--editable]="canEdit"
+           [class.user-card--clickable]="canEdit"
+           (click)="canEdit && onUserCardClick(user)">
         <div class="user-card-header">
           <span class="user-card-name">{{ user.name }}</span>
-          <button *ngIf="canEdit" type="button" class="delete-btn" (click)="removeUser.emit(user)" mat-icon-button aria-label="Remover">
+          <button *ngIf="canEdit" type="button" class="delete-btn" (click)="removeUserClick($event, user)" mat-icon-button aria-label="Remover">
             <mat-icon>close</mat-icon>
           </button>
         </div>

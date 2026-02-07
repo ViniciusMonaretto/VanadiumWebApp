@@ -155,6 +155,23 @@ export class ApiService {
             });
     }
 
+    /** Invoke a hub method with multiple arguments followed by the auth token (e.g. methodName(arg1, arg2, token)). */
+    sendWithArgs(eventName: string, ...args: any[]): Promise<any> {
+        if (!this.connection) {
+            console.error('Connection not initialized. Call startConnection() first.');
+            return Promise.reject('Connection not initialized');
+        }
+        const invokePromise = this.connection.invoke(eventName, ...args, this.authToken);
+        return invokePromise
+            .catch(err => {
+                if (err.message?.includes("Unauthorized")) {
+                    this.unauthorizedCallback?.();
+                }
+                console.error(`Error invoking '${eventName}':`, err);
+                return Promise.reject(err);
+            });
+    }
+
     setUnauthorizedCallback(callback: Function) {
         this.unauthorizedCallback = callback;
     }

@@ -1,0 +1,33 @@
+<h2 mat-dialog-title>Empresas do usuário: {{ user.name }}</h2>
+<mat-dialog-content>
+  <div *ngIf="loading" style="padding: 24px; text-align: center;">Carregando...</div>
+  <div *ngIf="!loading">
+    <div class="section">
+      <h3 class="section-title">Empresas do usuário</h3>
+      <div *ngIf="assignedEnterprises.length === 0" class="empty-hint">Nenhuma empresa atribuída.</div>
+      <div class="enterprise-row" *ngFor="let ent of assignedEnterprises">
+        <span class="enterprise-name">{{ ent.name }}</span>
+        <button type="button" mat-icon-button aria-label="Remover da empresa"
+                [disabled]="isActionInProgress(ent.id)"
+                (click)="onRemove(ent)">
+          <mat-icon>remove_circle_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+    <div class="section">
+      <h3 class="section-title">Adicionar à empresa</h3>
+      <div *ngIf="availableEnterprises.length === 0" class="empty-hint">Nenhuma empresa disponível ou usuário já está em todas.</div>
+      <div class="enterprise-row" *ngFor="let ent of availableEnterprises">
+        <span class="enterprise-name">{{ ent.name }}</span>
+        <button type="button" mat-icon-button aria-label="Adicionar à empresa"
+                [disabled]="isActionInProgress(ent.id)"
+                (click)="onAdd(ent)">
+          <mat-icon>add_circle_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions style="display: flex; justify-content: flex-end;">
+  <io-button style="height: 30px;" variant="primary" (clicked)="onClose()">Fechar</io-button>
+</mat-dialog-actions>

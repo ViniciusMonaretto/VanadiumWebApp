@@ -19,6 +19,7 @@ export class ListOfUsersComponent {
 
     @Output() addUser = new EventEmitter<void>();
     @Output() removeUser = new EventEmitter<User>();
+    @Output() userClick = new EventEmitter<User>();
 
     getGridStyle(): Record<string, string> {
         return {
@@ -36,5 +37,14 @@ export class ListOfUsersComponent {
             [UserType.User]: 'Usuário'
         };
         return labels[type] ?? 'Usuário';
+    }
+
+    onUserCardClick(user: User): void {
+        this.userClick.emit(user);
+    }
+
+    removeUserClick(event: Event, user: User): void {
+        event.stopPropagation();
+        this.removeUser.emit(user);
     }
 }
