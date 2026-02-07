@@ -89,9 +89,16 @@ export class ManagedUsersService {
 
     addManagedUserToEnterprise(userId: number, enterpriseId: number): Promise<void> {
         return this.api.sendWithArgs('AddUserToEnterprise', userId, enterpriseId)
-            .then(() => {})
+            .then((result: boolean) => {
+                if (!result) {
+                    throw new Error('');
+                }
+            })
             .catch((err) => {
-                this.dialogHelper.openErrorDialog('Erro ao adicionar usuário à empresa: ' + (err?.message ?? err));
+                const msg = (err?.message ?? err)?.toString()?.trim();
+                if (msg) {
+                    this.dialogHelper.openErrorDialog('Erro ao adicionar usuário à empresa: ' + msg);
+                }
                 throw err;
             });
     }
@@ -100,7 +107,10 @@ export class ManagedUsersService {
         return this.api.sendWithArgs('RemoveUserFromEnterprise', userId, enterpriseId)
             .then(() => {})
             .catch((err) => {
-                this.dialogHelper.openErrorDialog('Erro ao remover usuário da empresa: ' + (err?.message ?? err));
+                const msg = (err?.message ?? err)?.toString()?.trim();
+                if (msg) {
+                    this.dialogHelper.openErrorDialog('Erro ao remover usuário da empresa: ' + msg);
+                }
                 throw err;
             });
     }

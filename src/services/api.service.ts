@@ -79,13 +79,13 @@ export class ApiService {
             this.spinnerDialogRef = null;
         });
 
-        // Listen for authentication errors from the hub
+        // Listen for errors from the hub (e.g. SendAsync("Error", message))
         this.connection.on('Error', (errorMessage: string) => {
-            console.error('Hub authentication error:', errorMessage);
+            console.error('Hub error:', errorMessage);
             if (errorMessage === 'Authentication required' || errorMessage === 'Invalid or expired token') {
-                // Clear token on authentication errors
                 this.authToken = null;
             }
+            this.dialogHelper.openErrorDialog(errorMessage);
         });
 
         // Reconnection event handlers
