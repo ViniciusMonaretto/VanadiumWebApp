@@ -1,0 +1,67 @@
+.group-div-display{
+    display: flex;
+    height: calc(100% - 30px);
+    width: calc(100% - 30px);
+    flex-direction: column;
+    padding: 15px;
+}
+
+.group-header{
+    width: 100%;
+    font-size: xx-large;
+    padding-bottom: 20px;
+    color: #262626;
+}
+
+.info-bellow-display{
+    width: 50%;
+}
+
+.main-screen-style {
+    height: calc(100% - 40px);
+}
+
+.sensor-detail-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 50px);
+}
+
+.sensor-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.sensor-detail-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.sensor-detail-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    min-width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #6B7280;
+    cursor: pointer;
+}
+
+.sensor-detail-close:hover {
+    background: #F3F4F6;
+    color: #1F2937;
+}
+
+.sensor-detail-content {
+    flex: 1;
+    min-height: 0;
+}

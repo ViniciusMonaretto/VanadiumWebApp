@@ -55,6 +55,7 @@ export class ManagerNavbarComponent {
   }
 
   logout(): void {
+    this.uiPanelService.setSelectedEnterprise(null);
     this.authService.logout();
     this.router.navigate(['/login']);
   }

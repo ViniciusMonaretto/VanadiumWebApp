@@ -3,5 +3,6 @@ export enum MainScreenOptions {
     STATUS_LOG = 2,
     ALERT_VIEW = 3,
     GATEWAY_VIEW = 4,
-    MANAGED_USERS = 5
+    MANAGED_USERS = 5,
+    ENTERPRISE_SELECTION = 6
 }

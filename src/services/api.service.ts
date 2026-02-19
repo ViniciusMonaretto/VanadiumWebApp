@@ -85,6 +85,8 @@ export class ApiService {
             if (errorMessage === 'Authentication required' || errorMessage === 'Invalid or expired token') {
                 this.authToken = null;
             }
+            this.spinnerDialogRef?.close();
+            this.spinnerDialogRef = null;
             this.dialogHelper.openErrorDialog(errorMessage);
         });
 
@@ -120,7 +122,12 @@ export class ApiService {
         this.authToken = token;
     }
 
-    send(eventName: string, data: any | undefined = null): Promise<any> {
+    send(eventName: string, data: any | undefined = null, loadingMessage: string | null = null): Promise<any> {
+        if (loadingMessage) {
+            this.spinnerDialogRef?.close();
+            this.spinnerDialogRef = null;
+            this.spinnerDialogRef = this.dialogHelper.showSpinnerDialog(loadingMessage, true);
+        }
         if (!this.connection) {
             console.error('Connection not initialized. Call startConnection() first.');
             return Promise.reject('Connection not initialized');
@@ -146,7 +153,14 @@ export class ApiService {
         }
         
         return invokePromise
+            .then((response: any) => {
+                this.spinnerDialogRef?.close();
+                this.spinnerDialogRef = null;
+                return response;
+            })
             .catch(err => {
+                this.spinnerDialogRef?.close();
+                this.spinnerDialogRef = null;
                 if (err.message?.includes("Unauthorized")) {
                     this.unauthorizedCallback?.();
                 }

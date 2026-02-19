@@ -1,0 +1,31 @@
+<div class="water-measure">
+  <div class="water-measure__header">
+    <span class="water-measure__title">Medição de Água</span>
+  </div>
+  <div class="water-measure__grid">
+    <div class="water-measure__card">
+      <span class="water-measure__label">Consumo diário atual</span>
+      <span class="water-measure__value">{{ formatValue(currentDailyConsumption) }} {{ unit }}</span>
+    </div>
+    <div class="water-measure__card">
+      <span class="water-measure__label">Consumo semanal</span>
+      <span class="water-measure__value">{{ formatValue(weeklyConsumption) }} {{ unit }}</span>
+    </div>
+    <div class="water-measure__card">
+      <span class="water-measure__label">Consumo mensal</span>
+      <span class="water-measure__value">{{ formatValue(monthlyConsumption) }} {{ unit }}</span>
+    </div>
+    <div class="water-measure__card">
+      <span class="water-measure__label">Consumo do mês passado</span>
+      <span class="water-measure__value">{{ formatValue(lastMonthConsumption) }} {{ unit }}</span>
+    </div>
+  </div>
+  <div class="water-measure__graph-wrapper">
+    <graph
+      class="water-measure__graph"
+      [inputInfo]="graphInputInfo"
+      [zoomEnabled]="false"
+      [blockFitAll]="false">
+    </graph>
+  </div>
+</div>

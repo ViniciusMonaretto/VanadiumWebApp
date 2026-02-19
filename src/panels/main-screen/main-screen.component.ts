@@ -1,16 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { MainScreenSelector } from '../../services/main-screen-selector.service';
-import { MainScreenOptions } from '../../enum/screen-type';
-import { UiPanelService } from '../../services/ui-panels.service';
+import {MainScreenSelector} from "../../services/main-screen-selector.service"
+import {MainScreenOptions} from "../../enum/screen-type"
 
 import { CommonModule } from '@angular/common';
 
 import { GraphViewComponent } from '../graph-view/graph-view.component';
-import { SensorGroupComponent } from '../sensor-group/sensor-group.component';
+import { SensorPanelComponent } from '../sensor-panel/sensor-panel.component';
 import { AlarmViewComponent } from '../alarm-screen/alarm-screen.component';
 import { EventAlarmManagerService } from '../../services/event-alarm-manager.service';
 import { GatewayScreenComponent } from '../gateway-screen/gateway-screen.component';
+import { ManagedUsersComponent } from '../managed-users/managed-users.component';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
 
@@ -18,39 +17,39 @@ import { MatSidenavModule } from '@angular/material/sidenav';
     selector: 'app-main-screen',
     templateUrl: './main-screen.component.html',
     styleUrls: ['./main-screen.component.scss'],
-    imports: [CommonModule, GraphViewComponent, NavbarComponent, MatSidenavModule, SensorGroupComponent, AlarmViewComponent, GatewayScreenComponent],
+    imports: [CommonModule, GraphViewComponent, NavbarComponent, MatSidenavModule, SensorPanelComponent, AlarmViewComponent, GatewayScreenComponent, ManagedUsersComponent],
     standalone: true
 })
 export class MainScreenComponent implements OnInit {
 
-  constructor(
-    private mainScreenSelectorServce: MainScreenSelector,
-    private uiPanelService: UiPanelService,
-    private alarmService: EventAlarmManagerService,
-    private router: Router
-  ) {}
+  constructor(private mainScreenSelectorServce: MainScreenSelector, 
+    private alarmService: EventAlarmManagerService) { }
 
   ngOnInit(): void {
-    if (this.uiPanelService.getSelectedEnterprise() === null) {
-      this.router.navigate(['/manager']);
-      return;
-    }
-    this.mainScreenSelectorServce.SelectScreen(MainScreenOptions.SENSORS, null);
   }
 
-  isSensorSelected() {
-    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.SENSORS;
+  isSensorSelected()
+  {
+    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.SENSORS
   }
 
-  isStatusLogSelected() {
-    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.STATUS_LOG;
+  isStatusLogSelected()
+  {
+    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.STATUS_LOG
   }
 
-  isStatusAlertSelected() {
-    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.ALERT_VIEW;
+  isStatusAlertSelected()
+  {
+    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.ALERT_VIEW
   }
 
-  isGatewaySelected() {
-    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.GATEWAY_VIEW;
+  isGatewaySelected()
+  {
+    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.GATEWAY_VIEW
   }
+
+  isManagedUsersSelected(): boolean {
+    return this.mainScreenSelectorServce.GetScreen() === MainScreenOptions.MANAGED_USERS;
+  }
+
 }

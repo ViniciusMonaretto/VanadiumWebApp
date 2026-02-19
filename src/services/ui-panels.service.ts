@@ -154,10 +154,25 @@ export class UiPanelService {
     }
   }
 
+  addPanelSubscription(panel: SensorModule, callback: Function | null = null) {
+    let fullTopic = GetTableName(panel.gatewayId, panel.index.toString())
+
+    if(callback) {
+      this.AddSubscription(fullTopic, callback)
+    }
+    else {
+      this.AddSubscription(fullTopic, panel)
+    }
+  }
+
+  removePanelSubscription(panel: SensorModule, index: number) {
+    let fullTopic = GetTableName(panel.gatewayId, panel.index.toString())
+    this.subscriptioMap[fullTopic].splice(index, 1);
+  }
+
   addPanelAndSubscribe(panel: SensorModule, groupId: string) {
     this.AddSensorToPanel(panel, groupId);
-    let fullTopic = GetTableName(panel.gatewayId, panel.index.toString())
-    this.AddSubscription(fullTopic, panel)
+    this.addPanelSubscription(panel);
   }
 
 
@@ -193,9 +208,6 @@ export class UiPanelService {
     }
 
     this.subscriptioMap[fullTopic].push(callbackObj)
-    if (typeof callbackObj === 'function') {
-      callbackObj(fullTopic)
-    }
     return this.subscriptioMap[fullTopic].length - 1
   }
 
@@ -294,6 +306,18 @@ export class UiPanelService {
 
   public setSelectedEnterprise(enterprise: Enterprise | null) {
     this.selectedEnterprise = enterprise;
+    if (enterprise === null) {
+      this.clearAllSubscriptionsAndState();
+    }
+  }
+
+  /** Clears all subscriptions and state. Called on logout or when enterprise is deselected. */
+  private clearAllSubscriptionsAndState(): void {
+    this.groups = {};
+    this.subscriptioMap = {};
+    this.groupSelected = "";
+    this.sensorCachedCurrentInfo = {};
+    this.selectedSensor = null;
   }
 
   public getSelectedEnterprise(): Enterprise | null {

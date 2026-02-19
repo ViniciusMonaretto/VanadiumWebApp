@@ -4,10 +4,11 @@
     </mat-drawer>
 
     <div style="height: 100%; display: block; background-color: #F7F9FC;">
-        <sensor-groups *ngIf="isSensorSelected()" style="width: 100%;"></sensor-groups>
+        <sensor-panel *ngIf="isSensorSelected()" style="width: 100%;"></sensor-panel>
         <graph-view *ngIf="isStatusLogSelected()" style="width: 100%;"></graph-view>
         <event-screen *ngIf="isStatusAlertSelected()" style="width: 100%;"></event-screen>
         <gateway-screen *ngIf="isGatewaySelected()" style="width: 100%;"></gateway-screen>
+        <app-managed-users *ngIf="isManagedUsersSelected()" style="width: 100%;"></app-managed-users>
     </div>
 
 </mat-drawer-container>

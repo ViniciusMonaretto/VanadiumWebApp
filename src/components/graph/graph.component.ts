@@ -700,11 +700,22 @@ export class GraphComponent {
       }
     }
 
-    this.marginY = (maxYaxis - minYaxis) * 0.2
-    this.maxY = maxYaxis + this.marginY
-    this.minY = minYaxis - this.marginY
-    this.maxX = maxXaxis
-    this.minX = minXaxis
+    // When no data, avoid invalid time scale (date-fns "Invalid time value")
+    const hasData = minXaxis <= maxXaxis && minYaxis <= maxYaxis;
+    if (!hasData) {
+      const now = Date.now();
+      this.minX = now - 60 * 60 * 1000;
+      this.maxX = now;
+      this.minY = 0;
+      this.maxY = 1;
+      this.marginY = 0.2;
+    } else {
+      this.marginY = (maxYaxis - minYaxis) * 0.2;
+      this.maxY = maxYaxis + this.marginY;
+      this.minY = minYaxis - this.marginY;
+      this.maxX = maxXaxis;
+      this.minX = minXaxis;
+    }
   }
 
   fitAllGraph() {
@@ -712,16 +723,20 @@ export class GraphComponent {
       if (this.lineChartOptions.scales &&
         this.lineChartOptions.scales['y'] &&
         this.lineChartOptions.scales['x']) {
-        this.lineChartOptions.scales['y'].max = this.maxY
-        this.lineChartOptions.scales['y'].min = this.minY
+        this.lineChartOptions.scales['y'].max = this.maxY;
+        this.lineChartOptions.scales['y'].min = this.minY;
 
         if (this.marginY === 0) {
-          this.lineChartOptions.scales['y'].max += 1
-          this.lineChartOptions.scales['y'].min -= 1
+          this.lineChartOptions.scales['y'].max += 1;
+          this.lineChartOptions.scales['y'].min -= 1;
         }
 
-        this.lineChartOptions.scales['x'].max = new Date(this.maxX).getTime()
-        this.lineChartOptions.scales['x'].min = new Date(this.minX).getTime()
+        const xMin = new Date(this.minX).getTime();
+        const xMax = new Date(this.maxX).getTime();
+        if (Number.isFinite(xMin) && Number.isFinite(xMax) && xMin <= xMax) {
+          this.lineChartOptions.scales['x'].min = xMin;
+          this.lineChartOptions.scales['x'].max = xMax;
+        }
       }
 
     }

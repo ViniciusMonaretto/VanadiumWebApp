@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
 import { SensorModule } from "../../models/sensor-module"
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {SensorAddWindowComponent} from '../../components/sensor-add-window/sensor-add-window.component'
@@ -7,13 +7,10 @@ import { CommonModule } from '@angular/common';
 import { SensorComponent } from '../sensor/sensor.component';
 
 import {UiPanelService} from "../../services/ui-panels.service"
-import { SensorTypesEnum } from '../../enum/sensor-type';
 import { MatIconModule } from '@angular/material/icon';
 import { SensorInfoDialogComponent } from '../sensor_info_dialog/sensor_info_dialog.component';
 import { IoButtonComponent } from '../io-button/io-button.component';
 import { SpinnerComponent } from '../spinner/spinner.component';
-import { DialogHelper } from '../../services/dialog-helper.service';
-import { ApiService } from '../../services/api.service';
 
 @Component({
     selector: 'group-of-sensors',
@@ -28,7 +25,8 @@ export class GroupOfSensorsComponent implements OnInit {
   @Input() name: string = "";
   @Input() group: number = 0;
   @Input() sensorArray: Array<SensorModule> = [];
-  @Input() width: string | undefined
+  @Input() width: string | undefined;
+  @Output() selectSensor: EventEmitter<SensorModule> = new EventEmitter<SensorModule>();
 
   private spinnerDialogRef: MatDialogRef<SpinnerComponent> | null = null;
 
@@ -71,17 +69,8 @@ export class GroupOfSensorsComponent implements OnInit {
     this.uiPanelService.RemoveSensor(sensorData)
   }
 
-  openSensorDialog(sensorInfo: SensorModule)
+  selectSensorCallback(sensorInfo: SensorModule)
   {
-    const dialogRef = this.dialog.open(SensorInfoDialogComponent, {
-      width: '450px',
-      data: {sensorInfo: sensorInfo,
-      sensorType: sensorInfo.type,
-      canEdit: this.canEdit,
-      callback: (calibrateInfo: any) => {
-        this.uiPanelService.UpdatePanelInfo(calibrateInfo)
-      }
-    }
-    });
+    this.selectSensor.emit(sensorInfo)
   }
 }

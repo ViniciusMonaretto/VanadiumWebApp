@@ -42,6 +42,7 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(): void {
+    this.UiPanelsService.setSelectedEnterprise(null);
     this.authService.logout();
     this.router.navigate(['/login']);
   }
@@ -102,6 +103,10 @@ export class NavbarComponent implements OnInit {
 
   setGatewayScreen() {
     this.mainScreenService.SelectScreen(MainScreenOptions.GATEWAY_VIEW, null)
+  }
+
+  setEnterpriseSelectionScreen() {
+    this.mainScreenService.SelectScreen(MainScreenOptions.MANAGED_USERS, null)
   }
 
   toogleEdit() {

@@ -32,7 +32,9 @@ export class ManagerScreenComponent implements OnInit {
     private router: Router
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.activeOption = `empresas`;
+  }
 
   onOptionChange(option: ManagerNavOption): void {
     this.activeOption = option;
@@ -60,6 +62,7 @@ export class ManagerScreenComponent implements OnInit {
   }
 
   logout(): void {
+    this.uiPanelService.setSelectedEnterprise(null);
     this.authService.logout();
     this.router.navigate(['/login']);
   }

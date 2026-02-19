@@ -1,0 +1,35 @@
+<div class="group-div-display">
+    <div *ngIf="getSensorSelected()" class="sensor-detail-header">
+        <span class="sensor-detail-title">{{ getSensorSelected()?.name }}</span>
+        <button type="button" class="sensor-detail-close" (click)="diselectSensor()" title="Fechar">
+            <mat-icon>close</mat-icon>
+        </button>
+    </div>
+    <div *ngIf="getSensorSelected()" class="sensor-detail-wrapper">
+        <water-measure class="sensor-detail-content"
+            [currentDailyConsumption]="waterCurrentDailyConsumption"
+            [weeklyConsumption]="waterWeeklyConsumption"
+            [monthlyConsumption]="waterMonthlyConsumption"
+            [lastMonthConsumption]="waterLastMonthConsumption"
+            [lastHourReadings]="waterLastHourReadings"
+            [sensorInfo]="getSensorSelected()"
+            [unit]="'L'">
+        </water-measure>
+    </div>
+    <div *ngIf="!getSensorSelected()" style="height: 100%;">
+        <div class="group-header">{{getGroupName()}}</div>
+        <div class="main-screen-style">
+            <div style="height: 100%;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: space-between;">
+                <group-of-sensors style="height: 100%;" 
+                    [name]="''" 
+                    [canEdit]="CanEdit()" 
+                    [group]="getGroupSelected()"
+                    [sensorArray]="getInfoOfGroup()"
+                    (selectSensor)="onSelectSensor($event)"></group-of-sensors>
+            </div>
+        </div>
+    </div>
+</div>
