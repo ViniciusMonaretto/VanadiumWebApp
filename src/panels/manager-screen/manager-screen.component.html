@@ -1,12 +1,11 @@
 <mat-drawer-container class="manager-container" style="height: 100%;">
-  <mat-drawer #drawer style="width: 170px;" mode="side" opened>
-    <app-manager-navbar
-      [activeOption]="activeOption"
-      (optionChange)="onOptionChange($event)">
-    </app-manager-navbar>
+  <mat-drawer class="drawer-content" #drawer mode="side" opened>
+    <app-sidebar [navItems]="navItems"></app-sidebar>
   </mat-drawer>
 
-  <div style="height: 100%; display: block; background-color: #F7F9FC;">
+  <app-topbar [date]="date" [location]="location" [company]="company"></app-topbar>
+
+  <div style="height: calc(100% - 58px); display: block; background-color: #F7F9FC;">
     <ng-container *ngIf="activeOption === 'empresas'">
       <div class="tab-content application-selector-container">
         <div class="applications-grid">

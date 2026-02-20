@@ -1,0 +1,33 @@
+.top-bar {
+  display: flex;
+  margin-top: 12px;
+  margin-right: 12px;
+  margin-left: 12px;
+  /* margin-bottom: 6px; */
+  align-items: center;
+  justify-content: space-between; /* distribute items across full width */
+  padding: 12px 12px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.top-bar-left,
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 32px; /* spacing between items inside each side */
+}
+
+.top-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* spacing between icon and text */
+
+}
+
+.top-bar-item .icon {
+  font-size: 16px;
+  gap: 8;
+  color: #3D5BAE;
+}

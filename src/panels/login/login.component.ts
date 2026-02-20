@@ -26,7 +26,8 @@ import { DialogHelper } from '../../services/dialog-helper.service';
 })
 export class LoginComponent implements OnInit {
 
-    loginForm: FormGroup;
+    email: string = '';
+    password: string = '';
 
     constructor(
         private formBuilder: FormBuilder,
@@ -34,23 +35,16 @@ export class LoginComponent implements OnInit {
         private router: Router,
         private dialogHelper: DialogHelper
     ) {
-        this.loginForm = this.formBuilder.group({
-            username: ['', [Validators.required]],
-            password: ['', [Validators.required]]
-        });
     }
 
     ngOnInit(): void {
     }
 
-    onSubmit() {
-        if (this.loginForm.valid) {
-            const username = this.loginForm.get('username')?.value;
-            const password = this.loginForm.get('password')?.value;
-            
-            this.authService.login(username, password).then((success) => {
+    login() {
+        if (this.email != null && this.password != null) {
+            this.authService.login(this.email, this.password).then((success) => {
                 if (success) {
-                    this.router.navigate(['/manager']);
+                    this.router.navigate(['/manager']); 
                 } else {
                     this.dialogHelper.openErrorDialog('Email ou senha inválidos');
                 }
@@ -61,11 +55,6 @@ export class LoginComponent implements OnInit {
         } else {
             this.dialogHelper.openErrorDialog('Por favor, preencha todos os campos obrigatórios');
         }
-    }
-
-    isFieldInvalid(fieldName: string): boolean {
-        const field = this.loginForm.get(fieldName);
-        return !!(field && field.invalid && (field.dirty || field.touched));
     }
 
 }

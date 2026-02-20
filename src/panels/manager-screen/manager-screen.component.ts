@@ -8,6 +8,14 @@ import { AuthService } from '../../services/auth.service';
 import { UiPanelService } from '../../services/ui-panels.service';
 import { ManagedUsersComponent } from '../managed-users/managed-users.component';
 import { ManagerNavbarComponent, ManagerNavOption } from '../manager-navbar/manager-navbar.component';
+import { NavItem, SidebarComponent } from '../../components/sidebar/sidebar.component';
+import { TopbarComponent } from '../topbar/topbar.component';
+
+import {
+  LayoutDashboard,
+  Users,
+  LogOut
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-manager-screen',
@@ -18,13 +26,23 @@ import { ManagerNavbarComponent, ManagerNavOption } from '../manager-navbar/mana
     MatCardModule,
     MatSidenavModule,
     ManagedUsersComponent,
-    ManagerNavbarComponent,
+    SidebarComponent,
+    TopbarComponent,
   ],
   standalone: true,
 })
 export class ManagerScreenComponent implements OnInit {
 
+  navItems: NavItem[] = [
+    { name: 'Empresas',action: () => this.onOptionChange('empresas'), icon: LayoutDashboard },
+    { name: 'Usuários', action: () => this.onOptionChange('usuarios'), icon: Users },
+    { name: 'Sair', action: () => this.logout(), icon: LogOut },
+  ];
+  
   activeOption: ManagerNavOption = 'empresas';
+  date: string = '';
+  location: string = '';
+  company: string = '';
 
   constructor(
     private authService: AuthService,
@@ -34,6 +52,9 @@ export class ManagerScreenComponent implements OnInit {
 
   ngOnInit(): void {
     this.activeOption = `empresas`;
+    this.date = new Date().toLocaleDateString();
+    this.location = 'Porto Alegre';
+    this.company = 'IoCloud';
   }
 
   onOptionChange(option: ManagerNavOption): void {

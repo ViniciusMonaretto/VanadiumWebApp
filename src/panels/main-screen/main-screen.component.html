@@ -1,9 +1,10 @@
 <mat-drawer-container class="window-container">
-    <mat-drawer #drawer style="width: 170px;" mode="side" opened>
-      <app-navbar ></app-navbar>
+    <mat-drawer class="drawer-content" #drawer mode="side" opened>
+      <app-sidebar [navItems]="navItems"></app-sidebar>
     </mat-drawer>
+    <app-topbar [date]="date" [location]="location" [company]="company"></app-topbar>
 
-    <div style="height: 100%; display: block; background-color: #F7F9FC;">
+    <div style="height: calc(100% - 58px); display: block; background-color: #F7F9FC;">
         <sensor-panel *ngIf="isSensorSelected()" style="width: 100%;"></sensor-panel>
         <graph-view *ngIf="isStatusLogSelected()" style="width: 100%;"></graph-view>
         <event-screen *ngIf="isStatusAlertSelected()" style="width: 100%;"></event-screen>

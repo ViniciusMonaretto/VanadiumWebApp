@@ -1,0 +1,35 @@
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <img src="assets/icon/icon-white.svg" alt="IoCloud" />
+  </div>
+
+  <nav class="sidebar-nav">
+    
+    <!-- ROUTE ITEMS -->
+    <ng-container *ngFor="let item of navItems">
+
+      <!-- If it has a path → it's a route -->
+      <a
+        *ngIf="item.path"
+        [routerLink]="item.path"
+        routerLinkActive="active"
+        class="sidebar-item"
+        [title]="item.name"
+      >
+        <lucide-icon [img]="item.icon" size="28"></lucide-icon>
+      </a>
+
+      <!-- If it has an action → it's a button -->
+      <a
+        *ngIf="item.action"
+        class="sidebar-item"
+        [title]="item.name"
+        (click)="handleAction(item)"
+      >
+        <lucide-icon [img]="item.icon" size="28"></lucide-icon>
+      </a>
+
+    </ng-container>
+
+  </nav>
+</aside>

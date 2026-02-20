@@ -1,31 +1,45 @@
 <div class="login-container">
-    <mat-card class="login-card">
-        <mat-card-header>
-            <mat-card-title>Login</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Username</mat-label>
-                    <input matInput formControlName="username" type="text" required>
-                    <mat-error *ngIf="isFieldInvalid('username')">
-                        Username is required
-                    </mat-error>
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Password</mat-label>
-                    <input matInput formControlName="password" type="password" required>
-                    <mat-error *ngIf="isFieldInvalid('password')">
-                        Password is required
-                    </mat-error>
-                </mat-form-field>
-
-                <button mat-raised-button color="primary" type="submit" class="login-button" [disabled]="loginForm.invalid">
-                    Login
-                </button>
-            </form>
-        </mat-card-content>
-    </mat-card>
-</div>
-
+    <div class="login-left">
+      <img src="assets/images/banner.svg" />
+    </div>
+  
+    <div class="login-right">
+        <div class="login-page">
+            <div class="login-card">
+              <img src="assets/icon/icon.svg" alt="IoCloud" class="login-logo" />
+          
+              <h2 class="login-title">Olá, bem vindo(a)!</h2>
+              <p class="login-subtitle">
+                Faça o login para acessar a plataforma.
+              </p>
+          
+              <div class="form-group">
+                <label>Usuário ou E-mail:</label>
+                <input
+                  type="text"
+                  placeholder="Digite aqui"
+                  [(ngModel)]="email"
+                />
+              </div>
+          
+              <div class="form-group">
+                <label>Senha:</label>
+                <div class="password-field">
+                  <input
+                    type="password"
+                    placeholder="Digite sua senha"
+                    [(ngModel)]="password"
+                  />
+                  <span class="eye">👁</span>
+                </div>
+              </div>
+          
+              <button class="login-button" (click)="login()">
+                Acessar
+              </button>
+            </div>
+          </div>
+          
+    </div>
+  </div>
+  
