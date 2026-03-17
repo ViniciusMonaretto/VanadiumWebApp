@@ -38,6 +38,7 @@ export class IoButtonComponent {
       this.loading ? 'io-button--loading' : ''
     ].filter(Boolean).join(' ');
     console.log('Host classes:', classes);
+    console.log('Host classes:', classes);
     return classes;
   }
 

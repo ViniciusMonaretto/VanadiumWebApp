@@ -180,7 +180,6 @@ export class GraphComponent {
 
   private _horizontalLines: number[] = [];
   private _verticalLines: number[] = [];
-  private isDrawingMode: boolean = false;
   private _minMaxPoints: { min: { x: number, y: number } | null, max: { x: number, y: number } | null } = { min: null, max: null };
   private _selectedDataLineIndex: number = -1;
 

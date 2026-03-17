@@ -4,7 +4,7 @@
     </mat-drawer>
     <app-topbar [date]="date" [location]="location" [company]="company"></app-topbar>
 
-    <div style="height: calc(100% - 58px); display: block; background-color: #F7F9FC;">
+    <div style="height: calc(100% - 80px); padding: 10px; padding-bottom: 12px; display: block; background-color: #F7F9FC;">
         <sensor-panel *ngIf="isSensorSelected()" style="width: 100%;"></sensor-panel>
         <graph-view *ngIf="isStatusLogSelected()" style="width: 100%;"></graph-view>
         <event-screen *ngIf="isStatusAlertSelected()" style="width: 100%;"></event-screen>

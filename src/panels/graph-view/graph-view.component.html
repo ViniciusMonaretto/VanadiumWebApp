@@ -1,75 +1,82 @@
-<div class="main-table-screen">
-    <div class="graph-options-header">
-        <button *ngIf="lineChartData.length" mat-icon-button 
-                class="example-icon"
-                aria-label="Toggle horizontal lines" 
-                (click)="clearLines = !clearLines">
-            <mat-icon>clear</mat-icon>
-        </button>
-        <button *ngIf="lineChartData.length" mat-icon-button 
-                class="example-icon"
-                [class.active-drawing-mode]="horizontalModeActive"
-                aria-label="Toggle horizontal lines" 
-                (click)="toggleHorizontalMode()">
-            <mat-icon>more_horiz</mat-icon>
-        </button>
-        <button *ngIf="lineChartData.length" mat-icon-button 
-                class="example-icon"
-                [class.active-drawing-mode]="verticalModeActive"
-                aria-label="Toggle vertical lines" 
-                (click)="toggleVerticalMode()">
-            <mat-icon>more_vert</mat-icon>
-        </button>
-        <div class="dropdown-container" *ngIf="lineChartData.length">
-            <button mat-icon-button 
-                    class="example-icon"
-                    [class.active-drawing-mode]="selectedDataLineIndex != -1"
-                    aria-label="Select data line for min/max" 
-                    (click)="toggleDataLineDropdown()">
-                <mat-icon>show_chart</mat-icon>
-            </button>
-            <div class="dropdown-menu" *ngIf="showDataLineDropdown">
-                <div class="dropdown-item" 
-                     [class.selected]="selectedDataLineIndex === -1"
-                     (click)="selectDataLine(-1)">
-                    <span>Desabilitar</span>
-                </div>
-                <div class="dropdown-item" 
-                     *ngFor="let line of lineChartData; let i = index"
-                     [class.selected]="selectedDataLineIndex === i"
-                     (click)="selectDataLine(i)">
-                    <span>{{line.label || `Line ${i + 1}`}}</span>
-                </div>
-            </div>
+<div class="plot-page">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon-badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
         </div>
-        <div style="width: 40px;" *ngIf="lineChartData.length"></div>
-        <button *ngIf="lineChartData.length" mat-icon-button 
-                class="example-icon"
-                aria-label="Toggle horizontal lines" 
-                (click)="removeAllLines()">
-            <mat-icon>delete</mat-icon>
+        <div class="header-text">
+          <h1 class="page-title">Gráficos</h1>
+          <p class="page-subtitle" *ngIf="selectedSensorIds.length > 0">
+            {{ selectedSensorIds.length }} sensor{{ selectedSensorIds.length !== 1 ? 'es' : '' }} ativo{{ selectedSensorIds.length !== 1 ? 's' : '' }}
+          </p>
+          <p class="page-subtitle" *ngIf="selectedSensorIds.length === 0">Nenhum sensor selecionado</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-config" (click)="openAddWindow()" title="Configurar sensores">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span>Configurações</span>
         </button>
-        <button *ngIf="lineChartData.length" mat-icon-button 
-                class="example-icon"
-                aria-label="Example icon-button with menu icon" 
-                (click)="resizeTrigger = !resizeTrigger">
-            <mat-icon>zoom_out_map</mat-icon>
-        </button>
-        <button mat-icon-button class="example-icon" aria-label="Example icon-button with menu icon" (click)="openAddWindow()">
-            <mat-icon>add</mat-icon>
-        </button>
+      </div>
+    </div>
+  
+    <!-- Filter strip -->
+    <div class="filter-strip">
+      <!-- Presets -->
+      <div class="preset-pills">
+        <button class="pill" [class.pill--active]="activePreset === '1h'" (click)="setPreset('1h')">1h</button>
+        <button class="pill" [class.pill--active]="activePreset === '6h'" (click)="setPreset('6h')">6h</button>
+        <button class="pill" [class.pill--active]="activePreset === '12h'" (click)="setPreset('12h')">12h</button>
+        <button class="pill" [class.pill--active]="activePreset === '24h'" (click)="setPreset('24h')">24h</button>
+        <button class="pill" [class.pill--active]="activePreset === 'today'" (click)="setPreset('today')">Hoje</button>
+        <button class="pill" [class.pill--active]="activePreset === '7d'" (click)="setPreset('7d')">7d</button>
+        <button class="pill" [class.pill--active]="activePreset === '30d'" (click)="setPreset('30d')">30d</button>
+      </div>
+  
+      <span class="strip-divider"></span>
+  
+      <!-- Custom range -->
+      <div class="range-picker">
+        <div class="range-field">
+          <svg class="range-cal-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <input
+            type="datetime-local"
+            class="range-input"
+            [(ngModel)]="dateFromString"
+            (change)="onDateFilterChange()">
+        </div>
+        <svg class="range-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+        </svg>
+        <div class="range-field">
+          <svg class="range-cal-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <input
+            type="datetime-local"
+            class="range-input"
+            [(ngModel)]="dateToString"
+            (change)="onDateFilterChange()">
+        </div>
+      </div>
+    </div>
+  
+    <!-- Chart card -->
+    <div class="chart-card">
+        <app-advanced-chart style="height: 100%;" 
+            [dataSources]="$any(lineChartData)">
+        </app-advanced-chart>
     </div>
 
-    <div class="graph-table">
-        <ng-container *ngIf="lineChartData.length">
-            <graph style="height: 100%;" 
-                   [inputInfo]="$any(lineChartData)" 
-                   [drawingMode]="drawingMode"
-                   [selectedDataLineIndex]="selectedDataLineIndex"
-                   [zoomEnabled]="zoomWindowActivate"
-                   [clearLines]="clearLines"
-                   [resize]="resizeTrigger">
-            </graph>
-        </ng-container>
-    </div>
-</div>
+  
+  </div>
+  

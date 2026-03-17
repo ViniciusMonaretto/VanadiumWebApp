@@ -7,8 +7,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 import { SensorModule } from '../../models/sensor-module';
-import { ColorChromeModule } from 'ngx-color/chrome';
 import { IoButtonComponent } from '../io-button/io-button.component';
+import { SensorTypesEnum } from '../../enum/sensor-type';
 
 @Component({
   selector: 'sensor-info-dialog',
@@ -20,7 +20,6 @@ import { IoButtonComponent } from '../io-button/io-button.component';
     MatInputModule,
     FormsModule,
     MatDialogModule,
-    ColorChromeModule,
     IoButtonComponent],
   standalone: true
 })
@@ -32,13 +31,16 @@ export class SensorInfoDialogComponent {
   public enableAlarms: boolean = false
   public maxAlarm: Number | null | undefined = null
   public minAlarm: Number | null | undefined = null
-  public canEdit: boolean = false
+  public alarmLevel: string = "warning"
   public showPicker: boolean = false
+  public sensorType: SensorTypesEnum = SensorTypesEnum.TEMPERATURA
+  public unit: string = ""
   private panelId = -1
   private gateway = ""
   private topic = ""
   private indicator = 0
   color: string = ""
+  
   newName: string = ""  
   kiloSelected: boolean = false
 
@@ -47,8 +49,10 @@ export class SensorInfoDialogComponent {
   uiConfig: { [id: string]: any } = {}
   calibrate: boolean = false
 
+  unitOptions = ['L/min', 'L/h', 'L/dia', 'L/semana', 'L/mês'];
+
   constructor(public dialogRef: MatDialogRef<SensorInfoDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { sensorInfo: SensorModule, callback: ((obj: any) => void), canEdit: boolean },
+    @Inject(MAT_DIALOG_DATA) public data: { sensorInfo: SensorModule, callback: ((obj: any) => void)},
     private elementRef: ElementRef
   ) {
     this.sensorName = data.sensorInfo.name
@@ -63,10 +67,11 @@ export class SensorInfoDialogComponent {
 
     this.enableAlarms = this.maxAlarm != null || this.minAlarm != null;
 
+    this.sensorType = data.sensorInfo.type
+
     this.gateway = data.sensorInfo.gatewayId
     this.indicator = data.sensorInfo.index
     this.onApplyAction = data.callback;
-    this.canEdit = data.canEdit
     this.color = data.sensorInfo.color
     this.kiloSelected = data.sensorInfo.multiplier == 1000
   }
@@ -76,10 +81,13 @@ export class SensorInfoDialogComponent {
     var validMultiplier = choosenMultiplier != this.data.sensorInfo.multiplier
     var isColorDifferent = this.color !== this.data.sensorInfo.color
     var isNameDifferent = this.newName !== this.data.sensorInfo.name
-    var validCalibration = !this.calibrate ||   
+    var validCalibration = !this.calibrate ||
                            (this.gain !== null && this.offset !== null)
-    console.log(validCalibration)
-    return this.canEdit && (this.calibrate || this.enableAlarms || isColorDifferent || isNameDifferent || validMultiplier) && (validCalibration)
+    return (this.calibrate || this.enableAlarms || isColorDifferent || isNameDifferent || validMultiplier) && (validCalibration)
+  }
+
+  isFlowSensor() {
+    return this.sensorType === SensorTypesEnum.VAZAO
   }
 
   getChangeInfoPanel() {
@@ -92,7 +100,7 @@ export class SensorInfoDialogComponent {
       "gateway": this.gateway,
       "topic": this.topic,
       "indicator": this.indicator,
-      "panelId": this.panelId,
+      "id": this.panelId,
       "color": this.color,
       "multiplier": this.kiloSelected ? 1000 : 1
     }
@@ -107,21 +115,6 @@ export class SensorInfoDialogComponent {
       this.onApplyAction(this.getChangeInfoPanel())
     }
     this.dialogRef.close();
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
-    if (this.showPicker) {
-      const clickedElement = event.target as HTMLElement;
-      const colorPickerElement = this.elementRef.nativeElement.querySelector('color-chrome');
-      const inputElement = this.elementRef.nativeElement.querySelector('input[readonly]');
-      
-      // Check if click is outside both the color picker and the input field
-      if (colorPickerElement && !colorPickerElement.contains(clickedElement) && 
-          inputElement && !inputElement.contains(clickedElement)) {
-        this.showPicker = false;
-      }
-    }
   }
 
 }

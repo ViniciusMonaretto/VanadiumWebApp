@@ -6,6 +6,7 @@ import { delay, firstValueFrom } from 'rxjs';
 import { MatDialogRef } from '@angular/material/dialog';
 import { SpinnerComponent } from '../components/spinner/spinner.component';
 import { AuthService } from './auth.service';
+import { Enterprise } from '../models/enterprise';
 
 
 export const WS_URL_TOKEN = new InjectionToken<string>('wsUrl');
@@ -156,6 +157,10 @@ export class ApiService {
             .then((response: any) => {
                 this.spinnerDialogRef?.close();
                 this.spinnerDialogRef = null;
+
+                if(response == null) {
+                    return Promise.reject(response.error);
+                }
                 return response;
             })
             .catch(err => {

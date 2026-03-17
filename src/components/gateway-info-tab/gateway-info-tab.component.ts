@@ -1,4 +1,4 @@
-import { Component,  Input, } from '@angular/core';
+import { Component,  EventEmitter,  Input, Output, } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GatewayModule } from '../../models/gateway-model';
 
@@ -10,22 +10,45 @@ import { GatewayModule } from '../../models/gateway-model';
   standalone: true
 })
 export class GatewayInfoTabComponent {
-  @Input() gatewayInfo: GatewayModule = new GatewayModule()
 
-  /**
-   * Checks if the gateway is online based on uptime
-   * A gateway is considered online if uptime > 0
-   */
-  isGatewayOnline(): boolean {
-    return this.gatewayInfo.uptime > 0;
+  @Input() gateway!: GatewayModule;
+  @Output() delete = new EventEmitter<GatewayModule>();
+
+  menuOpen = false;
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
   }
 
-  /**
-   * Formats uptime in milliseconds to a human-readable format
-   * @param uptimeMilliseconds - Uptime in milliseconds
-   * @returns Formatted uptime string
-   */
-  formatUptime(uptimeMilliseconds: number): string {
+  handleDelete() {
+    this.menuOpen = false;
+    this.delete.emit(this.gateway);
+  }
+
+  getStatusColor(status: string): string {
+    switch (status?.toLowerCase()) {
+      case 'online': return 'status-online';
+      case 'offline': return 'status-offline';
+      case 'warning': return 'status-warning';
+      default: return 'status-offline';
+    }
+  }
+
+  getImageUrl(image: string): string {
+
+    if (!image) {
+      return `assets/images/device.png`;
+    }
+    return `assets/images/${image}.png`;
+  }
+
+  formatUptime(dateUptime: Date): string {
+
+    if (!dateUptime) {
+      return 'Offline';
+    }
+
+    const uptimeMilliseconds = dateUptime.getTime();
     if (uptimeMilliseconds <= 0) {
       return 'Offline';
     }

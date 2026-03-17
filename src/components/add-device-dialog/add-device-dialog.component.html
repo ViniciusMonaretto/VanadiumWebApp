@@ -1,0 +1,56 @@
+
+    
+    <div class="dialog-header">
+      <h2 class="dialog-title">Gerenciar Páginas</h2>
+    </div>
+
+
+    <mat-dialog-content style="-webkit-spellcheck: false;">
+
+      <div class="dialog-body">
+          <!-- Create new page -->
+          <div class="page-creation">
+            <h3>Criar Nova Página</h3>
+            <div class="creation-form">
+              <input
+                type="text"
+                placeholder="Nome da página..."
+                [(ngModel)]="newGroupName"
+                (keyup.enter)="createNewPage()"
+                class="creation-input">
+              <button class="btn-create-page" (click)="createNewPage()">
+                Criar
+              </button>
+            </div>
+          </div>
+
+          <!-- Pages list -->
+          <div class="pages-list">
+            <h3>Páginas Existentes</h3>
+            <div class="pages-items">
+              <div *ngFor="let group of groups" class="page-item">
+                <div class="page-item-header">
+                  <span class="page-item-name">{{ group.name }}</span>
+                  <span class="page-item-count">{{ group.panels.length }} sensores</span>
+                </div>
+                <div class="page-item-actions">
+                  <button
+                    class="btn-delete-page"
+                    (click)="deletePage(group.id)"
+                    [disabled]="groups.length === 1">
+                    Deletar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+    </mat-dialog-content>
+
+    <mat-dialog-actions style="display: flex; gap: 10px;">
+      <io-button style="height: 30px;" variant="secondary" (clicked)="close()">Fechar</io-button>
+    </mat-dialog-actions>
+

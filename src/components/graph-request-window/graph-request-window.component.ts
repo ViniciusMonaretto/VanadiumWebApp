@@ -52,19 +52,19 @@ export class GraphRequestWindowComponent implements OnInit {
 
   uiConfig: { [id: string]: GroupInfo } = {}
 
-  selectedSensors: Array<SensorModule> = []
-  optionSensors: Array<SensorModule> = []
-  selectedGroup: GroupInfo | null = null
-
-  startDate: Date | null = null
-  endDate: Date | null = null
-
+  selectedSensors: Set<SensorModule> = new Set()
+  searchFilter = '';
+  sensors: Array<SensorModule> = []
+  filteredSensors: Array<SensorModule> = []
   option: string = ""
 
   constructor(public dialogRef: MatDialogRef<GraphRequestWindowComponent>, private dialogHelper: DialogHelper,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.uiConfig = data.uiConfig
+
+    this.sensors = this.getAvailableSensors();
+    this.filteredSensors = this.sensors;
   }
 
   ngOnInit(): void {
@@ -78,66 +78,54 @@ export class GraphRequestWindowComponent implements OnInit {
     return uiVector;
   }
 
-  setTime(event: Event, selectedDateTime: Date | null): void {
-    // Early return if no date is selected
-    if (!selectedDateTime) {
-      console.warn('setTime: No date selected, cannot set time');
-      return;
-    }
-
-    // Type guard to ensure we have an HTMLInputElement
-    const target = event.target as HTMLInputElement;
-    if (!target || target.type !== 'time') {
-      console.error('setTime: Invalid event target or input type');
-      return;
-    }
-
-    const timeValue = target.value;
-
-    // Validate time format (HH:MM)
-    if (!timeValue || !/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(timeValue)) {
-      console.error('setTime: Invalid time format. Expected HH:MM format');
-      return;
-    }
-
-    try {
-      const [hoursStr, minutesStr] = timeValue.split(':');
-      const hours = parseInt(hoursStr, 10);
-      const minutes = parseInt(minutesStr, 10);
-
-      // Validate parsed values
-      if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-        console.error('setTime: Invalid time values. Hours must be 0-23, minutes must be 0-59');
-        return;
-      }
-
-      // Create a new date object to avoid mutating the original
-      const newDate = new Date(selectedDateTime);
-      newDate.setHours(hours, minutes, 0, 0); // Reset seconds and milliseconds
-
-      // Update the original date reference
-      if (selectedDateTime === this.startDate) {
-        this.startDate = newDate;
-      } else if (selectedDateTime === this.endDate) {
-        this.endDate = newDate;
-      }
-
-    } catch (error) {
-      console.error('setTime: Error parsing time value:', error);
-    }
-  }
-
   getAvailableSensors() {
-    if (this.selectedGroup == null) {
-      return []
+    var sensors = [];
+    for (let group in this.uiConfig) {
+      sensors.push(...this.uiConfig[group].panels)
     }
-    return this.selectedGroup.panels
+    return sensors;
   }
 
   validForm() {
-    return this.selectedGroup != null && this.option != "" &&
-      ((this.startDate != null && this.endDate == null) ||
-        (this.startDate != null && this.endDate != null && this.startDate?.getTime() < this.endDate.getTime()))
+    return this.selectedSensors.size > 0;
+  }
+
+  onSearchChange(): void {
+    this.updateFilteredSensors();
+  }
+
+  private updateFilteredSensors(): void {
+    const searchLower = this.searchFilter.toLowerCase();
+    this.filteredSensors = this.sensors.filter(sensor =>
+      sensor.name.toLowerCase().includes(searchLower)
+    );
+  }
+
+  selectAll(): void {
+    this.selectedSensors.clear();
+    this.filteredSensors.forEach(sensor => {
+      this.selectedSensors.add(sensor);
+    });
+  }
+
+  trackBySensorId(_index: number, sensor: SensorModule): number {
+    return sensor.id;
+  }
+
+  toggleSensor(sensor: SensorModule): void {
+    if (this.selectedSensors.has(sensor)) {
+      this.selectedSensors.delete(sensor);
+    } else {
+      this.selectedSensors.add(sensor);
+    }
+  }
+
+  isSensorSelected(sensor: SensorModule): boolean {
+    return this.selectedSensors.has(sensor);
+  }
+
+  deselectAll(): void {
+    this.selectedSensors.clear();
   }
 
   onNoClick(): void {
@@ -145,60 +133,19 @@ export class GraphRequestWindowComponent implements OnInit {
   }
 
   onAddCLick() {
-    let selectedPanels: { [id: string]: any } = {}
-
-    // Check if date range is greater than 2 weeks
-    if (this.startDate != null) {
-      const twoWeeksInMs = 14 * 24 * 60 * 60 * 1000; // 14 days in milliseconds
-      const endDateToUse = this.endDate || new Date(); // Use current date if endDate is null
-      const dateDifference = endDateToUse.getTime() - this.startDate.getTime();
-      
-      if (dateDifference > twoWeeksInMs) {
-        this.dialogHelper.openErrorDialog("O período selecionado não pode ser maior que 2 semanas");
-        return;
-      }
-    }
-
-    if (this.selectedSensors.length == 0) {
-      this.selectedSensors = this.getAvailableSensors()
-    }
-
-    for (let panel of this.selectedSensors) {
-      selectedPanels[panel.id + ''] = {
-        "name": panel.name,
-        "realName": panel.id + '',
-        "color": panel.color,
-      }; 
-    }
+    // let obj = {
+    //   "selectedSensors": this.selectedSensors,
+    //   "startDate": this.startDate,
+    //   "endDate": this.endDate,
+    //   "group": this.selectedGroup?.id
+    // }
 
     let obj = {
-      "selectedSensors": selectedPanels,
-      "startDate": this.startDate,
-      "endDate": this.endDate,
-      "group": this.selectedGroup?.id
-    }
+        selectedSensors: Array.from(this.selectedSensors),
+      };
 
-    this.data.callback(obj)
+    this.data.callback(obj);
     this.dialogRef.close();
-  }
-
-  onOptionChange(event: MatSelectChange) {
-    this.option = event.value;
-    if (this.option == "temperature") {
-      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.TEMPERATURA) || [];
-    } else if (this.option == "pressure") {
-      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.PRESSAO) || [];
-    } else if (this.option == "flow") {
-      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.VAZAO) || [];
-    } else if (this.option == "power") {
-      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.POTENCIA) || [];
-    } else if (this.option == "current") {
-      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.CORRENTE) || [];
-    } else if (this.option == "voltage") {
-      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.TENSÃO) || [];
-    } else if (this.option == "powerFactor") {
-      this.optionSensors = this.selectedGroup?.panels.filter(sensor => sensor.type == SensorTypesEnum.FATOR_DE_POTENCIA) || [];
-    }
   }
 
 }

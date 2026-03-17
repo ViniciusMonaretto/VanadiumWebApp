@@ -24,6 +24,7 @@ export class UiPanelService {
   selectedEnterprise: Enterprise | null = null;
   groups: { [id: string]: GroupInfo } = {}
   subscriptioMap: { [id: string]: Array<SensorModule & { topic: string } | Function> } = {}
+  onEnterpriseChangedCallbacks: Function[] = [];
 
   groupSelected: string = ""
 
@@ -85,20 +86,39 @@ export class UiPanelService {
     })
   }
 
-  public AddSensor(sensorData: any) {
+  public AddSensor(sensorData: SensorModule) {
     this.openSpinnerDialog("Adicionando sensor")
-    this.api.send("addPanel", sensorData).then(() => {
+    sensorData.gain = 1;
+    sensorData.offset = 0;
+    sensorData.multiplier = 1;
+    this.api.send("addPanel", sensorData).then((newSensorData: SensorModule) => {
+      this.addPanelAndSubscribe(newSensorData, this.groupSelected)
+    })
+    .finally(() => {
       this.closeSpinnerDialog();
-      this.addPanelAndSubscribe(sensorData, sensorData.group)
     })
   }
 
-  public RemoveSensor(sensorData: any) {
+  public RemoveSensor(sensorId: any) {
     this.openSpinnerDialog("Removendo sensor")
-    this.api.send("removePanel", sensorData).then(() => {
+    this.api.send("deletePanel", sensorId).then(() => {
       this.closeSpinnerDialog();
-      var fullTopic = GetTableName(sensorData.gateway, sensorData.indicator.toString())
-      this.subscriptioMap[fullTopic] = this.subscriptioMap[fullTopic].filter(x => x != sensorData)
+
+      var sensorData = this.GetPanelById(sensorId);
+      if (!sensorData) {
+        return;
+      }
+      this.removePanelSubscription(sensorData, sensorData.index);
+      for (let groupId in this.groups) {
+        var index = this.groups[groupId].panels.findIndex(x => x.id == sensorId)
+        if (index != -1) {
+          this.groups[groupId].panels.splice(index, 1);
+          break;
+        }
+      }
+    })
+    .finally(() => {
+      this.closeSpinnerDialog();
     })
   }
 
@@ -188,7 +208,7 @@ export class UiPanelService {
 
   UpdatePanelInfo(updatePanelInfo: any) {
     this.openSpinnerDialog("Atualizando sensor")
-    this.api.send("updatePanelInfo", updatePanelInfo).then(() => {
+    this.api.send("updatePanel", updatePanelInfo).then(() => {
       this.closeSpinnerDialog();
       var panel = this.GetPanelById(updatePanelInfo.id)
       if (panel) {
@@ -199,6 +219,8 @@ export class UiPanelService {
         panel.maxAlarm = updatePanelInfo.maxAlarm
         panel.minAlarm = updatePanelInfo.minAlarm
       }
+    }).finally(() => {
+      this.closeSpinnerDialog();
     })
   }
 
@@ -277,6 +299,8 @@ export class UiPanelService {
       for (let callbackObj of this.subscriptioMap[tableFullName]) {
         if ("gatewayId" in callbackObj) {
           callbackObj.value = status_update.value
+          //TODO: Pegar Timestamp do servidor
+          callbackObj.lastActivity = new Date()
           callbackObj.isActive = status_update.active
           if (tableFullName in this.sensorCachedCurrentInfo) {
             this.sensorCachedCurrentInfo[tableFullName].push({
@@ -309,6 +333,11 @@ export class UiPanelService {
     if (enterprise === null) {
       this.clearAllSubscriptionsAndState();
     }
+    else {
+      for (const callback of this.onEnterpriseChangedCallbacks) {
+        callback(enterprise);
+      }
+    }
   }
 
   /** Clears all subscriptions and state. Called on logout or when enterprise is deselected. */
@@ -322,6 +351,14 @@ export class UiPanelService {
 
   public getSelectedEnterprise(): Enterprise | null {
     return this.selectedEnterprise;
+  }
+
+  public addOnEnterpriseChangedCallback(callback: Function) {
+    this.onEnterpriseChangedCallbacks.push(callback);
+  }
+
+  public removeOnEnterpriseChangedCallback(callback: Function) {
+    this.onEnterpriseChangedCallbacks = this.onEnterpriseChangedCallbacks.filter(c => c !== callback);
   }
 
 }

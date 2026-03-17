@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>Gerenciar Grupos</h2>
+<mat-dialog-content>
+  <!-- Create new group -->
+  <div class="group-creation">
+    <h3>Criar Novo Grupo</h3>
+    <div class="creation-form">
+      <input
+        type="text"
+        placeholder="Nome do grupo..."
+        [(ngModel)]="newGroupName"
+        (keyup.enter)="createNewGroup()"
+        class="creation-input">
+      <button class="btn-create-group" (click)="createNewGroup()">
+        Criar
+      </button>
+    </div>
+  </div>
+
+  <!-- Groups list -->
+  <div class="groups-list">
+    <h3>Grupos Existentes</h3>
+    <div class="groups-items">
+      <div *ngFor="let group of groups" class="group-item">
+        <div class="group-item-header">
+          <span class="group-item-name">{{ group.name }}</span>
+          <span class="group-item-count">{{ group.panels.length }} sensores</span>
+        </div>
+        <div class="group-item-actions">
+          <button
+            class="btn-delete-group"
+            (click)="deleteGroup(group.id)"
+            [disabled]="groups.length === 1">
+            Deletar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <io-button style="height: 30px;" variant="secondary" (clicked)="closeGroupManagerDialog()">Fechar</io-button>
+</mat-dialog-actions>

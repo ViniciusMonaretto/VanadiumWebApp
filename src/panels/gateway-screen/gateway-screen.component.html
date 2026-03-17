@@ -1,16 +1,94 @@
-<div class="main-div-display">
-    <div class="group-header">Gateways</div>
-    <div class="button-container">
-        <io-button style="height: 30px;" variant="primary" (clicked)="updateGateways()">
-           Atualizar Gateways
-        </io-button>
+<div class="devices-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon-badge">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+          <rect x="9" y="9" width="6" height="6"></rect>
+          <line x1="9" y1="1" x2="9" y2="4"></line>
+          <line x1="15" y1="1" x2="15" y2="4"></line>
+          <line x1="9" y1="20" x2="9" y2="23"></line>
+          <line x1="15" y1="20" x2="15" y2="23"></line>
+          <line x1="20" y1="9" x2="23" y2="9"></line>
+          <line x1="20" y1="14" x2="23" y2="14"></line>
+          <line x1="1" y1="9" x2="4" y2="9"></line>
+          <line x1="1" y1="14" x2="4" y2="14"></line>
+        </svg>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">Dispositivos</h1>
+        <p class="page-subtitle">{{ getFilteredGateways().length }} dispositivo(s) cadastrados</p>
+      </div>
     </div>
-    <div class="gateway-grid-container">
-        <div class="main-group-div">
-            <gateway-info-tab class="flex-item" 
-                             *ngFor="let gateway of getGateways()" 
-                             [gatewayInfo]="gateway">
-            </gateway-info-tab>
-        </div>
+
+    <div class="header-actions">
+      <button class="btn-action btn-action--primary" (click)="handleAddDevice()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        Adicionar Dispositivo
+      </button>
     </div>
+  </div>
+
+  <!-- Filter Strip -->
+  <div class="filter-strip">
+    <button class="filter-toggle-btn" (click)="toggleFilters()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+      </svg>
+      Filtros
+      <svg [style.transform]="filtersCollapsed ? 'rotate(0)' : 'rotate(180deg)'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </button>
+
+    <div class="filter-fields" *ngIf="!filtersCollapsed">
+      <input
+        type="text"
+        placeholder="Buscar dispositivo..."
+        [(ngModel)]="nameFilter"
+        class="filter-input" />
+
+      <select [(ngModel)]="statusFilter" class="filter-select">
+        <option value="all">Todos os status</option>
+        <option value="online">Online</option>
+        <option value="offline">Offline</option>
+      </select>
+
+      <button
+        *ngIf="hasActiveFilters()"
+        class="btn-clear-filters"
+        (click)="clearFilters()">
+        Limpar
+      </button>
+    </div>
+  </div>
+
+  <!-- Devices grid -->
+  <div class="dashboard">
+    <gateway-info-tab
+      *ngFor="let gateway of getFilteredGateways()"
+      [gateway]="gateway"
+      (delete)="handleDelete($event)">
+    </gateway-info-tab>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="getFilteredGateways().length === 0">
+      <div class="empty-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+        </svg>
+      </div>
+      <div class="empty-title">Nenhum dispositivo encontrado</div>
+      <div class="empty-message">
+        Tente ajustar os filtros ou <button class="empty-action" (click)="clearFilters()">limpar filtros</button>
+      </div>
+    </div>
+  </div>
 </div>

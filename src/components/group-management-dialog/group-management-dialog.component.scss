@@ -1,0 +1,111 @@
+.group-creation {
+  margin-bottom: 24px;
+
+  h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+.creation-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  .creation-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+  }
+
+  .btn-create-group {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #3b82f6;
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: #2563eb;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.groups-list {
+  h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+}
+
+.groups-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.group-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+}
+
+.group-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .group-item-name {
+    font-weight: 500;
+    color: #1f2937;
+  }
+
+  .group-item-count {
+    font-size: 13px;
+    color: #6b7280;
+  }
+}
+
+.group-item-actions .btn-delete-group {
+  padding: 6px 12px;
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  background: transparent;
+  color: #ef4444;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: #ef4444;
+    color: white;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}

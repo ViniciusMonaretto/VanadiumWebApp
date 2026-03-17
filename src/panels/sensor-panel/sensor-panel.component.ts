@@ -1,27 +1,32 @@
 import { Component, OnInit } from '@angular/core';
-import { UiPanelService } from "../../services/ui-panels.service"
+import { GroupInfo, UiPanelService } from "../../services/ui-panels.service"
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 import { CommonModule } from '@angular/common';
-import { GroupOfSensorsComponent } from '../../components/group-of-sensors/group-of-sensors.component';
 import { SensorTypesEnum } from '../../enum/sensor-type';
 import { SensorModule } from '../../models/sensor-module';
 import { MainScreenSelector } from '../../services/main-screen-selector.service';
 import { SensorInfoDialogComponent } from '../../components/sensor_info_dialog/sensor_info_dialog.component';
+import { GroupManagementDialogComponent } from '../../components/group-management-dialog/group-management-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
 import { WaterMeasureComponent, WaterReadingPoint } from '../../components/water-measure/water-measure.component';
 import { ApiService } from '../../services/api.service';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { SensorAddWindowComponent } from '../../components/sensor-add-window/sensor-add-window.component';
+import { SensorComponent } from '../../components/sensor/sensor.component';
+import { DialogHelper } from '../../services/dialog-helper.service';
 
 @Component({
   selector: 'sensor-panel',
   templateUrl: './sensor-panel.component.html',
   styleUrls: ['./sensor-panel.component.scss'],
-  imports: [MatCardModule, CommonModule, MatIconModule, MatButtonModule, GroupOfSensorsComponent, WaterMeasureComponent],
+  imports: [MatCardModule, SensorComponent, CommonModule, MatIconModule, MatButtonModule, FormsModule],
   standalone: true
 })
-export class SensorPanelComponent implements OnInit {
+export class SensorPanelComponent {
 
   waterCurrentDailyConsumption = 0;
   waterWeeklyConsumption = 0;
@@ -30,124 +35,162 @@ export class SensorPanelComponent implements OnInit {
   waterLastHourReadings: WaterReadingPoint[] = [];
   private readonly oneHourMs = 60 * 60 * 1000;
 
+  // Filter properties
+  nameFilter = '';
+  typeFilter: SensorTypesEnum | null = null;
+  deviceFilter = '';
+  filtersCollapsed = true;
+
   constructor(private UiPanelsService: UiPanelService,
     private apiService: ApiService,
     private mainScreenService: MainScreenSelector,
-    private dialog: MatDialog) { }
+    private router: Router,
+    private dialog: MatDialog,
+    private dialogHelper: DialogHelper) { }
 
-  ngOnInit(): void 
-  {
-    this.UiPanelsService.setSelectSensor(null)
-  }
-
-  getInfoOfGroup() {
-    let info = this.UiPanelsService.GetSelectedGroupInfo()
-    if (!info) {
-      return []
+    removeSensor(sensorId: string) {
+      this.dialogHelper.openQuestionDialog("Remover sensor", "Deseja remover o sensor?", 
+        () => {
+          this.UiPanelsService.RemoveSensor(parseInt(sensorId));
+      });
     }
-    return info.panels
-  }
 
-  getGroupSelected() {
-    return this.UiPanelsService.GetSelectedGroupInfo()?.id
-  }
-
-  getGroupName(){
-    const groupInfo = this.UiPanelsService.GetSelectedGroupInfo()
-    return groupInfo ? groupInfo.name : ''
-  }
-
-  getSensorType() {
-    return SensorTypesEnum
-  }
-
-  getGroupSensorUi() {
-    let info = Object.keys(this.UiPanelsService.GetUiConfig())
-    return info
-  }
-
-  getSensorSelected(): SensorModule | null {
-    return this.UiPanelsService.GetSelectedSensor()
-  }
-
-  CanEdit() {
-    return this.mainScreenService.CanEdit();
-  }
-
-  diselectSensor() {
-    var selectedSensor = this.getSensorSelected();
-    if(selectedSensor) {
-      this.UiPanelsService.setSelectSensor(null)
-      this.UiPanelsService.removePanelSubscription(selectedSensor, 1);
+  
+    trackById(index: number, sensor: SensorModule) {
+      return sensor.id;
     }
-  }
 
-  selectSensor(sensor: SensorModule) {
-    this.UiPanelsService.setSelectSensor(sensor);
-    this.UiPanelsService.addPanelSubscription(sensor, (name: string, reading: any) => {
-      this.updatePanelReading(reading.value);
-    });
-    this.resetWaterMeasureState();
-  }
-
-  private updatePanelReading(value: any)
-  {
-    this.waterCurrentDailyConsumption += value;
-    this.waterWeeklyConsumption += value;
-    this.waterMonthlyConsumption += value;
-  }
-
-  private resetWaterMeasureState(): void {
-    this.waterCurrentDailyConsumption = 0;
-    this.waterWeeklyConsumption = 0;
-    this.waterMonthlyConsumption = 0;
-    this.waterLastMonthConsumption = 0;
-    this.waterLastHourReadings = [];
-  }
-
-  onSelectSensor(sensor: SensorModule) {
-    if (sensor.type === SensorTypesEnum.VAZAO) 
-    {
-      this.apiService.send("GetPanelFlowConsumption", sensor.id, "Buscando dados do sensor"	).then((response: any) => {
-        this.selectSensor(sensor);
-        this.waterCurrentDailyConsumption = response.dayConsumption;
-        this.waterWeeklyConsumption = response.weekConsumption;
-        this.waterMonthlyConsumption = response.monthConsumption;
-        this.waterLastMonthConsumption = response.lastMonthConsumption;
-
-        let newSeries: WaterReadingPoint[] = [];
-
-        for (let info of response.readingsLastHour) {
-          let timestamp = info['readingTime'];
-          if (timestamp && !isNaN(new Date(timestamp).getTime())) {
-            let dt = new Date(timestamp);
-            newSeries.push({ x: dt.getTime(), y: info["value"] });
-          } else {
-            console.error('Invalid timestamp:', timestamp); // Debugging
-          }
-        }
-
-        this.waterLastHourReadings = newSeries;
-      })
+    getSelectedGroupSensors(): SensorModule[] {
+      return this.UiPanelsService.GetSelectedGroupInfo()?.panels || [];
     }
-    else
-    {
-      this.openSensorDialog(sensor)
+  
+    getFilteredSensors(): SensorModule[] {
+      return this.getSelectedGroupSensors().filter(sensor => {
+        // Filter by name
+        const nameMatch = sensor.name.toLowerCase().includes(this.nameFilter.toLowerCase());
+        
+        // Filter by type
+        const typeMatch = !this.typeFilter|| sensor.type === this.typeFilter;
+        
+        // Filter by device (label)
+        const deviceMatch = !this.deviceFilter || sensor.gatewayId === this.deviceFilter;
+        
+        return nameMatch && typeMatch && deviceMatch;
+      });
     }
-  }
-
-  openSensorDialog(sensorInfo: SensorModule)
-  {
-    const dialogRef = this.dialog.open(SensorInfoDialogComponent, {
-      width: '450px',
-      data: {sensorInfo: sensorInfo,
-      sensorType: sensorInfo.type,
-      canEdit: this.CanEdit(),
-      callback: (calibrateInfo: any) => {
-        this.UiPanelsService.UpdatePanelInfo(calibrateInfo)
+  
+    getUniqueDevices(): string[] {
+      const devices = this.getSelectedGroupSensors()
+        .map(s => s.gatewayId)
+        .filter((label): label is string => Boolean(label));
+      return [...new Set(devices)].sort();
+    }
+  
+    clearFilters() {
+      this.nameFilter = '';
+      this.typeFilter = null;
+      this.deviceFilter = '';
+    }
+  
+    hasActiveFilters(): boolean {
+      return this.nameFilter !== '' || this.typeFilter !== null || this.deviceFilter !== '';
+    }
+  
+    toggleFilters() {
+      this.filtersCollapsed = !this.filtersCollapsed;
+    }
+  
+    getResultsText(): string {
+      const filtered = this.getFilteredSensors();
+      return `${filtered.length} sensor${filtered.length !== 1 ? 'es' : ''}`;
+    }
+  
+    handleAddSensor(sensor: SensorModule) {
+      this.UiPanelsService.AddSensor(sensor);
+    }
+  
+    getLabelForType(type: SensorTypesEnum): string {
+      switch (type) {
+        case SensorTypesEnum.TEMPERATURA:
+          return 'Temperatura';
+        case SensorTypesEnum.UMIDADE:
+          return 'Umidade';
+        case SensorTypesEnum.PRESSAO:
+          return 'Pressão';
+        case SensorTypesEnum.VAZAO:
+          return 'Vazão';
+        case SensorTypesEnum.POTENCIA:
+          return 'Potência';
+        case SensorTypesEnum.CORRENTE:
+          return 'Corrente';
+        default:
+          return '';
       }
     }
-    });
-  }
 
+    plotSensor(sensorId: number) {
+      this.router.navigate(['/plot', sensorId]);
+    }
+
+  
+    getGroupFilteredSensors(): SensorModule[] {
+      const groupSensors = this.getSelectedGroupSensors();
+      return groupSensors.filter(sensor => {
+        const nameMatch = sensor.name.toLowerCase().includes(this.nameFilter.toLowerCase());
+        const typeMatch = !this.typeFilter || sensor.type === this.typeFilter;
+        const deviceMatch = !this.deviceFilter || sensor.gatewayId === this.deviceFilter;
+        return nameMatch && typeMatch && deviceMatch;
+      });
+    }
+
+    openSettingsDialog(sensor: SensorModule) {
+      this.dialog.open(SensorInfoDialogComponent, {
+        width: '450px',
+        data: {
+          sensorInfo: sensor,
+          callback: (sensorInfo: SensorModule) => {
+            this.UiPanelsService.UpdatePanelInfo(sensorInfo);
+          }
+        },
+      });
+    }
+  
+    selectGroup(groupId: any) {
+      if (!groupId) {
+        return;
+      }
+      this.UiPanelsService.SelectGroup(groupId);
+    }
+
+    getSelectedGroupName(): string {
+      return this.UiPanelsService.GetSelectedGroupInfo()?.name || '';
+    }
+
+    getSelectedGroupId(): string {
+      return this.UiPanelsService.GetGroup() || '';
+    }
+
+    getGroups(): GroupInfo[] {
+      return Object.values(this.UiPanelsService.groups);
+    }
+
+    openPageManagerDialog() {
+      this.dialog.open(GroupManagementDialogComponent, {
+        width: '480px',
+        data: null,
+      });
+    }
+
+    openAddSensorDialog()
+    {
+      this.dialog.open(SensorAddWindowComponent, {
+        width: '450px',
+        data: {
+          group: this.UiPanelsService.GetSelectedGroupInfo()?.id,
+          callback: (sensorData: any) => {
+            this.handleAddSensor(sensorData)
+          }
+        }
+      });
+    }
 }

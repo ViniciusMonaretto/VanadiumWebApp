@@ -9,7 +9,7 @@ import { UiPanelService } from './ui-panels.service';
 export class EventAlarmManagerService {
     private events: Array<EventAlarmModule> = []
     constructor(private api: ApiService, private uiPanelService: UiPanelService) {
-        this.api.addOnConnectCallback(() => {
+        this.uiPanelService.addOnEnterpriseChangedCallback(() => {
             // Call the hub method to request all alarm events
             this.api.send("GetAllAlarmEvents").then((events: []) => {
                 if (events && Array.isArray(events)) {

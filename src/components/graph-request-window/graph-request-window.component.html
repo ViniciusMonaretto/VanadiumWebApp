@@ -1,57 +1,90 @@
-<h2 mat-dialog-title>Opções Gráfico</h2>
+<h2 mat-dialog-title>Selecionar Sensores</h2>
 <mat-dialog-content>
-    <mat-form-field style="width: 100%;" appearance="fill">
-        <mat-label>Selecionar Grupo</mat-label>
-        <mat-select [(ngModel)]="selectedGroup">
-            <mat-option *ngFor="let group of getGroups()" [value]="group">{{group.name}}</mat-option>
-        </mat-select>
-    </mat-form-field>
-    <mat-form-field style="width: 100%;" appearance="fill" *ngIf="selectedGroup">
-        <mat-label>Selecionar Tipo</mat-label>
-        <mat-select [(ngModel)]="option" (selectionChange)="onOptionChange($event)">
-            <mat-option [value]="'temperature'">Temperatura</mat-option>
-            <mat-option [value]="'pressure'">Pressão</mat-option>
-            <mat-option [value]="'flow'">Vazão</mat-option>
-            <mat-option [value]="'power'">Potência</mat-option>
-            <mat-option [value]="'current'">Corrente</mat-option>
-            <mat-option [value]="'voltage'">Tensão</mat-option>
-            <mat-option [value]="'powerFactor'">Fator de Potência</mat-option>
-        </mat-select>
-    </mat-form-field>
-    <mat-form-field style="width: 100%;" appearance="fill" *ngIf="selectedGroup && optionSensors.length != 0">
-        <mat-label>Selecionar Sensores</mat-label>
-        <mat-select [(ngModel)]="selectedSensors" multiple>
-            <mat-option *ngFor="let panel of optionSensors" [value]="panel">{{panel.name}}</mat-option>
-        </mat-select>
-    </mat-form-field>
-    <div>
-        <div class="date-picker-class">
-            <mat-form-field appearance="outline">
-                <mat-label>Data de Início</mat-label>
-                <input matInput [matDatepicker]="pickerStart" [(ngModel)]="startDate">
-                <mat-datepicker-toggle matSuffix [for]="pickerStart"></mat-datepicker-toggle>
-                <mat-datepicker #pickerStart></mat-datepicker>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-                <mat-label></mat-label>
-                <input matInput type="time" (change)="setTime($event, startDate)">
-            </mat-form-field>
+      <!-- Toolbar -->
+      <div class="dialog-toolbar">
+        <div class="search-wrapper">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar sensor..."
+            [(ngModel)]="searchFilter"
+            (ngModelChange)="onSearchChange()"
+            class="search-input">
+          <button class="search-clear" *ngIf="searchFilter" (click)="searchFilter = ''; onSearchChange()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
         </div>
-        
-        <div class="date-picker-class">
-            <mat-form-field appearance="outline">
-                <mat-label>Data de Fim</mat-label>
-                <input matInput [matDatepicker]="pickerEnd" [(ngModel)]="endDate">
-                <mat-datepicker-toggle matSuffix [for]="pickerEnd"></mat-datepicker-toggle>
-                <mat-datepicker #pickerEnd></mat-datepicker>
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-                <mat-label></mat-label>
-                <input matInput type="time" (change)="setTime($event, endDate)">
-            </mat-form-field>
+        <div class="toolbar-actions">
+          <button class="btn-chip" (click)="selectAll()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            Todos
+          </button>
+          <button class="btn-chip btn-chip--outline" (click)="deselectAll()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            </svg>
+            Nenhum
+          </button>
         </div>
-        
-    </div>
+      </div>
+  
+      <!-- Sensor List -->
+      <div class="dialog-body">
+        <div class="sensor-list">
+          <label
+            class="sensor-row"
+            [class.sensor-row--active]="isSensorSelected(sensor)"
+            *ngFor="let sensor of filteredSensors; trackBy: trackBySensorId"
+            [for]="'sensor-' + sensor.id">
+  
+            <!-- Color indicator -->
+            <span class="color-dot" [style.background]="sensor.color"></span>
+  
+            <!-- Info -->
+            <div class="sensor-meta">
+              <span class="sensor-label">{{ sensor.name }}</span>
+              <span class="sensor-unit">{{ sensor.type }}</span>
+            </div>
+  
+            <!-- Color picker (hidden native, triggered by dot click) -->
+            <input
+              type="color"
+              [value]="sensor.color"
+              (click)="$event.stopPropagation()"
+              class="color-input"
+              [id]="'color-' + sensor.id"
+              title="Alterar cor">
+  
+            <!-- Toggle switch -->
+            <div class="toggle-wrapper" (click)="$event.preventDefault(); toggleSensor(sensor)">
+              <input
+                type="checkbox"
+                [id]="'sensor-' + sensor.id"
+                [checked]="isSensorSelected(sensor)"
+                class="toggle-native">
+              <span class="toggle-track">
+                <span class="toggle-thumb"></span>
+              </span>
+            </div>
+          </label>
+  
+          <!-- Empty state -->
+          <div class="empty-state" *ngIf="filteredSensors.length === 0">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <line x1="8" y1="11" x2="14" y2="11"/>
+            </svg>
+            <p class="empty-title">Nenhum sensor encontrado</p>
+            <p class="empty-hint">Tente outro termo de busca</p>
+          </div>
+        </div>
+      </div>
 
 </mat-dialog-content>
 <mat-dialog-actions style="display: flex; gap: 10px;">

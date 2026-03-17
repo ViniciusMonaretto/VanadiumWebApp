@@ -3,18 +3,18 @@ import { UiPanelService } from "../../services/ui-panels.service"
 import { MatDialog } from '@angular/material/dialog';
 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
-import { DrawingMode, GraphComponent } from '../../components/graph/graph.component';
-
 import { GraphRequestWindowComponent } from '../../components/graph-request-window/graph-request-window.component';
+import { AdvancedChartComponent } from '../../components/advanced-chart/advanced-chart.component';
 import { SensorModule } from '../../models/sensor-module';
 
 @Component({
     selector: 'graph-view',
     templateUrl: './graph-view.component.html',
     styleUrls: ['./graph-view.component.scss'],
-    imports: [CommonModule, MatIconModule, GraphComponent],
+    imports: [CommonModule, FormsModule, MatIconModule, AdvancedChartComponent],
     standalone: true
 })
 export class GraphViewComponent implements OnInit {
@@ -23,28 +23,32 @@ export class GraphViewComponent implements OnInit {
     //this.getTable()
   }
 
-  drawingMode: number = DrawingMode.None;
-  horizontalModeActive: boolean = false;
-  verticalModeActive: boolean = false;
-  selectedDataLineIndex: number = -1;
-  showDataLineDropdown: boolean = false;
-  resizeTrigger: boolean = false
-  zoomWindowActivate: boolean = true
+  dateFrom: Date | null = null;
+  dateTo: Date | null = null;
+  dateFromString: string = '';
+  dateToString: string = '';
+
   lineChartData: Array<any> = [];
   clearLines: boolean = false;
+  selectedSensorIds: number[] = [];
 
-  ngOnInit(): void { }
+  activePreset: string = 'today';
 
-  onGraphUpdate(tableInfo: {name: string, realName: string, color: string}, infoArr: Array<any>) {
-    let chartId = this.lineChartData.findIndex(x => x.realName == tableInfo.realName);
+  ngOnInit(): void 
+  {
+    this.setPreset(this.activePreset);
+  }
+
+  onGraphUpdate(sensor: SensorModule, infoArr: Array<any>) {
+    let chartId = this.lineChartData.findIndex(x => x.realName == sensor.name);
 
     if (chartId == -1) {
       this.lineChartData.push({
-        label: tableInfo.name,
+        label: sensor.name,
         type: 'line',
-        realName: tableInfo.realName,
-        borderColor: tableInfo.color,
-        backgroundColor: tableInfo.color + '0A',
+        realName: sensor.name,
+        borderColor: sensor.color,
+        backgroundColor: sensor.color + '0A',
         tension: 0.3,
         fill: false,
         data: []
@@ -70,72 +74,6 @@ export class GraphViewComponent implements OnInit {
     this.lineChartData = [...this.lineChartData ]
   };
 
-  toggleHorizontalMode(): void {
-    this.horizontalModeActive = !this.horizontalModeActive;
-    this.updateDrawingMode();
-  }
-
-  toggleVerticalMode(): void {
-    this.verticalModeActive = !this.verticalModeActive;
-    this.updateDrawingMode();
-  }
-
-  updateDrawingMode(): void {
-    if (this.horizontalModeActive && this.verticalModeActive) {
-      this.drawingMode = DrawingMode.Both;
-    } else if (this.horizontalModeActive) {
-      this.drawingMode = DrawingMode.Horizontal;
-    } else if (this.verticalModeActive) {
-      this.drawingMode = DrawingMode.Vertical;
-    } else {
-      this.drawingMode = DrawingMode.None;
-    }
-  }
-
-  toggleDataLineDropdown(): void {
-    this.showDataLineDropdown = !this.showDataLineDropdown;
-  }
-
-  selectDataLine(index: number): void {
-    this.selectedDataLineIndex = index;
-    this.showDataLineDropdown = false; // Close dropdown after selection
-  }
-
-  getDrawingModeIcon(): string {
-    switch (this.drawingMode) {
-      case DrawingMode.None:
-        return 'stop';
-      case DrawingMode.Horizontal:
-        return 'more_horiz';
-      case DrawingMode.Vertical:
-        return 'more_vert';
-      case DrawingMode.Both:
-        return 'playlist_add';
-      default:
-        return 'stop';
-    }
-  }
-
-  selectDrawingMode(): number {
-    switch (this.drawingMode) {
-      case DrawingMode.None:
-        return DrawingMode.Horizontal;
-      case DrawingMode.Horizontal:
-        return DrawingMode.Vertical;
-      case DrawingMode.Vertical:
-        return DrawingMode.Both;
-      case DrawingMode.Both:
-        return DrawingMode.None;
-      default:
-        return DrawingMode.None;
-    }
-  }
-
-  toggleZoomWindowActivate()
-  {
-    this.zoomWindowActivate = !this.zoomWindowActivate
-  }
-
   openAddWindow()
   {
     const dialogRef = this.dialog.open(GraphRequestWindowComponent, {
@@ -154,16 +92,68 @@ export class GraphViewComponent implements OnInit {
     this.lineChartData = []
   }
 
-  getTable(sensorData: any): void {
+  onDateFilterChange()
+  {
+    this.dateTo = new Date(this.dateToString);
+    this.dateFrom = new Date(this.dateFromString);
+  }
+
+  setPreset(preset: string): void {
+    this.activePreset = preset;
+    const now = new Date();
+    let from: Date;
+
+    switch (preset) {
+      case '1h':
+        from = new Date(now.getTime() - 60 * 60 * 1000);
+        break;
+      case '6h':
+        from = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+        break;
+      case '12h':
+        from = new Date(now.getTime() - 12 * 60 * 60 * 1000);
+        break;
+      case '24h':
+        from = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        break;
+      case 'today':
+        from = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+        break;
+      case '7d':
+        from = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        break;
+      case '30d':
+        from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        from = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    }
+
+    this.dateFrom = from;
+    this.dateTo = now;
+
+    this.dateFromString = this.toLocalDateTimeString(from);
+    this.dateToString = this.toLocalDateTimeString(now);
+  }
+
+  private toLocalDateTimeString(date: Date): string {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  }
+
+  getTable(sensorData: {selectedSensors: SensorModule[]}): void {
     this.removeAllLines();
     var selectedSensors = sensorData['selectedSensors'];
-    this.uiPanelService.sendRequestForTableInfo(Object.keys(selectedSensors)
-                                                      .map(id => Number.parseInt(id)),
-                                                 sensorData['startDate'],
-                                                 sensorData['endDate'])
+    this.uiPanelService.sendRequestForTableInfo(selectedSensors
+                                                      .map(sensor => sensor.id),
+                                                 this.dateFrom,
+                                                 this.dateTo)
     .then((response: { [id: string]: any[] }) => {
       for (let id in response) {
-        this.onGraphUpdate(selectedSensors[id], response[id]);
+        let sensor = selectedSensors.find(sensor => sensor.id.toString() == id);
+        if (sensor) {
+          this.onGraphUpdate(sensor, response[id]);
+        }
       }
     })
   }

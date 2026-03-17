@@ -1,35 +1,117 @@
-<div class="group-div-display">
-    <div *ngIf="getSensorSelected()" class="sensor-detail-header">
-        <span class="sensor-detail-title">{{ getSensorSelected()?.name }}</span>
-        <button type="button" class="sensor-detail-close" (click)="diselectSensor()" title="Fechar">
-            <mat-icon>close</mat-icon>
-        </button>
-    </div>
-    <div *ngIf="getSensorSelected()" class="sensor-detail-wrapper">
-        <water-measure class="sensor-detail-content"
-            [currentDailyConsumption]="waterCurrentDailyConsumption"
-            [weeklyConsumption]="waterWeeklyConsumption"
-            [monthlyConsumption]="waterMonthlyConsumption"
-            [lastMonthConsumption]="waterLastMonthConsumption"
-            [lastHourReadings]="waterLastHourReadings"
-            [sensorInfo]="getSensorSelected()"
-            [unit]="'L'">
-        </water-measure>
-    </div>
-    <div *ngIf="!getSensorSelected()" style="height: 100%;">
-        <div class="group-header">{{getGroupName()}}</div>
-        <div class="main-screen-style">
-            <div style="height: 100%;
-                                display: flex;
-                                flex-direction: column;
-                                justify-content: space-between;">
-                <group-of-sensors style="height: 100%;" 
-                    [name]="''" 
-                    [canEdit]="CanEdit()" 
-                    [group]="getGroupSelected()"
-                    [sensorArray]="getInfoOfGroup()"
-                    (selectSensor)="onSelectSensor($event)"></group-of-sensors>
-            </div>
+<div class="monitor-page">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon-badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
         </div>
+        <div class="header-text">
+          <h1 class="page-title">Monitor</h1>
+          <p class="page-subtitle">{{ getGroupFilteredSensors().length }} sensor(es) ativos</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <!-- Page Selector -->
+        <div class="page-selector-group">
+          <select id="page-selector" class="page-selector" [value]="getSelectedGroupId()"
+            >
+            <option *ngFor="let group of getGroups()" [value]="group.id">
+              {{ group.name }} ({{ group.panels.length }})
+            </option>
+          </select>
+        </div>
+  
+        <button class="btn-action btn-action--secondary" (click)="openPageManagerDialog()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Gerenciar Páginas
+        </button>
+        <button class="btn-action btn-action--primary" (click)="openAddSensorDialog()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Adicionar Sensor
+        </button>
+      </div>
     </div>
-</div>
+  
+    <!-- Filter Strip -->
+    <div class="filter-strip">
+      <button class="filter-toggle-btn" (click)="toggleFilters()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+        Filtros
+        <svg [style.transform]="filtersCollapsed ? 'rotate(0)' : 'rotate(180deg)'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+  
+      <div class="filter-fields" *ngIf="!filtersCollapsed">
+        <input
+          type="text"
+          placeholder="Buscar sensor..."
+          [(ngModel)]="nameFilter"
+          class="filter-input" />
+  
+        <select [(ngModel)]="typeFilter" class="filter-select">
+          <option value="all">Todos os tipos</option>
+          <option value="temperature">Temperatura</option>
+          <option value="humidity">Umidade</option>
+          <option value="waterflow">Fluxo de Água</option>
+        </select>
+  
+        <select [(ngModel)]="deviceFilter" class="filter-select">
+          <option value="">Todos os dispositivos</option>
+          <option *ngFor="let device of getUniqueDevices()" [value]="device">
+            {{ device }}
+          </option>
+        </select>
+  
+        <button
+          *ngIf="hasActiveFilters()"
+          class="btn-clear-filters"
+          (click)="clearFilters()">
+          Limpar
+        </button>
+      </div>
+    </div>
+  
+    <!-- Sensors grid -->
+    <div class="dashboard">
+  
+        <ng-container *ngFor="let sensor of getGroupFilteredSensors(); trackBy: trackById">
+          <sensor [sensorInfo]="sensor" 
+                  (settings)="openSettingsDialog(sensor)" 
+                  (plot)="plotSensor(sensor.id)" 
+                  (deleteCallback)="removeSensor(sensor.id.toString())">
+          </sensor>
+        </ng-container>
+  
+      <!-- Empty state -->
+      <div class="empty-state" *ngIf="getGroupFilteredSensors().length === 0">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+        </div>
+        <div class="empty-title">Nenhum sensor encontrado</div>
+        <div class="empty-message">
+          Tente ajustar os filtros ou <button class="empty-action" (click)="clearFilters()">limpar filtros</button>
+        </div>
+      </div>
+  
+    </div>
+  
+  </div>
+  

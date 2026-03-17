@@ -6,4 +6,5 @@ export enum SensorTypesEnum {
     CORRENTE = 4,
     TENSÃO = 5,
     FATOR_DE_POTENCIA = 6,
+    UMIDADE = 6,
 }

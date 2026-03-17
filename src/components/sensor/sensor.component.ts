@@ -16,12 +16,18 @@ import { throwDialogContentAlreadyAttachedError } from '@angular/cdk/dialog';
 export class SensorComponent implements OnInit {
   @Input() canEdit: boolean = false
   @Input() sensorInfo: SensorModule = new SensorModule()
-  @Output() clickCallback: EventEmitter<any> = new EventEmitter();
+  @Output() settings = new EventEmitter<SensorModule>();
+  @Output() plot = new EventEmitter<SensorModule>();
   @Output() deleteCallback: EventEmitter<any> = new EventEmitter();
 
   public sensorTypes = Object.values(SensorTypesEnum);
+  public menuOpen = false;
 
   constructor() { }
+
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
 
   getMeasureIcon(): String {
     let scaleString = ""
@@ -42,7 +48,7 @@ export class SensorComponent implements OnInit {
       return scaleString + "ºC"
     }
     if (this.sensorInfo.type == SensorTypesEnum.VAZAO) {
-      return scaleString + "l/h"
+      return scaleString + "L/min"
     }
     if (this.sensorInfo.type == SensorTypesEnum.POTENCIA) {
       return scaleString + "W"
@@ -70,80 +76,73 @@ export class SensorComponent implements OnInit {
     var minValue = this.sensorInfo?.minAlarm?.threshold
 
     if (!this.sensorInfo.isActive) {
-      return 'Desativado';
+      return 'offline';
     }
 
     if (!value && value !== 0) {
-      return 'sem leitura';
+      return 'offline';
     }
 
     if (maxValue && value > maxValue) {
-      return 'Valor Muito Alto'
+      return 'warning'
     }
 
     if (minValue && value < minValue) {
-      return 'Valor Muito Baixo'
+      return 'warning'
     }
 
-    return 'OK';
+    return 'online';
   }
 
-  getColorOfReading() {
-    return this.sensorInfo.color
-  }
-
-  getColorOfSensorStatusMessage() {
-    var value = this.sensorInfo?.value
-    var maxValue = this.sensorInfo?.maxAlarm?.threshold
-    var minValue = this.sensorInfo?.minAlarm?.threshold
-
-    if (!this.sensorInfo.isActive || (!value && value !== 0)) {
-      return 'none';
+  getStatusColor(): string {
+    switch (this.getStatusMessageOfSensor()) {
+      case 'online':
+        return 'status-online';
+      case 'offline':
+        return 'status-offline';
+      case 'warning':
+        return 'status-warning';
+      default:
+        return '';
     }
-
-    if (maxValue && value > maxValue) {
-      return '#FA3838'
-    }
-
-    if (minValue && value < minValue) {
-      return 'rgb(31 31 141)'
-    }
-
-    return '#22C55E';
-  }
-
-  getBackgrounColor()
-  {
-    var value = this.sensorInfo?.value
-    var maxValue = this.sensorInfo?.maxAlarm?.threshold
-    var minValue = this.sensorInfo?.minAlarm?.threshold
-
-    if (!this.sensorInfo.isActive || (!value && value !== 0)) {
-      return 'none';
-    }
-
-    if (maxValue !== null && maxValue !== undefined && value > maxValue) {
-      return 'rgb(242 156 156)'
-    }
-
-    if (minValue !== null && minValue !== undefined && value < minValue) {
-      return 'rgb(196 214 243)'
-    }
-
-    return 'none';
   }
 
   deletePanel() {
     this.deleteCallback.emit(this.sensorInfo.id)
   }
 
-  infoCLick() {
-    this.clickCallback.emit(this.sensorInfo)
+  plotSensor() {
+    this.plot.emit(this.sensorInfo)
+  }
+
+  openSettingsDialog() {
+    this.settings.emit(this.sensorInfo)
   }
 
   getCurrentReading() {
-    return this.sensorInfo && this.sensorInfo?.isActive && this.sensorInfo?.value != null ? 
+    return this.sensorInfo && this.sensorInfo?.isActive && this.sensorInfo?.value != null ?
                     (Number(this.sensorInfo.value)/this.sensorInfo.multiplier).toFixed(2) : "--"
+  }
+
+  /**
+   * Returns a label like "Ativo a menos de 1 minuto atrás" or "Ativo há N minutos".
+   * Uses minute-by-minute granularity.
+   */
+  getLastActivityLabel(): string {
+    const last = this.sensorInfo?.lastActivity;
+    if (!last) return 'Ativo há muito tempo';
+    const lastTime = last instanceof Date ? last.getTime() : new Date(last).getTime();
+    const now = Date.now();
+    const diffMs = now - lastTime;
+    const diffMinutes = Math.floor(diffMs / (60 * 1000));
+
+    if (diffMinutes < 0) return 'Ativo agora';
+    if (diffMinutes === 0) return 'Ativo a menos de 1 minuto atrás';
+    if (diffMinutes === 1) return 'Ativo há 1 minuto';
+    if (diffMinutes < 60) return `Ativo há ${diffMinutes} minutos`;
+    const hours = Math.floor(diffMinutes / 60);
+    if (hours === 1) return 'Ativo há 1 hora';
+    return `Ativo há ${hours} horas`;
   }
 
 }

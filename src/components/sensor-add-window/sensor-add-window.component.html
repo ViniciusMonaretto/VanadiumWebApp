@@ -1,38 +1,31 @@
 <h2 mat-dialog-title>Adicionar Novo Sensor</h2>
 <mat-dialog-content>
-  
-  <div>
-    <div>Nome</div>
-    <mat-form-field style="width: 100%;" appearance="fill">
-      <input matInput [(ngModel)]="sensorModule.name" />
-    </mat-form-field>
-  </div>
-  <div>
-    <div>Gateway</div>
-    <mat-form-field style="width: 100%;" appearance="fill">
-      <input matInput [(ngModel)]="sensorModule.gatewayId" />
-    </mat-form-field>
-  </div>
-  <div>
-    <div>Indicador</div>
-    <mat-form-field style="width: 100%;" appearance="fill">
-      <input matInput [(ngModel)]="sensorModule.index" />
-    </mat-form-field>
-  </div>
-  <div>
-    <mat-label>Tipo</mat-label>
-    <mat-select [(ngModel)]="sensorModule.type">
-      <mat-option *ngFor="let typeSensor of sensorTypes" [value]="typeSensor.value">{{typeSensor.name}}</mat-option>
-    </mat-select>
-  </div>
-  <div>
-    <div>Cor</div>
-    <mat-form-field style="width: 100%;" appearance="fill">
-      <input matInput [value]="this.sensorModule.color" readonly (click)="showPicker = !showPicker" />
-    </mat-form-field>
+  <div class="modal-body">
+    <div class="form-group">
+      <label for="sensor-name">Nome do Sensor</label>
+      <input id="sensor-name" type="text" [(ngModel)]="sensorModule.name" placeholder="ex: Freezer 01" class="form-input">
+    </div>
 
-    <div *ngIf="showPicker">
-      <color-chrome [(color)]="this.sensorModule.color"></color-chrome>
+    <div class="form-group">
+      <label for="device-label">Rótulo do Dispositivo</label>
+      <select id="device-label" [(ngModel)]="sensorModule.gatewayId" class="form-input">
+        <option value="" disabled>Selecione um dispositivo</option>
+        <option *ngFor="let device of groupOptions" [value]="device.gatewayId">
+          {{ device.name }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="sensor-name">Número do Sensor</label>
+      <input id="sensor-name" type="number" [(ngModel)]="sensorModule.index" placeholder="ex: 1" class="form-input">
+    </div>
+
+    <div class="form-group">
+      <label for="sensor-type">Tipo de Sensor</label>
+      <select id="sensor-type" [(ngModel)]="sensorModule.type" class="form-input">
+        <option *ngFor="let typeSensor of sensorTypes" [value]="typeSensor.value">{{typeSensor.name}}</option>
+      </select>
     </div>
   </div>
 
@@ -40,5 +33,5 @@
 <mat-dialog-actions style="display: flex; gap: 10px;">
   <io-button style="height: 30px;" variant="secondary" (clicked)="onNoClick()">Cancelar</io-button>
   <io-button style="height: 30px;" variant="primary" [disabled]="!validForm()" (clicked)="onAddCLick()"
-    cdkFocusInitial>Adicionar</io-button>
+    cdkFocusInitial>Adicionar Sensor</io-button>
 </mat-dialog-actions>

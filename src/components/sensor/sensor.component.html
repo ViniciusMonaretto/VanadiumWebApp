@@ -1,14 +1,50 @@
-<div class="sensor" (click)="infoCLick()" [style.background-color]="getBackgrounColor()">
-  <div class="header-sensor">
-    {{ sensorInfo.name }}
-    <div [style.background-color]="getColorOfReading()" class="color-square"></div>
-  </div>
-  <div class="measure-display">
-    <div class="middle-measure" >
-      {{ getCurrentReading() + " " + getMeasureIcon() }}
+<div class="sensor-card">
+
+  <!-- Three dots -->
+  <div class="menu-wrapper">
+    <button class="menu-button" (click)="toggleMenu()">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </button>
+
+    <div *ngIf="menuOpen" class="menu-dropdown">
+      <button class="menu-item settings" (click)="openSettingsDialog()">
+        Configurações
+      </button>
+      <button class="menu-item plot" (click)="plotSensor()">
+        Gráfico
+      </button>
+      <button class="menu-item delete" (click)="deletePanel()">
+        Remover
+      </button>
     </div>
   </div>
-  <div class="footer-display" [style.color]="getColorOfSensorStatusMessage()">
-      {{getStatusMessageOfSensor()}}
+
+  <!-- Title -->
+  <h2 class="sensor-name">{{ sensorInfo.name }}</h2>
+
+  <!-- Status -->
+  <div class="status-container">
+    <span class="status-pill" [ngClass]="getStatusColor()">
+      <span class="status-dot"></span>
+      {{ getStatusMessageOfSensor() }}
+    </span>
   </div>
+
+  <!-- Value -->
+  <div class="sensor-body">
+    <div class="sensor-value">
+      {{ getCurrentReading() }}<span class="unit">{{ getMeasureIcon() }}</span>
+    </div>
+
+    <div class="sensor-label">
+      {{ sensorInfo.gatewayId }}
+    </div>
+
+    <div class="sensor-updated">
+      {{ getLastActivityLabel() }}
+    </div>
+  </div>
+
 </div>

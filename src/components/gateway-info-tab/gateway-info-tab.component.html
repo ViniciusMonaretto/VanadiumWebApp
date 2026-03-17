@@ -1,16 +1,72 @@
-<div class="gateway-card">
-  <div class="header-gateway">
-    <div class="gateway-name">{{gatewayInfo.name}}</div>
-    <div class="status-indicator" [class.online]="isGatewayOnline()"></div>
+<div class="device-card">
+  
+  <!-- Header -->
+  <div class="device-header">
+    <h2 class="device-name">{{ gateway.name }}</h2>
+
+    <div class="device-header-right">
+      <span
+        class="status-pill"
+        [ngClass]="getStatusColor(gateway.status)"
+      >
+        <span class="status-dot"></span>
+        {{ gateway.status }}
+      </span>
+
+      <!-- Three dots menu -->
+      <div class="menu-wrapper">
+        <button
+          class="menu-button"
+          (click)="toggleMenu()"
+        >
+          ⋮
+        </button>
+
+        <div
+          *ngIf="menuOpen"
+          class="menu-dropdown"
+        >
+          <button
+            class="menu-item delete"
+            (click)="handleDelete()"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+
+    </div>
   </div>
-  <div class="gateway-details">
-    <div class="detail-item">
-      <span class="detail-label">IP Address:</span>
-      <span class="detail-value">{{gatewayInfo.ip}}</span>
+
+  <!-- Content -->
+  <div class="device-content">
+
+    <div class="device-image-container">
+      <img
+        [src]="getImageUrl(gateway.image)"
+        [alt]="gateway.name + ' dashboard'"
+        class="device-image"
+      />
     </div>
-    <div class="detail-item">
-      <span class="detail-label">Uptime:</span>
-      <span class="detail-value">{{formatUptime(gatewayInfo.uptime)}}</span>
+
+    <div class="device-info">
+
+      <div class="info-item">
+        <span class="info-label">IP Address:</span>
+        <span class="info-value">{{ gateway.ip }}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="info-label">Uptime:</span>
+        <span class="info-value">{{ formatUptime(gateway.uptime) }}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="info-label">Last Activity:</span>
+        <span class="info-value">{{ gateway.lastActivity }}</span>
+      </div>
+
     </div>
+
   </div>
 </div>

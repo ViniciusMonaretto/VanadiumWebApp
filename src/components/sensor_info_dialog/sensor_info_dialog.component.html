@@ -1,66 +1,81 @@
-<h2 mat-dialog-title>{{sensorName}}</h2>
+<h2 mat-dialog-title>Configurações do Sensor {{sensorName}}</h2>
 <mat-dialog-content style="-webkit-spellcheck: false;">
-    <div>
-        <div>Nome</div>
-        <mat-form-field style="width: 100%;" appearance="fill">
-                <input matInput [(ngModel)]="newName" [disabled]="!canEdit" />
-        </mat-form-field>
-    </div>
-    <div>
-        <div>Cor</div>
-        <mat-form-field style="width: 100%;" appearance="fill">
-            <input matInput [value]="color" [disabled]="!canEdit" readonly (click)="showPicker = !showPicker" />
-        </mat-form-field>
-        
-        <div *ngIf="showPicker">
-            <color-chrome [(color)]="color"></color-chrome>
+    <div class="modal-body">
+        <!-- General -->
+        <div class="form-group">
+            <label for="sensor-name">Nome do Sensor</label>
+            <input id="sensor-name" type="text" [(ngModel)]="newName" placeholder="ex: Freezer 01" class="form-input">
         </div>
-    </div>
-    <div>
-        <label class="inline-flex items-center mb-2">
-            <input type="checkbox" id="alarmEnabled" [disabled]="!canEdit" [(ngModel)]="kiloSelected" class="form-checkbox h-5 w-5 text-blue-600">
-            <span class="ml-2 text-sm text-gray-700">Mostrar em Kilo</span>
-        </label>
-    </div>
-    
-    <label class="inline-flex items-center mb-2">
-        <input type="checkbox" id="alarmEnabled" [disabled]="!canEdit" [(ngModel)]="calibrate" class="form-checkbox h-5 w-5 text-blue-600">
-        <span class="ml-2 text-sm text-gray-700">Calibrar</span>
-    </label>
-    <div *ngIf="calibrate">
-        <div>Ganho</div>
-        <mat-form-field style="width: 100%;" appearance="fill">
-            <input matInput type="number" [disabled]="!calibrate" step="0.01" [(ngModel)]="gain">
-        </mat-form-field>
-    </div>
-    <div *ngIf="calibrate">
-        <div>Offset:</div>
-        <mat-form-field style="width: 100%;" appearance="fill">
-            <input matInput type="number" [disabled]="!calibrate" step="0.01" [(ngModel)]="offset">
-        </mat-form-field>
-    </div>
-    <div class="border-t pt-4">
-        <label class="inline-flex items-center mb-2">
-            <input type="checkbox" id="alarmEnabled" [disabled]="!canEdit" [(ngModel)]="enableAlarms" class="form-checkbox h-5 w-5 text-blue-600">
-            <span class="ml-2 text-sm text-gray-700">Habilitar Alarmes</span>
-        </label>
-        <div class="alarm-div" *ngIf="enableAlarms">
-            <div style="width: calc(50% - 5px);">
-                <div>Máximo</div>
-                <mat-form-field style="width: 100%;" appearance="fill">
-                    <input [disabled]="!enableAlarms || !canEdit" matInput type="number" [(ngModel)]="maxAlarm">
-                </mat-form-field>
+
+        <div class="form-group" *ngIf="isFlowSensor()">
+            <label for="sensor-unit">Unidade (Fluxo de Água)</label>
+            <select id="sensor-unit" [(ngModel)]="unit" class="form-input">
+                <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
+            </select>
+        </div>
+
+        <!-- Calibration -->
+        <div class="section">
+            <h3 class="section-title">Calibração</h3>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="sensor-offset">Deslocamento</label>
+                    <input id="sensor-offset" type="number" [(ngModel)]="offset" placeholder="0" step="0.1"
+                        class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label for="sensor-multiplier">Multiplicador</label>
+                    <input id="sensor-multiplier" type="number" [(ngModel)]="gain" placeholder="1" step="0.01"
+                        class="form-input">
+                </div>
             </div>
-            <div style="width: calc(50% - 5px);">
-                <div>Mínimo</div>
-                <mat-form-field style="width: 100%;" appearance="fill">
-                    <input [disabled]="!enableAlarms || !canEdit" matInput type="number" [(ngModel)]="minAlarm">
-                </mat-form-field>
-            </div> 
-        </div>   
+        </div>
+
+        <!-- Alarms -->
+        <div class="section">
+            <div class="section-header">
+                <h3 class="section-title">Alarmes</h3>
+                <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="enableAlarms">
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+
+            <div class="alarm-fields" *ngIf="enableAlarms">
+                <div class="form-group">
+                    <label for="alarm-level">Nível</label>
+                    <select id="alarm-level" [(ngModel)]="alarmLevel" class="form-input">
+                        <option value="critical">Crítico</option>
+                        <option value="warning">Alerta</option>
+                        <option value="info">Informativo</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="alarm-min">Mínimo</label>
+                        <input id="alarm-min" type="number" [(ngModel)]="minAlarm" placeholder="—" step="0.1"
+                            class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="alarm-max">Máximo</label>
+                        <input id="alarm-max" type="number" [(ngModel)]="maxAlarm" placeholder="—" step="0.1"
+                            class="form-input">
+                    </div>
+                </div>
+
+                <span class="field-hint">
+                    Um alarme será gerado quando o valor sair da faixa definida.
+                </span>
+            </div>
+        </div>
     </div>
 </mat-dialog-content>
 <mat-dialog-actions style="display: flex; gap: 10px;">
     <io-button style="height: 30px;" variant="secondary" (clicked)="onCancel()">Cancelar</io-button>
-    <io-button style="height: 30px;" variant="primary" [disabled]="!validForm()" (clicked)="onApply()" cdkFocusInitial>Aplicar</io-button>
+    <io-button style="height: 30px;" variant="primary" [disabled]="!validForm()" (clicked)="onApply()"
+        cdkFocusInitial>Aplicar</io-button>
 </mat-dialog-actions>

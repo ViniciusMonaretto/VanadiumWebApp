@@ -1,7 +1,8 @@
-import { Component, Inject, HostListener, ElementRef } from '@angular/core';
+import { Component, Inject, ElementRef } from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef, MatDialogModule} from '@angular/material/dialog';
 import {SensorTypesEnum} from "../../enum/sensor-type"
 import {SensorModule} from "../../models/sensor-module"
+import { GatewayModule } from '../../models/gateway-model';
 
 import { CommonModule } from '@angular/common';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -12,6 +13,8 @@ import { FormsModule } from '@angular/forms';
 
 import { ColorChromeModule } from 'ngx-color/chrome';
 import { IoButtonComponent } from '../io-button/io-button.component';
+import { UiPanelService } from '../../services/ui-panels.service';
+import { GatewayService } from '../../services/gateway.service';
 
 
 @Component({
@@ -30,7 +33,6 @@ import { IoButtonComponent } from '../io-button/io-button.component';
     standalone: true
 })
 export class SensorAddWindowComponent {
-  public showPicker: boolean = false
   public sensorModule: SensorModule = new SensorModule()
 
   public sensorTypes = Object.keys(SensorTypesEnum)
@@ -40,15 +42,20 @@ export class SensorAddWindowComponent {
       value: SensorTypesEnum[key as keyof typeof SensorTypesEnum]
     }));
 
+  /** Cached list for template; set once to avoid calling Object.values() on every change detection. */
+  groupOptions: GatewayModule[] = [];
+
   settedType?: SensorTypesEnum
   group: string = ""
 
   constructor(public dialogRef: MatDialogRef<SensorAddWindowComponent>,
+    private gatewayService: GatewayService,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private elementRef: ElementRef
   ) {
     this.settedType = data.sensorType
     this.group = data.group
+    this.groupOptions = Object.values(this.gatewayService.gateways);
   }
 
   onNoClick(): void {
@@ -61,10 +68,10 @@ export class SensorAddWindowComponent {
       this.sensorModule.type = this.settedType
     return {
       "name": this.sensorModule.name,
-      "gateway": this.sensorModule.gatewayId,
-      "sensorType": this.sensorModule.type,
-      "group": this.group,
-      "indicator": this.sensorModule.index.toString(),
+      "gatewayId": this.sensorModule.gatewayId,
+      "type": this.sensorModule.type,
+      "groupId": this.group,
+      "index": this.sensorModule.index.toString(),
       "color": this.sensorModule.color
     }
   }
@@ -79,21 +86,6 @@ export class SensorAddWindowComponent {
   onAddCLick(): void{
     this.data.callback(this.getSensorData())
     this.dialogRef.close();
-  }
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event): void {
-    if (this.showPicker) {
-      const clickedElement = event.target as HTMLElement;
-      const colorPickerElement = this.elementRef.nativeElement.querySelector('color-chrome');
-      const inputElement = this.elementRef.nativeElement.querySelector('input[readonly]');
-      
-      // Check if click is outside both the color picker and the input field
-      if (colorPickerElement && !colorPickerElement.contains(clickedElement) && 
-          inputElement && !inputElement.contains(clickedElement)) {
-        this.showPicker = false;
-      }
-    }
   }
 
 }

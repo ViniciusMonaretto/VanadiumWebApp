@@ -16,6 +16,7 @@ import {
   Users,
   LogOut
 } from 'lucide-angular';
+import { GatewayService } from '../../services/gateway.service';
 
 @Component({
   selector: 'app-manager-screen',
@@ -47,7 +48,8 @@ export class ManagerScreenComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private uiPanelService: UiPanelService,
-    private router: Router
+    private router: Router,
+    private gatewayService: GatewayService
   ) {}
 
   ngOnInit(): void {

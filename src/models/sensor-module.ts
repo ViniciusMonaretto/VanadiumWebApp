@@ -5,6 +5,7 @@ export class SensorModule{
     public id: number = 0
     public name: string = "";
     public gatewayId: string = "";
+    public lastActivity: Date = new Date()
     public color: string = "#000000"
     public index: number = 0
     public type: SensorTypesEnum = SensorTypesEnum.TEMPERATURA
