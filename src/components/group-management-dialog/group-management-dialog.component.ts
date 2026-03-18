@@ -46,7 +46,7 @@ export class GroupManagementDialogComponent {
     this.newGroupName = '';
   }
 
-  deleteGroup(id: string | number): void {
-    this.uiPanelService.RemoveGroup(String(id));
+  deleteGroup(id: number): void {
+    this.uiPanelService.RemoveGroup(id);
   }
 }

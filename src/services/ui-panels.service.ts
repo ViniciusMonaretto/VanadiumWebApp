@@ -70,17 +70,17 @@ export class UiPanelService {
 
   public AddGroup(groupName: any) {
     this.openSpinnerDialog("Adicionando grupo")
-    this.api.send("addGroupPanel", groupName).then((groupData: any) => {
+    this.api.send("addGroup", groupName).then((groupData: any) => {
       this.closeSpinnerDialog();
-      this.groups[groupData.groupId] = new GroupInfo()
-      this.groups[groupData.groupId].name = groupData.groupName
-      this.groups[groupData.groupId].id = groupData.groupId
+      this.groups[groupData.id] = new GroupInfo()
+      this.groups[groupData.id].name = groupData.name
+      this.groups[groupData.id].id = groupData.id
     })
   }
 
-  public RemoveGroup(groupId: string) {
+  public RemoveGroup(groupId: number) {
     this.openSpinnerDialog("Removendo grupo")
-    this.api.send("removeGroupPanel", groupId).then(() => {
+    this.api.send("removeGroup", groupId).then(() => {
       this.closeSpinnerDialog();
       delete this.groups[groupId]
     })
