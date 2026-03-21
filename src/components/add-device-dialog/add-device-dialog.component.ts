@@ -14,8 +14,7 @@ interface NewDeviceInput {
   standalone: true,
   imports: [CommonModule, FormsModule,
     FormsModule,
-    MatDialogModule,
-    IoButtonComponent],
+    MatDialogModule],
   templateUrl: './add-device-dialog.component.html',
   styleUrl: './add-device-dialog.component.css'
 })
@@ -26,24 +25,22 @@ export class AddDeviceDialogComponent {
 
   constructor(public dialogRef: MatDialogRef<AddDeviceDialogComponent>, 
     @Inject(MAT_DIALOG_DATA) public data: { groups: GroupInfo[], 
-      onSubmit: (deviceId: string) => void,
-      onDelete: (groupId: number) => void,
-      onClose: () => void }) {
+      onSubmit: (deviceId: any) => void }) {
     this.groups = data.groups;
   }
 
-  createNewPage() {
-    this.data.onSubmit(this.newGroupName);
-    this.dialogRef.close();
-  }
+  deviceId = '';
 
-  deletePage(groupId: number) {
-    this.data.onDelete(groupId);
-    this.dialogRef.close();
+  submit() {
+    if (!this.deviceId.trim()) {
+      return;
+    }
+
+    this.data.onSubmit(this.deviceId.trim());
+    this.close();
   }
 
   close() {
-    this.data.onClose?.();
     this.dialogRef.close();
   }
 }

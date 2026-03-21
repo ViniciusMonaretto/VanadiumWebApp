@@ -48,7 +48,9 @@ export class GatewayInfoTabComponent {
       return 'Offline';
     }
 
-    const uptimeMilliseconds = dateUptime.getTime();
+    dateUptime =  new Date(dateUptime);
+
+    const uptimeMilliseconds = new Date().getTime() - dateUptime.getTime();
     if (uptimeMilliseconds <= 0) {
       return 'Offline';
     }

@@ -38,7 +38,7 @@ export class MainScreenComponent implements OnInit {
     { name: 'Gráficos', action: () => this.setStatusLog(), icon: LineChart },
     { name: 'Dispositivos', action: () => this.setGatewayScreen(), icon: Cpu },
     { name: 'Alarmes', action: () => this.setAlertScreen(), icon: History },
-    { name: 'Selecionar outra empresa', action: () => this.disselectEnterprise(), icon: History },
+    //{ name: 'Selecionar outra empresa', action: () => this.disselectEnterprise(), icon: History },
     { name: 'Sair', action: () => this.logout(), icon: LogOut },
   ];
 
