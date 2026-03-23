@@ -5,6 +5,7 @@ import { SensorTypesEnum } from '../../enum/sensor-type';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { throwDialogContentAlreadyAttachedError } from '@angular/cdk/dialog';
+import { getLastActivityLabel } from '../../utils/date-util';
 
 @Component({
   selector: 'sensor',
@@ -124,25 +125,8 @@ export class SensorComponent implements OnInit {
                     (Number(this.sensorInfo.value)/this.sensorInfo.multiplier).toFixed(2) : "--"
   }
 
-  /**
-   * Returns a label like "Ativo a menos de 1 minuto atrás" or "Ativo há N minutos".
-   * Uses minute-by-minute granularity.
-   */
-  getLastActivityLabel(): string {
-    const last = this.sensorInfo?.lastActivity;
-    if (!last) return 'Ativo há muito tempo';
-    const lastTime = last instanceof Date ? last.getTime() : new Date(last).getTime();
-    const now = Date.now();
-    const diffMs = now - lastTime;
-    const diffMinutes = Math.floor(diffMs / (60 * 1000));
-
-    if (diffMinutes < 0) return 'Ativo agora';
-    if (diffMinutes === 0) return 'Ativo a menos de 1 minuto atrás';
-    if (diffMinutes === 1) return 'Ativo há 1 minuto';
-    if (diffMinutes < 60) return `Ativo há ${diffMinutes} minutos`;
-    const hours = Math.floor(diffMinutes / 60);
-    if (hours === 1) return 'Ativo há 1 hora';
-    return `Ativo há ${hours} horas`;
+  getLastActivityLabel(): string{
+    return getLastActivityLabel(this.sensorInfo.lastActivity);
   }
 
 }
