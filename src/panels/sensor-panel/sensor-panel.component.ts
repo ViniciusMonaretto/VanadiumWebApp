@@ -159,7 +159,7 @@ export class SensorPanelComponent {
       if (!groupId) {
         return;
       }
-      this.UiPanelsService.SelectGroup(groupId);
+      this.UiPanelsService.SelectGroup(groupId.value);
     }
 
     getSelectedGroupName(): string {

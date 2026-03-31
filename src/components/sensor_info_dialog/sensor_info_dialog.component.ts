@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
-import { SensorModule } from '../../models/sensor-module';
+import { FlowSensorModule, SensorModule } from '../../models/sensor-module';
 import { IoButtonComponent } from '../io-button/io-button.component';
 import { SensorTypesEnum } from '../../enum/sensor-type';
 
@@ -34,7 +34,7 @@ export class SensorInfoDialogComponent {
   public alarmLevel: string = "warning"
   public showPicker: boolean = false
   public sensorType: SensorTypesEnum = SensorTypesEnum.TEMPERATURA
-  public unit: string = ""
+  public displayedType: number = 0
   private panelId = -1
   private gateway = ""
   private topic = ""
@@ -49,7 +49,11 @@ export class SensorInfoDialogComponent {
   uiConfig: { [id: string]: any } = {}
   calibrate: boolean = false
 
-  unitOptions = ['L/min', 'L/h', 'L/dia', 'L/semana', 'L/mês'];
+  unitOptions = [{label: 'L/min', value: 0}, 
+    {label: 'L/h', value: 1}, 
+    {label: 'L/dia', value: 2}, 
+    {label: 'L/semana', value: 3}, 
+    {label: 'L/mês', value: 4}];
 
   constructor(public dialogRef: MatDialogRef<SensorInfoDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { sensorInfo: SensorModule, callback: ((obj: any) => void)},
@@ -74,6 +78,10 @@ export class SensorInfoDialogComponent {
     this.onApplyAction = data.callback;
     this.color = data.sensorInfo.color
     this.kiloSelected = data.sensorInfo.multiplier == 1000
+
+    if (this.sensorType === SensorTypesEnum.VAZAO) {
+      this.displayedType = (data.sensorInfo as FlowSensorModule).displayedType ?? 0
+    }
   }
 
   validForm() {
@@ -102,7 +110,8 @@ export class SensorInfoDialogComponent {
       "indicator": this.indicator,
       "id": this.panelId,
       "color": this.color,
-      "multiplier": this.kiloSelected ? 1000 : 1
+      "multiplier": this.kiloSelected ? 1000 : 1,
+      "displayedType": Number.parseInt(this.displayedType.toString())
     }
   }
 

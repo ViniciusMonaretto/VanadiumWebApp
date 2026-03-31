@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { SensorModule } from '../../models/sensor-module';
+import { FlowSensorModule, SensorModule } from '../../models/sensor-module';
 import { SensorTypesEnum } from '../../enum/sensor-type';
 
 import { CommonModule } from '@angular/common';
@@ -49,7 +49,20 @@ export class SensorComponent implements OnInit {
       return scaleString + "ºC"
     }
     if (this.sensorInfo.type == SensorTypesEnum.VAZAO) {
-      return scaleString + "L/min"
+
+      var flowSensor = this.sensorInfo as FlowSensorModule
+      switch (flowSensor.displayedType) {
+        case 0:
+          return scaleString + "L/min"
+        case 1:
+          return scaleString + "L/dia"
+        case 2:
+          return scaleString + "L/semana"
+        case 3:
+          return scaleString + "L/mês"
+        default:
+          return scaleString + "L/min"
+      }
     }
     if (this.sensorInfo.type == SensorTypesEnum.POTENCIA) {
       return scaleString + "W"
@@ -76,7 +89,7 @@ export class SensorComponent implements OnInit {
     var maxValue = this.sensorInfo?.maxAlarm?.threshold
     var minValue = this.sensorInfo?.minAlarm?.threshold
 
-    if (!this.sensorInfo.isActive) {
+    if (!this.sensorInfo.active) {
       return 'offline';
     }
 
@@ -121,8 +134,29 @@ export class SensorComponent implements OnInit {
   }
 
   getCurrentReading() {
-    return this.sensorInfo && this.sensorInfo?.isActive && this.sensorInfo?.value != null ?
-                    (Number(this.sensorInfo.value)/this.sensorInfo.multiplier).toFixed(2) : "--"
+    if (!this.sensorInfo || !this.sensorInfo.active || this.sensorInfo.value == null) {
+      return "--"
+    }
+
+    if (this.sensorInfo.type === SensorTypesEnum.VAZAO) {
+
+      var flowSensor = this.sensorInfo as FlowSensorModule
+      switch (flowSensor.displayedType) {
+        case 0:
+          return (Number(this.sensorInfo.value)/this.sensorInfo.multiplier).toFixed(2)
+        case 1:
+          return flowSensor.flowConsumption.dayConsumption.toFixed(2)
+        case 2:
+          return flowSensor.flowConsumption.weekConsumption.toFixed(2)
+        case 3:
+          return flowSensor.flowConsumption.monthConsumption.toFixed(2)
+        default:
+          return (Number(this.sensorInfo.value)/this.sensorInfo.multiplier).toFixed(2)
+      }
+      return (Number(this.sensorInfo.value)/this.sensorInfo.multiplier).toFixed(2)
+    }
+
+    return (Number(this.sensorInfo.value)/this.sensorInfo.multiplier).toFixed(2)
   }
 
   getLastActivityLabel(): string{

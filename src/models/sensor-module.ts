@@ -10,16 +10,32 @@ export class SensorModule{
     public index: number = 0
     public type: SensorTypesEnum = SensorTypesEnum.TEMPERATURA
     public value: Number|null = null
-    public isActive: boolean = false
+    public active: boolean = false
     public gain: number = 0
     public offset: number = 0
     public maxAlarm: AlarmModule | null = null
     public minAlarm: AlarmModule | null = null
     public multiplier: number = 1
+    public displayedType: number = 0
 
     constructor(){
         
     }
+}
+
+export class FlowSensorModule extends SensorModule{
+    public flowConsumption : {
+        dayConsumption: number
+        weekConsumption: number
+        monthConsumption: number
+        lastMonthConsumption: number
+    } = {
+        dayConsumption: 0,
+        weekConsumption: 0,
+        monthConsumption: 0,
+        lastMonthConsumption: 0
+    }
+    
 }
 
 export function GetTableName(gateway:string, indicator: string)

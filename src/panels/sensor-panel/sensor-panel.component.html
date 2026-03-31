@@ -18,7 +18,7 @@
       <div class="header-actions">
         <!-- Page Selector -->
         <div class="page-selector-group">
-          <select id="page-selector" class="page-selector" [value]="getSelectedGroupId()"
+          <select id="page-selector" class="page-selector" [value]="getSelectedGroupId()" (change)="selectGroup($event.target)"
             >
             <option *ngFor="let group of getGroups()" [value]="group.id">
               {{ group.name }} ({{ group.panels.length }})

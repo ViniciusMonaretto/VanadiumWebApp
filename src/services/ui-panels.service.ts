@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { GetTableName, SensorModule } from "../models/sensor-module"
+import { FlowSensorModule, GetTableName, SensorModule } from "../models/sensor-module"
 import { SensorTypesEnum } from '../enum/sensor-type';
 import { table } from 'console';
 import { GatewayModule } from '../models/gateway-model';
@@ -164,7 +164,36 @@ export class UiPanelService {
     return this.groups
   }
 
-  AddSensorToPanel(sensor: SensorModule, groupId: string) {
+  AddSensorToPanel(sensor: any, groupId: string) {
+    switch (sensor.type) {
+      case "flow":
+        sensor.type = SensorTypesEnum.VAZAO
+        break;
+      case "temperature":
+        sensor.type = SensorTypesEnum.TEMPERATURA
+        break;
+      case "pressure":
+        sensor.type = SensorTypesEnum.PRESSAO
+        break;
+      case "power":
+        sensor.type = SensorTypesEnum.POTENCIA
+        break;
+      case "current":
+        sensor.type = SensorTypesEnum.CORRENTE
+        break;
+      case "voltage":
+        sensor.type = SensorTypesEnum.TENSÃO
+        break;
+      case "power_factor":
+        sensor.type = SensorTypesEnum.FATOR_DE_POTENCIA
+        break;
+      case "humidity":
+        sensor.type = SensorTypesEnum.UMIDADE
+        break;
+      default:
+        break;
+    }
+
     this.groups[groupId].panels.push(sensor);
   }
 
@@ -218,6 +247,7 @@ export class UiPanelService {
         panel.offset = updatePanelInfo.offset
         panel.maxAlarm = updatePanelInfo.maxAlarm
         panel.minAlarm = updatePanelInfo.minAlarm
+        panel.displayedType = updatePanelInfo.displayedType
       }
     }).finally(() => {
       this.closeSpinnerDialog();
@@ -291,6 +321,25 @@ export class UiPanelService {
 
   }
 
+  updateSensorValue(sensor: SensorModule, statusUpdate: any) {
+      sensor.value = statusUpdate.value
+      sensor.lastActivity = new Date()
+      sensor.active = statusUpdate.active
+      if (sensor.name in this.sensorCachedCurrentInfo) {
+        this.sensorCachedCurrentInfo[sensor.name].push({
+          timestamp: statusUpdate["timestamp"],
+          value: statusUpdate["data"],
+        })
+      }
+
+      if (sensor.type === SensorTypesEnum.VAZAO){
+        var flowSensor = sensor as FlowSensorModule
+        flowSensor.flowConsumption.dayConsumption += statusUpdate.value
+        flowSensor.flowConsumption.weekConsumption += statusUpdate.value
+        flowSensor.flowConsumption.monthConsumption += statusUpdate.value
+      }
+  }
+
   OnSubscriptionUpdate(topic: string, status_update: any) {
     let topicInfo = topic.split('-')
     let tableFullName = GetTableName(topicInfo[0], topicInfo[1])
@@ -298,19 +347,7 @@ export class UiPanelService {
     if (tableFullName in this.subscriptioMap) {
       for (let callbackObj of this.subscriptioMap[tableFullName]) {
         if ("gatewayId" in callbackObj) {
-          callbackObj.value = status_update.value
-          //TODO: Pegar Timestamp do servidor
-          callbackObj.lastActivity = new Date()
-          callbackObj.isActive = status_update.active
-          if (tableFullName in this.sensorCachedCurrentInfo) {
-            this.sensorCachedCurrentInfo[tableFullName].push({
-              timestamp: status_update["timestamp"],
-              value: status_update["data"],
-            })
-            let filterDate = new Date()
-            filterDate.setHours(filterDate.getHours() - 1)
-            this.sensorCachedCurrentInfo[tableFullName] = this.sensorCachedCurrentInfo[tableFullName].filter(x => new Date(x.timestamp) >= filterDate)
-          }
+          this.updateSensorValue(callbackObj as SensorModule, status_update)
         }
         else {
           (callbackObj as Function)(tableFullName, status_update)

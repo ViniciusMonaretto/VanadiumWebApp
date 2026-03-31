@@ -9,8 +9,8 @@
 
         <div class="form-group" *ngIf="isFlowSensor()">
             <label for="sensor-unit">Unidade (Fluxo de Água)</label>
-            <select id="sensor-unit" [(ngModel)]="unit" class="form-input">
-                <option *ngFor="let unit of unitOptions" [value]="unit">{{ unit }}</option>
+            <select id="sensor-unit" [(ngModel)]="displayedType" [value]="displayedType" class="form-input">
+                <option *ngFor="let unit of unitOptions" [value]="unit.value">{{ unit.label }}</option>
             </select>
         </div>
 
