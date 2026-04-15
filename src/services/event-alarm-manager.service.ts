@@ -25,27 +25,8 @@ export class EventAlarmManagerService {
             })
         })
 
-        // Listen for the response from the hub
-        this.api.addListener("ReceiveAllAlarmEvents", (events: []) => {
-            if (events && Array.isArray(events)) {
-                var newEvents: Array<EventAlarmModule> = []
-                events.forEach((evt) => 
-                {
-                    newEvents.push(this.createEventModel(evt))
-                })
-                this.receiveEventsCallback(newEvents, true)
-            }
-        });
-
-        this.api.addListener("eventInfoUpdate", (events: []) => {
-            if (events && Array.isArray(events)) {
-                var newEvents: Array<EventAlarmModule> = []
-                events.forEach((evt: any) => 
-                {
-                    newEvents.push(this.createEventModel(evt))
-                })
-                this.receiveEventsCallback(newEvents, false)
-            }
+        this.api.addListener("alarmeventreceived", (event: EventAlarmModule) => {
+            this.receiveEventsCallback([event], false)
         });
 
     }

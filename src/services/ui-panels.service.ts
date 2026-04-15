@@ -9,6 +9,7 @@ import { SpinnerComponent } from '../components/spinner/spinner.component';
 import { ApiService } from './api.service';
 import { formatLocalDateToCustomString } from '../utils/date-util';
 import { Enterprise } from '../models/enterprise';
+import { AlarmModule } from '../models/alarm-module';
 
 export class GroupInfo {
   public id: number = -1
@@ -194,6 +195,13 @@ export class UiPanelService {
         break;
     }
 
+    if ('maxAlarm' in sensor) {
+      sensor.maxAlarm = new AlarmModule(sensor.maxAlarm)
+    }
+    if ('minAlarm' in sensor) {
+      sensor.minAlarm = new AlarmModule(sensor.minAlarm)
+    }
+
     this.groups[groupId].panels.push(sensor);
   }
 
@@ -245,8 +253,12 @@ export class UiPanelService {
         panel.name = updatePanelInfo.name
         panel.color = updatePanelInfo.color
         panel.offset = updatePanelInfo.offset
-        panel.maxAlarm = updatePanelInfo.maxAlarm
-        panel.minAlarm = updatePanelInfo.minAlarm
+        if ('maxAlarm' in updatePanelInfo) {
+          panel.maxAlarm = updatePanelInfo.maxAlarm
+        }
+        if ('minAlarm' in updatePanelInfo) {
+          panel.minAlarm = updatePanelInfo.minAlarm
+        }
         panel.displayedType = updatePanelInfo.displayedType
       }
     }).finally(() => {

@@ -1,3 +1,4 @@
+import { AlarmLevel } from "../enum/alarm-type";
 import { SensorTypesEnum } from "../enum/sensor-type";
 import { SensorModule } from "./sensor-module";
 
@@ -8,6 +9,7 @@ export class EventAlarmModule{
     public timestamp: Date|null = null
     public value: Number = 0
     public name: string = ""
+    public level: AlarmLevel = AlarmLevel.WARNING
 
     public panelName: string = ""
     public panelType: SensorTypesEnum = SensorTypesEnum.PRESSAO

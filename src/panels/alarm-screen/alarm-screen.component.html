@@ -1,12 +1,183 @@
-<div class="main-div-display">
-    <div class="group-header">Eventos</div>
-    <div style="height: 40px;">
-        <io-button style="height: 25px;" variant="secondary" (clicked)="eraseAllEvents()">
-            Limpar eventos
-        </io-button >
+<div class="alarms-page">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon-badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg>
+        </div>
+        <div class="header-text">
+          <h1 class="page-title">Alarmes</h1>
+          <p class="page-subtitle">{{ getActiveCount() }} alarme(s) ativo(s)</p>
+        </div>
+      </div>
+  
+      <div class="header-actions">
+        <!-- Summary chips -->
+        <div class="summary-chips">
+          <span class="chip chip--critical" *ngIf="getCriticalCount() > 0">
+            <span class="chip-dot chip-dot--critical"></span>
+            {{ getCriticalCount() }} Crítico(s)
+          </span>
+          <span class="chip chip--warning" *ngIf="getWarningCount() > 0">
+            <span class="chip-dot chip-dot--warning"></span>
+            {{ getWarningCount() }} Alerta(s)
+          </span>
+        </div>
+  
+        <!-- <button
+          class="btn-action btn-action--secondary"
+          (click)="acknowledgeAll()"
+          [disabled]="getActiveCount() === 0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Reconhecer Todos
+        </button> -->
+      </div>
     </div>
-    <div class="table-div">
-        <io-cloud-table [headerInfo]="headerInfo" [models]="getEvents().reverse()">
-        </io-cloud-table>
+  
+    <!-- Filter Strip -->
+    <div class="filter-strip">
+      <button class="filter-toggle-btn" (click)="toggleFilters()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+        Filtros
+        <svg [style.transform]="filtersCollapsed ? 'rotate(0)' : 'rotate(180deg)'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+  
+      <div class="filter-fields" *ngIf="!filtersCollapsed">
+        <input
+          type="text"
+          placeholder="Buscar alarme..."
+          [(ngModel)]="nameFilter"
+          class="filter-input" />
+  
+        <select [(ngModel)]="typeFilter" class="filter-select">
+          <option value="all">Todos os tipos</option>
+          <option value="critical">Crítico</option>
+          <option value="warning">Alerta</option>
+          <option value="info">Info</option>
+        </select>
+  
+        <!-- <select [(ngModel)]="statusFilter" class="filter-select">
+          <option value="all">Todos os status</option>
+          <option value="active">Ativos</option>
+          <option value="acknowledged">Reconhecidos</option>
+        </select> -->
+  
+        <button
+          *ngIf="hasActiveFilters()"
+          class="btn-clear-filters"
+          (click)="clearFilters()">
+          Limpar
+        </button>
+      </div>
     </div>
-</div>
+  
+    <!-- Alarm list -->
+    <div class="alarm-list">
+      <div
+        *ngFor="let alarm of getFilteredAlarms()"
+        class="alarm-row"
+        [class.alarm-row--critical]="isLevelCritical(alarm.level)"
+        [class.alarm-row--warning]="isLevelWarning(alarm.level)"
+        [class.alarm-row--info]="isLevelInfo(alarm.level)">
+  
+        <!-- Type indicator -->
+        <div class="alarm-indicator">
+          <span class="indicator-dot"></span>
+        </div>
+  
+        <!-- Main info -->
+        <div class="alarm-body">
+          <div class="alarm-top">
+            <span class="alarm-badge">{{ getTypeLabel(alarm.level) }}</span>
+            <span class="alarm-sensor">{{ alarm.panelName }}</span>
+            <span class="alarm-device">{{ alarm.panelType }}</span>
+          </div>
+          <div class="alarm-message">{{ alarm.name }}</div>
+          <div class="alarm-meta">
+            <span class="meta-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              Valor: {{ alarm.value }}
+            </span>
+            <!-- <span class="meta-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Mín: {{ alarm.minAlarm?.threshold }}
+            </span>
+            <span class="meta-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              Máx: {{ alarm.max }}
+            </span> -->
+            <span class="meta-item">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              {{ formatTime(alarm.timestamp) }}
+            </span>
+          </div>
+        </div>
+  
+        <!-- Actions -->
+        <!-- <div class="alarm-actions">
+          <button
+            class="btn-ack"
+            *ngIf="!alarm.acknowledged"
+            (click)="acknowledgeAlarm(alarm)"
+            title="Reconhecer alarme">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </button>
+          <span class="ack-label" *ngIf="alarm.acknowledged">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Reconhecido
+          </span>
+          <button
+            class="btn-delete"
+            (click)="deleteAlarm(alarm)"
+            title="Remover alarme">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
+      </div> -->
+  
+      <!-- Empty state -->
+      <div class="empty-state" *ngIf="getFilteredAlarms().length === 0">
+        <div class="empty-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            <line x1="1" y1="1" x2="23" y2="23"></line>
+          </svg>
+        </div>
+        <div class="empty-title">Nenhum alarme encontrado</div>
+        <div class="empty-message">
+          Tente ajustar os filtros ou <button class="empty-action" (click)="clearFilters()">limpar filtros</button>
+        </div>
+      </div>
+    </div>
+  
+  </div>
+  

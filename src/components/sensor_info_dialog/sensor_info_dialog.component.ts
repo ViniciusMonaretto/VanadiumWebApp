@@ -98,21 +98,71 @@ export class SensorInfoDialogComponent {
     return this.sensorType === SensorTypesEnum.VAZAO
   }
 
-  getChangeInfoPanel() {
-    return {
-      "name": this.newName,
-      "gain": this.gain,
-      "offset": this.offset,
-      "maxAlarm": this.enableAlarms ? this.maxAlarm : null,
-      "minAlarm": this.enableAlarms ? this.minAlarm : null,
-      "gateway": this.gateway,
-      "topic": this.topic,
-      "indicator": this.indicator,
-      "id": this.panelId,
-      "color": this.color,
-      "multiplier": this.kiloSelected ? 1000 : 1,
-      "displayedType": Number.parseInt(this.displayedType.toString())
+  /**
+   * Normalizes UI / API values to a finite number or null (empty / invalid → null).
+   */
+  private normalizeAlarmInput(value: Number | number | null | undefined): number | null {
+    if (value === null || value === undefined) {
+      return null;
     }
+    const n = typeof value === 'number' ? value : Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+
+  /**
+   * AlarmThresholdPatch JSON: undefined = omit property (unchanged);
+   * null = remove all alarms on that side; number = add/replace with that threshold.
+   */
+  private alarmThresholdPatchIfChanged(
+    current: Number | number | null | undefined,
+    original: Number | number | null | undefined,
+  ): number | null | undefined {
+    const orig = this.normalizeAlarmInput(original);
+    const curr = this.normalizeAlarmInput(current);
+    if (orig === curr) {
+      return undefined;
+    }
+    if (curr === null) {
+      return null;
+    }
+    return curr;
+  }
+
+  getChangeInfoPanel() {
+    const base = {
+      name: this.newName,
+      gain: this.gain,
+      offset: this.offset,
+      gateway: this.gateway,
+      topic: this.topic,
+      indicator: this.indicator,
+      id: this.panelId,
+      color: this.color,
+      multiplier: this.kiloSelected ? 1000 : 1,
+      displayedType: Number.parseInt(this.displayedType.toString()),
+    } as Record<string, unknown>;
+
+    if (!this.enableAlarms) {
+      base['maxAlarm'] = null;
+      base['minAlarm'] = null;
+    } else {
+      const maxPatch = this.alarmThresholdPatchIfChanged(
+        this.maxAlarm,
+        this.data.sensorInfo.maxAlarm?.threshold,
+      );
+      const minPatch = this.alarmThresholdPatchIfChanged(
+        this.minAlarm,
+        this.data.sensorInfo.minAlarm?.threshold,
+      );
+      if (maxPatch !== undefined) {
+        base['maxAlarm'] = maxPatch;
+      }
+      if (minPatch !== undefined) {
+        base['minAlarm'] = minPatch;
+      }
+    }
+
+    return base;
   }
 
   onCancel(): void {

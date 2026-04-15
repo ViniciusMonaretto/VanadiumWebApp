@@ -1,4 +1,4 @@
-import {AlarmTypes} from "../enum/alarm-type"
+import {AlarmLevel, AlarmTypes} from "../enum/alarm-type"
 
 export class AlarmModule{
     public id: number = 0
@@ -6,8 +6,9 @@ export class AlarmModule{
     public sensor: string = "";
     public alarmType: AlarmTypes = AlarmTypes.EQUAL
     public threshold: Number|null = null
+    public level: AlarmLevel = AlarmLevel.WARNING
 
-    constructor(){
-        
+    constructor(alarmValue: number | null = null){
+        this.threshold = alarmValue
     }
 }
