@@ -26,7 +26,7 @@ export class EventAlarmManagerService {
         })
 
         this.api.addListener("alarmeventreceived", (event: EventAlarmModule) => {
-            this.receiveEventsCallback([event], false)
+            this.receiveEventsCallback([this.createEventModel(event)], false)
         });
 
     }
