@@ -5,7 +5,7 @@ export enum AlarmTypes{
 }
 
 export enum AlarmLevel{
-    CRITICAL = 0,
+    INFO = 0,
     WARNING = 1,
-    INFO = 2
+    CRITICAL = 2
 }

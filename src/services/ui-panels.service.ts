@@ -196,10 +196,10 @@ export class UiPanelService {
     }
 
     if ('maxAlarm' in sensor) {
-      sensor.maxAlarm = new AlarmModule(sensor.maxAlarm)
+      sensor.maxAlarm = new AlarmModule(sensor.maxAlarm, sensor.severity)
     }
     if ('minAlarm' in sensor) {
-      sensor.minAlarm = new AlarmModule(sensor.minAlarm)
+      sensor.minAlarm = new AlarmModule(sensor.minAlarm, sensor.severity)
     }
 
     this.groups[groupId].panels.push(sensor);
@@ -253,12 +253,22 @@ export class UiPanelService {
         panel.name = updatePanelInfo.name
         panel.color = updatePanelInfo.color
         panel.offset = updatePanelInfo.offset
+
         if ('maxAlarm' in updatePanelInfo) {
-          panel.maxAlarm = updatePanelInfo.maxAlarm
+          panel.maxAlarm = new AlarmModule(updatePanelInfo.maxAlarm, updatePanelInfo.alarmSeverity)
         }
+        else {
+          panel.maxAlarm = null
+        }
+
         if ('minAlarm' in updatePanelInfo) {
-          panel.minAlarm = updatePanelInfo.minAlarm
+          panel.minAlarm = new AlarmModule(updatePanelInfo.minAlarm, updatePanelInfo.alarmSeverity)
         }
+        else {
+          panel.minAlarm = null
+        }
+
+
         panel.displayedType = updatePanelInfo.displayedType
       }
     }).finally(() => {

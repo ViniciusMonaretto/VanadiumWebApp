@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { FlowSensorModule, SensorModule } from '../../models/sensor-module';
 import { IoButtonComponent } from '../io-button/io-button.component';
 import { SensorTypesEnum } from '../../enum/sensor-type';
+import { AlarmLevel } from '../../enum/alarm-type';
 
 @Component({
   selector: 'sensor-info-dialog',
@@ -66,6 +67,26 @@ export class SensorInfoDialogComponent {
     this.panelId = data.sensorInfo.id
     this.maxAlarm = data.sensorInfo.maxAlarm?.threshold
     this.minAlarm = data.sensorInfo.minAlarm?.threshold
+
+    const severity = data.sensorInfo.maxAlarm?.severity ?? data.sensorInfo.minAlarm?.severity;
+
+    // Use != null (not truthiness): AlarmLevel.INFO is 0, which is falsy and would be skipped.
+    if (severity != null) {
+        switch (severity) {
+          case AlarmLevel.INFO:
+            this.alarmLevel = "info";
+            break;
+          case AlarmLevel.CRITICAL:
+            this.alarmLevel = "critical";
+            break;
+          case AlarmLevel.WARNING:
+            this.alarmLevel = "warning";
+            break;
+          default:
+            this.alarmLevel = "warning";
+            break;
+        }
+    }
 
     this.calibrate = this.gain != null && this.offset != null
 
@@ -146,20 +167,21 @@ export class SensorInfoDialogComponent {
       base['maxAlarm'] = null;
       base['minAlarm'] = null;
     } else {
-      const maxPatch = this.alarmThresholdPatchIfChanged(
-        this.maxAlarm,
-        this.data.sensorInfo.maxAlarm?.threshold,
-      );
-      const minPatch = this.alarmThresholdPatchIfChanged(
-        this.minAlarm,
-        this.data.sensorInfo.minAlarm?.threshold,
-      );
-      if (maxPatch !== undefined) {
-        base['maxAlarm'] = maxPatch;
-      }
-      if (minPatch !== undefined) {
-        base['minAlarm'] = minPatch;
-      }
+      base['maxAlarm'] = this.maxAlarm;
+      base['minAlarm'] = this.minAlarm;
+      if (this.alarmLevel !== undefined) {
+        switch (this.alarmLevel) {
+          case "critical":
+            base['alarmSeverity'] = AlarmLevel.CRITICAL;
+            break;
+          case "warning":
+            base['alarmSeverity'] = AlarmLevel.WARNING;
+            break;
+          case "info":
+            base['alarmSeverity'] = AlarmLevel.INFO;
+            break;
+        }
+       }
     }
 
     return base;
