@@ -158,4 +158,8 @@ export class GraphViewComponent implements OnInit {
     })
   }
 
+  clearGraphLines(): void {
+    this.removeAllLines();
+  }
+
 }

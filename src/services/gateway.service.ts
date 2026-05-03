@@ -14,8 +14,9 @@ export class GatewayService {
         private api: ApiService,
         private uiPanelService: UiPanelService
       ) {
-        this.api.addListener("GatewaySystemInfoReceived", (gateway: GatewayModule) => {
+        this.api.addListener("GatewaySystemInfoReceived", (gateway: any) => {
             this.gateways[gateway.gatewayId] = gateway
+            this.gateways[gateway.gatewayId].status = gateway.isConnected ? "online" : "offline";
         });
         this.uiPanelService.addOnEnterpriseChangedCallback(() => {
           this.gateways = {}

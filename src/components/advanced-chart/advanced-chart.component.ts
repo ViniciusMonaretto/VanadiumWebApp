@@ -8,6 +8,8 @@ import {
   Input,
   OnChanges,
   SimpleChanges,
+  EventEmitter,
+  Output,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +27,7 @@ export class AdvancedChartComponent implements OnInit, AfterViewInit, OnDestroy,
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
 
   @Input() dataSources: any;
+  @Output() requestClearDataSources = new EventEmitter<any>();
 
   activeTool: 'zoom' | 'pan' = 'zoom';
 
@@ -98,12 +101,18 @@ export class AdvancedChartComponent implements OnInit, AfterViewInit, OnDestroy,
     this.clearRefLinesTrigger = !this.clearRefLinesTrigger;
   }
 
-  hasRefLines(): boolean {
-    return this.crosshairRefMode || this.referenceLinesModeVertical || this.referenceLinesModeHorizontal;
+  clearGraphLines(): void {
+    this.clearReferenceLines()
+    this.requestClearDataSources.emit();
+  }
+
+  hasGraphLines(): boolean {
+    return this.dataSources.length > 0;
   }
 
   resetZoom(): void {
     this.resizeTrigger = !this.resizeTrigger;
+    this.clearReferenceLines();
   }
 
   getDrawingMode(): DrawingMode {

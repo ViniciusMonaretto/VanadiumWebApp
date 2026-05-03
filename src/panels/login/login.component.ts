@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { AuthService } from '../../services/auth.service';
 import { DialogHelper } from '../../services/dialog-helper.service';
+import { UiPanelService } from '../../services/ui-panels.service';
+import { Enterprise } from '../../models/enterprise';
 
 @Component({
     selector: 'app-login',
@@ -33,18 +35,33 @@ export class LoginComponent implements OnInit {
         private formBuilder: FormBuilder,
         private authService: AuthService,
         private router: Router,
-        private dialogHelper: DialogHelper
+        private dialogHelper: DialogHelper,
+        private uiPanelService: UiPanelService
     ) {
     }
 
     ngOnInit(): void {
     }
 
+    setEnterprise(enterprise: Enterprise): void {
+        this.uiPanelService.RequestSelectedEnterpriseGroups(enterprise)?.then((success: boolean) => {
+          if (success) {
+            this.uiPanelService.setSelectedEnterprise(enterprise);
+            this.router.navigate(['/main']);
+          }
+        });
+      }
+
     login() {
         if (this.email != null && this.password != null) {
             this.authService.login(this.email, this.password).then((success) => {
                 if (success) {
-                    this.router.navigate(['/manager']); 
+                    //this.router.navigate(['/manager']); 
+                    if (this.authService.getEnterprises().length > 0) {
+                        this.setEnterprise(this.authService.getEnterprises()[0]);
+                    } else {
+                        this.router.navigate(['/manager']);
+                    }
                 } else {
                     this.dialogHelper.openErrorDialog('Email ou senha inválidos');
                 }

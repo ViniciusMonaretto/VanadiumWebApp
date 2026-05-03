@@ -73,6 +73,7 @@
     <!-- Chart card -->
     <div class="chart-card">
         <app-advanced-chart style="height: 100%;" 
+            (requestClearDataSources)="clearGraphLines()"
             [dataSources]="$any(lineChartData)">
         </app-advanced-chart>
     </div>
