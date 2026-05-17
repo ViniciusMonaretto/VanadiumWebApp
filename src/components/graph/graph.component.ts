@@ -289,7 +289,23 @@ export class GraphComponent {
         position: 'bottom',
         display: true,
         labels: {
-          boxWidth: 12
+          usePointStyle: true,
+          pointStyle: 'line',
+          pointStyleWidth: 30,
+          boxWidth: 30,
+          boxHeight: 2,
+          generateLabels(chart) {
+            const labels = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+            for (const label of labels) {
+              const dataset = chart.data.datasets[label.datasetIndex ?? 0];
+              const color = (dataset.borderColor ?? dataset.backgroundColor) as string;
+              label.pointStyle = 'line';
+              label.strokeStyle = color;
+              label.fillStyle = 'transparent';
+              label.lineWidth = 2;
+            }
+            return labels;
+          },
         }
       },
       tooltip: {

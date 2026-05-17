@@ -35,14 +35,11 @@ export class UiPanelService {
   private spinnerDialogRef: MatDialogRef<SpinnerComponent> | null = null;
 
   constructor(private api: ApiService, private dialogHelper: DialogHelper) {
-    this.api.addListener("sensorDataReceived", (sensorsUpdate: any) => {
-      let sensorData = sensorsUpdate['gatewayData']['sensors']
-      let gatewayId = sensorsUpdate['gatewayId']
-
-      for (let index in sensorData) {
-        this.OnSubscriptionUpdate(gatewayId + '-' + index, sensorData[index])
+    this.api.addListener("sensorDataBatchReceived", (batch: any[]) => {
+      for (const sensorsUpdate of batch) {
+        this.applySensorDataUpdate(sensorsUpdate);
       }
-    })
+    });
 
     this.api.addOnConnectCallback(() => {
       this.selectedEnterprise = null;
@@ -360,6 +357,15 @@ export class UiPanelService {
         flowSensor.flowConsumption.weekConsumption += statusUpdate.value
         flowSensor.flowConsumption.monthConsumption += statusUpdate.value
       }
+  }
+
+  private applySensorDataUpdate(sensorsUpdate: any): void {
+    const sensorData = sensorsUpdate['gatewayData']['sensors'];
+    const gatewayId = sensorsUpdate['gatewayId'];
+
+    for (const index in sensorData) {
+      this.OnSubscriptionUpdate(gatewayId + '-' + index, sensorData[index]);
+    }
   }
 
   OnSubscriptionUpdate(topic: string, status_update: any) {

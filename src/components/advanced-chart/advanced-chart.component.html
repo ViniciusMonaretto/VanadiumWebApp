@@ -102,13 +102,4 @@
             [resize]="resizeTrigger">
     </graph>
     </div>
-
-    <!-- Legend / Sources -->
-    <div class="chart-legend">
-        <div class="legend-item" *ngFor="let source of dataSources; let i = index">
-            <span class="legend-color"
-                [style.background]="source.color || defaultColors[i % defaultColors.length]"></span>
-            <span class="legend-label">{{ source.label }}</span>
-        </div>
-    </div>
 </div>
