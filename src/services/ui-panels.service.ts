@@ -360,11 +360,17 @@ export class UiPanelService {
   }
 
   private applySensorDataUpdate(sensorsUpdate: any): void {
-    const sensorData = sensorsUpdate['gatewayData']['sensors'];
     const gatewayId = sensorsUpdate['gatewayId'];
+    const readings = sensorsUpdate['telemetry']?.['readings'];
+    if (!readings) return;
 
-    for (const index in sensorData) {
-      this.OnSubscriptionUpdate(gatewayId + '-' + index, sensorData[index]);
+    for (const reading of readings) {
+      const statusUpdate = {
+        value: reading['value'],
+        active: true,
+        timestamp: sensorsUpdate['telemetry']['timestamp'],
+      };
+      this.OnSubscriptionUpdate(gatewayId + '-' + reading['sensor_id'], statusUpdate);
     }
   }
 

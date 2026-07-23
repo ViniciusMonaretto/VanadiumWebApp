@@ -1,0 +1,12 @@
+<Project>
+  <!-- MSBuild hook: dotnet build -p:BuildAngular=true -->
+  <PropertyGroup>
+    <VanadiumApiDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\VanadiumAPI'))</VanadiumApiDir>
+    <BuildWebScript>$(VanadiumApiDir)/scripts/build-web.sh</BuildWebScript>
+  </PropertyGroup>
+
+  <Target Name="BuildVanadiumWebApp" BeforeTargets="Build" Condition="'$(BuildAngular)' == 'true'">
+    <Message Importance="high" Text="Building Angular app into VanadiumAPI/wwwroot..." />
+    <Exec Command="bash &quot;$(BuildWebScript)&quot;" WorkingDirectory="$(VanadiumApiDir)" />
+  </Target>
+</Project>

@@ -15,11 +15,20 @@ export class GatewayService {
         private uiPanelService: UiPanelService
       ) {
         this.api.addListener("GatewaySystemInfoReceived", (gateway: any) => {
-            this.gateways[gateway.gatewayId] = gateway
-            this.gateways[gateway.gatewayId].status = gateway.isConnected ? "online" : "offline";
+            const existing = this.gateways[gateway.gatewayId] ?? new GatewayModule();
+            existing.gatewayId = gateway.gatewayId;
+            if (!existing.name) existing.name = gateway.gatewayId;
+            existing.ip = gateway.ipAddress;
+            existing.uptime = gateway.uptime;
+            existing.lastActivity = gateway.lastActivity ? getLastActivityLabel(new Date(gateway.lastActivity)) : '';
+            existing.status = gateway.isConnected ? "online" : "offline";
+            this.gateways[gateway.gatewayId] = existing;
         });
         this.uiPanelService.addOnEnterpriseChangedCallback(() => {
           this.gateways = {}
+          this.updateGateway()
+        })
+        this.api.addOnConnectCallback(() => {
           this.updateGateway()
         })
       }
