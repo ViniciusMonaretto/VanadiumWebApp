@@ -6,6 +6,7 @@ export class GatewayModule{
     public uptime: Date;
     public status: 'online' | 'offline' | 'warning' | string;
     public lastActivity: string;
+    public availableSensors: string[];
 
     constructor() {
         this.gatewayId = '';
@@ -15,5 +16,6 @@ export class GatewayModule{
         this.uptime = new Date();
         this.status = 'offline';
         this.lastActivity = '';
+        this.availableSensors = [];
     }
 }

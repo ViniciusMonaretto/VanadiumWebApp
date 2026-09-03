@@ -22,6 +22,7 @@ export class GatewayService {
             existing.uptime = gateway.uptime;
             existing.lastActivity = gateway.lastActivity ? getLastActivityLabel(new Date(gateway.lastActivity)) : '';
             existing.status = gateway.isConnected ? "online" : "offline";
+            existing.availableSensors = gateway.availableSensors ?? [];
             this.gateways[gateway.gatewayId] = existing;
         });
         this.uiPanelService.addOnEnterpriseChangedCallback(() => {
@@ -40,8 +41,8 @@ export class GatewayService {
 
       public updateGateway()
       {
-        return this.api.send("GetGatewayInfo", null).then((gateways: {[id: string]: 
-          {gatewayId: string, ipAddress: string, isConnected: boolean, uptime: Date, lastActivity: Date}}) => 
+        return this.api.send("GetGatewayInfo", null).then((gateways: {[id: string]:
+          {gatewayId: string, ipAddress: string, isConnected: boolean, uptime: Date, lastActivity: Date, availableSensors: string[]}}) =>
           {
             this.gateways = {};
             for (let gateway of Object.values(gateways)) {
@@ -52,6 +53,7 @@ export class GatewayService {
               this.gateways[gateway.gatewayId].uptime = gateway.uptime;
               this.gateways[gateway.gatewayId].lastActivity = getLastActivityLabel(new Date(gateway.lastActivity));
               this.gateways[gateway.gatewayId].status = gateway.isConnected ? "online" : "offline";
+              this.gateways[gateway.gatewayId].availableSensors = gateway.availableSensors ?? [];
             }
 
           })

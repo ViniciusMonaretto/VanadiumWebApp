@@ -111,6 +111,16 @@
   animation: pulse-warning 1.5s infinite;
 }
 
+.status-pill.status-not-setup {
+  background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%);
+  color: #546e7a;
+  border: 1px solid #b0bec5;
+}
+
+.status-pill.status-not-setup .status-dot {
+  background: #90a4ae;
+}
+
 @keyframes pulse-online {
   0%, 100% {
     box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);

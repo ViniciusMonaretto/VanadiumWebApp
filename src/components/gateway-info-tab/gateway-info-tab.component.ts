@@ -25,13 +25,22 @@ export class GatewayInfoTabComponent {
     this.delete.emit(this.gateway);
   }
 
+  isNotSetup(): boolean {
+    return !this.gateway.availableSensors || this.gateway.availableSensors.length === 0;
+  }
+
   getStatusColor(status: string): string {
+    if (this.isNotSetup()) return 'status-not-setup';
     switch (status?.toLowerCase()) {
       case 'online': return 'status-online';
       case 'offline': return 'status-offline';
       case 'warning': return 'status-warning';
       default: return 'status-offline';
     }
+  }
+
+  getStatusLabel(): string {
+    return this.isNotSetup() ? 'Não configurado' : this.gateway.status;
   }
 
   getImageUrl(image: string): string {
