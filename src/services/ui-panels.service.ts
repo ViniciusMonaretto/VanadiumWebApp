@@ -41,6 +41,26 @@ export class UiPanelService {
       }
     });
 
+    // The gateway confirmed (or rejected) a panel's sensor configuration.
+    this.api.addListener("PanelChangeReceived", (msg: any) => {
+      const dto = msg?.panel;
+      if (!dto) {
+        return;
+      }
+      const panel = this.GetPanelById(dto.id);
+      if (!panel) {
+        return;
+      }
+      // Only the lifecycle flag: maxAlarm/minAlarm are AlarmModule instances on the client and
+      // assigning the DTO's raw numbers over them would break the sensor card.
+      panel.configuring = dto.configuring;
+    });
+
+    // Deletion is asynchronous - the card leaves only once the gateway has confirmed.
+    this.api.addListener("PanelRemoved", (panelId: number) => {
+      this.removePanelLocally(panelId);
+    });
+
     this.api.addOnConnectCallback(() => {
       this.selectedEnterprise = null;
       this.groups = {};
@@ -100,24 +120,31 @@ export class UiPanelService {
   public RemoveSensor(sensorId: any) {
     this.openSpinnerDialog("Removendo sensor")
     this.api.send("deletePanel", sensorId).then(() => {
-      this.closeSpinnerDialog();
-
+      // Accepted, not done: the row is only deleted once the gateway confirms the sensor was
+      // disabled. Mark the card and wait for the PanelRemoved broadcast to take it away.
       var sensorData = this.GetPanelById(sensorId);
-      if (!sensorData) {
-        return;
-      }
-      this.removePanelSubscription(sensorData, sensorData.index);
-      for (let groupId in this.groups) {
-        var index = this.groups[groupId].panels.findIndex(x => x.id == sensorId)
-        if (index != -1) {
-          this.groups[groupId].panels.splice(index, 1);
-          break;
-        }
+      if (sensorData) {
+        sensorData.configuring = true;
       }
     })
     .finally(() => {
       this.closeSpinnerDialog();
     })
+  }
+
+  private removePanelLocally(panelId: number) {
+    var panel = this.GetPanelById(panelId);
+    if (!panel) {
+      return;
+    }
+    this.removePanelSubscription(panel);
+    for (let groupId in this.groups) {
+      var index = this.groups[groupId].panels.findIndex(x => x.id == panelId)
+      if (index != -1) {
+        this.groups[groupId].panels.splice(index, 1);
+        break;
+      }
+    }
   }
 
   openSpinnerDialog(message: string): void {
@@ -152,8 +179,10 @@ export class UiPanelService {
 
   GetPanelById(panelId: number) {
     for (var groupPanelsId in this.groups) {
-      var group = this.groups[groupPanelsId]
-      return group.panels.find(x => x.id == panelId);
+      var found = this.groups[groupPanelsId].panels.find(x => x.id == panelId);
+      if (found) {
+        return found;
+      }
     }
     return null
   }
@@ -219,9 +248,16 @@ export class UiPanelService {
     }
   }
 
-  removePanelSubscription(panel: SensorModule, index: number) {
+  removePanelSubscription(panel: SensorModule) {
     let fullTopic = GetTableName(panel.gatewayId, panel.index.toString())
-    this.subscriptioMap[fullTopic].splice(index, 1);
+    let subscriptions = this.subscriptioMap[fullTopic]
+    if (!subscriptions) {
+      return;
+    }
+    let position = subscriptions.indexOf(panel as any);
+    if (position != -1) {
+      subscriptions.splice(position, 1);
+    }
   }
 
   addPanelAndSubscribe(panel: SensorModule, groupId: string) {

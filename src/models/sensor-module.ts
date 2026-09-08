@@ -11,6 +11,8 @@ export class SensorModule{
     public type: SensorTypesEnum = SensorTypesEnum.TEMPERATURA
     public value: Number|null = null
     public active: boolean = false
+    /** True while the gateway has not confirmed this panel's sensor configuration. */
+    public configuring: boolean = false
     public gain: number = 0
     public offset: number = 0
     public maxAlarm: AlarmModule | null = null

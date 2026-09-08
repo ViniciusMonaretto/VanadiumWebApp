@@ -89,6 +89,10 @@ export class SensorComponent implements OnInit {
     var maxValue = this.sensorInfo?.maxAlarm?.threshold
     var minValue = this.sensorInfo?.minAlarm?.threshold
 
+    if (this.sensorInfo.configuring) {
+      return 'configurando';
+    }
+
     if (!this.sensorInfo.active) {
       return 'offline';
     }
@@ -116,6 +120,8 @@ export class SensorComponent implements OnInit {
         return 'status-offline';
       case 'warning':
         return 'status-warning';
+      case 'configurando':
+        return 'status-configuring';
       default:
         return '';
     }
