@@ -37,8 +37,6 @@ export class IoButtonComponent {
       this.disabled ? 'io-button--disabled' : '',
       this.loading ? 'io-button--loading' : ''
     ].filter(Boolean).join(' ');
-    console.log('Host classes:', classes);
-    console.log('Host classes:', classes);
     return classes;
   }
 
@@ -54,7 +52,6 @@ export class IoButtonComponent {
       this.icon && !this.loading ? 'io-button__element--with-icon' : '',
       this.iconPosition === 'right' ? 'io-button__element--icon-right' : ''
     ].filter(Boolean).join(' ');
-    console.log('Button classes:', classes, 'Variant:', this.variant);
     return classes;
   }
 }

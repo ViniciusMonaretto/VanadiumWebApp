@@ -3,8 +3,22 @@
   background-color: #F7F9FC;
 }
 
+/* Stack topbar + page vertically so the page takes exactly the remaining height */
+::ng-deep .manager-container > .mat-drawer-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.content-area {
+  flex: 1;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 16px 12px 12px;
+  background-color: #F7F9FC;
+}
+
 .tab-content {
-  padding: 24px;
+  box-sizing: border-box;
   height: 100%;
   overflow-y: auto;
 }
@@ -19,31 +33,55 @@
   background-color: #F7F9FC;
 }
 
+.page-header {
+  margin-bottom: 20px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 2px 0 0;
+}
+
 .applications-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  padding: 20px 0;
+  gap: 16px;
+  padding: 0 0 4px;
 }
 
 .application-card {
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-height: 120px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  min-height: 110px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid transparent;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  &:hover,
+  &:focus-visible {
+    outline: none;
+    transform: translateY(-3px);
+    border-color: #c7d2fe;
+    box-shadow: 0 8px 20px rgba(61, 91, 174, 0.12);
   }
 
   &.selected {
-    border-color: #1976d2;
-    background-color: #e3f2fd;
-    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+    border-color: #3D5BAE;
+    background-color: #eef2ff;
+    box-shadow: 0 4px 12px rgba(61, 91, 174, 0.2);
   }
 }
 
@@ -53,16 +91,16 @@ mat-card-content {
 }
 
 .application-name {
-  font-size: 18px;
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 6px;
   word-wrap: break-word;
 }
 
 .application-id {
-  font-size: 14px;
-  color: #666;
+  font-size: 13px;
+  color: #64748b;
 }
 
 .no-applications {
@@ -72,8 +110,8 @@ mat-card-content {
   height: 300px;
 
   p {
-    font-size: 16px;
-    color: #999;
+    font-size: 15px;
+    color: #94a3b8;
   }
 }
 

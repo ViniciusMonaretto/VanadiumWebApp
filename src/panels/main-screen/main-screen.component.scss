@@ -3,8 +3,24 @@
 .window-container{
     width: 100%;
     height: 100%;
+    background-color: #F7F9FC;
 }
-  
+
+/* Stack topbar + page vertically so the page takes exactly the remaining height */
+::ng-deep .window-container > .mat-drawer-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.content-area {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    box-sizing: border-box;
+    padding: 16px 12px 12px;
+    background-color: #F7F9FC;
+}
+
 .sidenav-content {
     display: flex;
     height: 100%;

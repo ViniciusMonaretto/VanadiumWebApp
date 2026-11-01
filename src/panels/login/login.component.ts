@@ -30,6 +30,7 @@ export class LoginComponent implements OnInit {
 
     email: string = '';
     password: string = '';
+    showPassword: boolean = false;
 
     constructor(
         private formBuilder: FormBuilder,

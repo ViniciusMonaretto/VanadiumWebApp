@@ -1,92 +1,56 @@
 // Variables baseadas no design system do IoCloud
-$primary-gradient: linear-gradient(135deg, #3E5CAF 0%, #1D4ED8 100%);
-$primary-gradient-hover: linear-gradient(135deg, #2E4A9F 0%, #1A3A8F 100%);
-$secondary-gradient: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
-$secondary-gradient-hover: linear-gradient(135deg, #4B5563 0%, #374151 100%);
+$primary-gradient: linear-gradient(135deg, #3D5BAE 0%, #163282 100%);
+$secondary-bg: #F1F5F9;
+$secondary-bg-hover: #E2E8F0;
 $danger-gradient: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-$danger-gradient-hover: linear-gradient(135deg, #B91C1C 0%, #991B1B 100%);
 $success-gradient: linear-gradient(135deg, #10B981 0%, #059669 100%);
-$success-gradient-hover: linear-gradient(135deg, #059669 0%, #047857 100%);
 
 $text-primary: #FFFFFF;
-$text-secondary: #6B7280;
-$text-dark: #1F2937;
-$border-color: #E5E7EB;
-$border-color-hover: #D1D5DB;
-$background-light: #F9FAFB;
+$text-secondary: #475569;
+$text-dark: #0F172A;
+$border-color: #E2E8F0;
+$border-color-hover: #CBD5E1;
+$background-light: #F8FAFC;
 $background-white: #FFFFFF;
 
-$border-radius: 8px;
+$border-radius: 10px;
 $font-family: 'Segoe UI', sans-serif;
-$transition: all 0.2s ease-in-out;
-$shadow-subtle: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
-$shadow-hover: 0px 4px 8px 0px rgba(0, 0, 0, 0.1);
-$shadow-active: 0px 2px 4px 0px rgba(0, 0, 0, 0.08);
+$transition: all 0.18s ease;
+$shadow-subtle: 0 1px 2px rgba(15, 23, 42, 0.06);
+$shadow-hover: 0 4px 12px rgba(61, 91, 174, 0.25);
 
-// Base button styles
-io-button {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-family: $font-family !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-  border: none !important;
-  border-radius: $border-radius !important;
-  cursor: pointer !important;
-  transition: $transition !important;
-  position: relative !important;
-  box-shadow: $shadow-subtle !important;
-  outline: none !important;
-  overflow: hidden !important;
-  background: transparent !important;
-}
+// The host element is the visual button; the inner <button> fills it.
+io-button.io-button {
+  display: inline-flex;
+  align-items: stretch;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 36px;
+  font-family: $font-family;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: $border-radius;
+  transition: $transition;
+  position: relative;
+  box-shadow: $shadow-subtle;
+  overflow: hidden;
+  vertical-align: middle;
 
-.io-button {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-family: $font-family !important;
-  font-weight: 600 !important;
-  text-decoration: none !important;
-  border: none !important;
-  border-radius: $border-radius !important;
-  cursor: pointer !important;
-  transition: $transition !important;
-  position: relative !important;
-  box-shadow: $shadow-subtle !important;
-  outline: none !important;
-  overflow: hidden !important;
-  background: transparent !important;
-
-  // Efeito de brilho sutil
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s ease-in-out;
+  &:hover:not(.io-button--disabled):not(.io-button--loading) {
+    transform: translateY(-1px);
   }
 
-  &:hover::before {
-    left: 100%;
-  }
-
-  &:focus-visible {
-    outline: 2px solid #3E5CAF;
-    outline-offset: 2px;
+  &:active:not(.io-button--disabled):not(.io-button--loading) {
+    transform: translateY(0);
   }
 
   // Size variants
-  &--small {
+  &.io-button--small {
+    min-height: 32px;
+
     .io-button__element {
-      padding: 8px 16px;
-      font-size: 14px;
-      min-height: 36px;
-      border-radius: 6px;
+      padding: 0 12px;
+      font-size: 13px;
     }
 
     .io-button__icon {
@@ -96,26 +60,13 @@ io-button {
     }
   }
 
-  &--medium {
+  &.io-button--large {
+    min-height: 48px;
+    border-radius: 12px;
+
     .io-button__element {
-      padding: 12px 24px;
+      padding: 0 28px;
       font-size: 16px;
-      border-radius: $border-radius;
-    }
-
-    .io-button__icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
-
-  &--large {
-    .io-button__element {
-      padding: 16px 32px;
-      font-size: 18px;
-      min-height: 52px;
-      border-radius: 10px;
     }
 
     .io-button__icon {
@@ -126,33 +77,21 @@ io-button {
   }
 
   // Full width variant
-  &--full-width {
+  &.io-button--full-width {
+    display: flex;
     width: 100%;
-
-    .io-button__element {
-      width: 100%;
-    }
   }
 
   // Disabled state
-  &--disabled {
+  &.io-button--disabled {
     opacity: 0.5;
-    cursor: not-allowed;
+    box-shadow: none;
     pointer-events: none;
-    
-    &::before {
-      display: none;
-    }
   }
 
   // Loading state
-  &--loading {
-    cursor: wait;
+  &.io-button--loading {
     pointer-events: none;
-    
-    &::before {
-      display: none;
-    }
   }
 }
 
@@ -161,21 +100,27 @@ io-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
-  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0 18px;
   border: none;
   background: transparent;
   color: inherit;
   font: inherit;
-  cursor: inherit;
+  font-size: 14px;
+  line-height: 1.2;
+  cursor: pointer;
   border-radius: inherit;
-  transition: inherit;
-  position: relative;
-  z-index: 1;
 
-  &--with-icon {
-    gap: 10px;
+  &:focus-visible {
+    outline: 2px solid #3D5BAE;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
   }
 
   &--icon-right {
@@ -183,121 +128,70 @@ io-button {
   }
 }
 
-// Primary variant - Gradiente azul elegante
-io-button.io-button--primary,
-.io-button--primary {
-  background: $primary-gradient !important;
-  color: $text-primary !important;
-  border: 1px solid transparent !important;
-
-  &:hover:not(.io-button--disabled):not(.io-button--loading) {
-    background: $primary-gradient-hover;
-    box-shadow: $shadow-hover;
-    transform: translateY(-1px);
-  }
-
-  &:active:not(.io-button--disabled):not(.io-button--loading) {
-    background: $primary-gradient-hover;
-    box-shadow: $shadow-active;
-    transform: translateY(0);
-  }
-}
-
-// Secondary variant - Gradiente cinza sofisticado
-.io-button--secondary {
-  background: $secondary-gradient;
+// Primary variant
+io-button.io-button--primary {
+  background: $primary-gradient;
   color: $text-primary;
-  border: 1px solid transparent;
 
   &:hover:not(.io-button--disabled):not(.io-button--loading) {
-    background: $secondary-gradient-hover;
     box-shadow: $shadow-hover;
-    transform: translateY(-1px);
-  }
-
-  &:active:not(.io-button--disabled):not(.io-button--loading) {
-    background: $secondary-gradient-hover;
-    box-shadow: $shadow-active;
-    transform: translateY(0);
   }
 }
 
-// Outline variant - Estilo card com borda
-.io-button--outline {
+// Secondary variant - neutral, for "Cancelar" / "Fechar"
+io-button.io-button--secondary {
+  background: $secondary-bg;
+  color: $text-secondary;
+  border-color: $border-color;
+  box-shadow: none;
+
+  &:hover:not(.io-button--disabled):not(.io-button--loading) {
+    background: $secondary-bg-hover;
+    color: $text-dark;
+  }
+}
+
+// Outline variant
+io-button.io-button--outline {
   background: $background-white;
   color: $text-dark;
-  border: 1px solid $border-color;
-  box-shadow: $shadow-subtle;
+  border-color: $border-color;
 
   &:hover:not(.io-button--disabled):not(.io-button--loading) {
     background: $background-light;
     border-color: $border-color-hover;
-    box-shadow: $shadow-hover;
-    transform: translateY(-1px);
-  }
-
-  &:active:not(.io-button--disabled):not(.io-button--loading) {
-    background: $background-light;
-    box-shadow: $shadow-active;
-    transform: translateY(0);
   }
 }
 
-// Ghost variant - Transparente com hover elegante
-.io-button--ghost {
+// Ghost variant
+io-button.io-button--ghost {
   background: transparent;
   color: $text-secondary;
-  border: 1px solid transparent;
   box-shadow: none;
 
   &:hover:not(.io-button--disabled):not(.io-button--loading) {
-    background: rgba(59, 92, 175, 0.1);
-    color: #3E5CAF;
-    box-shadow: $shadow-subtle;
-  }
-
-  &:active:not(.io-button--disabled):not(.io-button--loading) {
-    background: rgba(59, 92, 175, 0.15);
-    transform: translateY(0);
+    background: rgba(61, 91, 174, 0.1);
+    color: #3D5BAE;
   }
 }
 
-// Danger variant - Gradiente vermelho
-.io-button--danger {
+// Danger variant
+io-button.io-button--danger {
   background: $danger-gradient;
   color: $text-primary;
-  border: 1px solid transparent;
 
   &:hover:not(.io-button--disabled):not(.io-button--loading) {
-    background: $danger-gradient-hover;
-    box-shadow: $shadow-hover;
-    transform: translateY(-1px);
-  }
-
-  &:active:not(.io-button--disabled):not(.io-button--loading) {
-    background: $danger-gradient-hover;
-    box-shadow: $shadow-active;
-    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
   }
 }
 
-// Success variant - Gradiente verde
-io-button.io-button--success,
-.io-button--success {
-  background: $success-gradient !important;
-  color: $text-primary !important;
-  border: 1px solid transparent !important;
+// Success variant
+io-button.io-button--success {
+  background: $success-gradient;
+  color: $text-primary;
 
   &:hover:not(.io-button--disabled):not(.io-button--loading) {
-    background: $success-gradient-hover;
-    box-shadow: $shadow-hover;
-    transform: translateY(-1px);
-  }
-
-  &:active:not(.io-button--disabled):not(.io-button--loading) {
-    background: $success-gradient-hover;
-    box-shadow: $shadow-active;
-    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
   }
 }
 
@@ -307,15 +201,9 @@ io-button.io-button--success,
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: $transition;
-
-  &--left {
-    margin-right: 0;
-  }
-
-  &--right {
-    margin-left: 0;
-  }
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
 }
 
 // Content styles
@@ -324,20 +212,9 @@ io-button.io-button--success,
   align-items: center;
   justify-content: center;
   white-space: nowrap;
-  transition: $transition;
-
-  &--with-icon {
-    &.io-button__content--icon-left {
-      margin-left: 0;
-    }
-
-    &.io-button__content--icon-right {
-      margin-right: 0;
-    }
-  }
 }
 
-// Loading spinner personalizado
+// Loading spinner
 .io-button__spinner {
   display: flex;
   align-items: center;
@@ -362,82 +239,4 @@ io-button.io-button--success,
   100% {
     transform: rotate(360deg);
   }
-}
-
-// Efeitos especiais para diferentes variantes
-.io-button--primary .io-button__spinner-circle {
-  border-top-color: $text-primary;
-}
-
-.io-button--secondary .io-button__spinner-circle {
-  border-top-color: $text-primary;
-}
-
-.io-button--outline .io-button__spinner-circle {
-  border-top-color: $text-dark;
-}
-
-.io-button--ghost .io-button__spinner-circle {
-  border-top-color: $text-secondary;
-}
-
-.io-button--danger .io-button__spinner-circle {
-  border-top-color: $text-primary;
-}
-
-.io-button--success .io-button__spinner-circle {
-  border-top-color: $text-primary;
-}
-
-// Responsive adjustments
-@media (max-width: 768px) {
-  .io-button {
-    &--small {
-      .io-button__element {
-        padding: 10px 16px;
-        font-size: 14px;
-        min-height: 40px;
-      }
-    }
-
-    &--medium {
-      .io-button__element {
-        padding: 14px 24px;
-        font-size: 16px;
-        min-height: 48px;
-      }
-    }
-
-    &--large {
-      .io-button__element {
-        padding: 18px 32px;
-        font-size: 18px;
-        min-height: 56px;
-      }
-    }
-  }
-}
-
-// Efeito de ripple personalizado
-.io-button {
-  position: relative;
-  overflow: hidden;
-}
-
-.io-button::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.3s ease-out, height 0.3s ease-out;
-}
-
-.io-button:active::after {
-  width: 300px;
-  height: 300px;
 }

@@ -55,4 +55,30 @@ body {
 body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ─── Dialogs: consistent surface, spacing and action alignment ───
+html {
+  --mdc-dialog-container-shape: 16px;
+  --mdc-dialog-subhead-color: #0f172a;
+  --mdc-dialog-supporting-text-color: #475569;
+  --mat-dialog-headline-padding: 24px 24px 8px;
+  --mat-dialog-content-padding: 8px 24px 16px;
+  --mat-dialog-with-actions-content-padding: 8px 24px 16px;
+  --mat-dialog-actions-padding: 12px 24px 20px;
+  --mat-dialog-actions-alignment: flex-end;
+}
+
+.mat-mdc-dialog-container .mat-mdc-dialog-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.mat-mdc-dialog-container .mat-mdc-dialog-actions {
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #f1f5f9;
 }
