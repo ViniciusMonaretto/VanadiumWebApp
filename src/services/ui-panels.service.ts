@@ -247,13 +247,13 @@ export class UiPanelService {
     }
   }
 
-  removePanelSubscription(panel: SensorModule) {
+  removePanelSubscription(panel: SensorModule, callback: Function | null = null) {
     let fullTopic = GetTableName(panel.gatewayId, panel.index.toString())
     let subscriptions = this.subscriptioMap[fullTopic]
     if (!subscriptions) {
       return;
     }
-    let position = subscriptions.indexOf(panel as any);
+    let position = subscriptions.indexOf((callback ?? panel) as any);
     if (position != -1) {
       subscriptions.splice(position, 1);
     }

@@ -44,7 +44,13 @@ describe('GraphViewComponent', () => {
     ]
   };
 
-  const subtitle = () => element.querySelector('.page-subtitle')!.textContent!.replace(/\s+/g, ' ').trim();
+  // Subtitle text without the "Ao vivo" badge
+  const subtitle = () => {
+    const p = element.querySelector('.page-subtitle')!.cloneNode(true) as HTMLElement;
+    p.querySelector('.live-badge')?.remove();
+    return p.textContent!.replace(/\s+/g, ' ').trim();
+  };
+  const liveBadge = () => element.querySelector('.live-badge');
   const pill = (label: string) =>
     Array.from(element.querySelectorAll<HTMLButtonElement>('.pill')).find(p => p.textContent!.trim() === label)!;
   const lastRequest = () => uiPanelService.sendRequestForTableInfo.calls.mostRecent().args;
@@ -57,7 +63,8 @@ describe('GraphViewComponent', () => {
 
   beforeEach(async () => {
     spyOn(console, 'log');
-    uiPanelService = jasmine.createSpyObj('UiPanelService', ['GetUiConfig', 'sendRequestForTableInfo']);
+    uiPanelService = jasmine.createSpyObj('UiPanelService',
+      ['GetUiConfig', 'sendRequestForTableInfo', 'addPanelSubscription', 'removePanelSubscription']);
     uiPanelService.GetUiConfig.and.returnValue(uiConfig as any);
     uiPanelService.sendRequestForTableInfo.and.callFake(() => Promise.resolve(readings));
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
@@ -390,6 +397,277 @@ describe('GraphViewComponent', () => {
       limpar.click();
 
       expect(component.lineChartData).toEqual([]);
+    });
+  });
+
+  describe('live updates', () => {
+    // Simulates the service delivering a new reading for a sensor on the chart
+    const liveCallback = (s: SensorModule) =>
+      uiPanelService.addPanelSubscription.calls.allArgs().filter(args => args[0] === s).pop()![1] as Function;
+    const sendReading = (s: SensorModule, timestamp: string, value: number) =>
+      liveCallback(s)(`gw-${s.index}`, { value, active: true, timestamp });
+    const values = (label: string) =>
+      component.lineChartData.find(l => l.label === label)!.data.map((p: any) => p.y);
+
+    // Readings are batched with a timer; wait for it as well as for Angular
+    async function settle() {
+      await new Promise(resolve => setTimeout(resolve));
+      await fixture.whenStable();
+      fixture.detectChanges();
+    }
+
+    it('should subscribe every sensor on the chart once the history is loaded', async () => {
+      await load([freezer, caldeira]);
+
+      expect(uiPanelService.addPanelSubscription).toHaveBeenCalledTimes(2);
+      expect(uiPanelService.addPanelSubscription.calls.argsFor(0)[0]).toBe(freezer);
+      expect(uiPanelService.addPanelSubscription.calls.argsFor(1)[0]).toBe(caldeira);
+    });
+
+    it('should not subscribe before the history arrives', () => {
+      component.getTable({ selectedSensors: [freezer] });
+
+      expect(uiPanelService.addPanelSubscription).not.toHaveBeenCalled();
+    });
+
+    it('should add a new reading to the end of its line', async () => {
+      await load([freezer]);
+
+      sendReading(freezer, '2026-01-10T13:00:00Z', 6);
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5, 6]);
+      const data = component.lineChartData[0].data;
+      expect(data[data.length - 1].x).toBe(Date.parse('2026-01-10T13:00:00Z'));
+    });
+
+    it('should send the new reading to the chart', async () => {
+      await load([freezer]);
+
+      sendReading(freezer, '2026-01-10T13:00:00Z', 6);
+      await settle();
+
+      const chart = fixture.debugElement.query(By.directive(AdvancedChartComponent)).componentInstance as AdvancedChartComponent;
+      expect(chart.dataSources[0].data.length).toBe(4);
+    });
+
+    it('should add readings for several sensors from one message', async () => {
+      await load([freezer, caldeira]);
+
+      sendReading(freezer, '2026-01-10T13:00:00Z', 6);
+      sendReading(caldeira, '2026-01-10T13:00:00Z', 81);
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5, 6]);
+      expect(values('Caldeira')).toEqual([80, 81]);
+    });
+
+    it('should redraw once for a burst of readings', async () => {
+      await load([freezer, caldeira]);
+      let redraws = 0;
+      let data = component.lineChartData;
+      Object.defineProperty(component, 'lineChartData', {
+        configurable: true,
+        get: () => data,
+        set: v => { redraws++; data = v; }
+      });
+
+      sendReading(freezer, '2026-01-10T13:00:00Z', 6);
+      sendReading(freezer, '2026-01-10T13:00:05Z', 7);
+      sendReading(caldeira, '2026-01-10T13:00:00Z', 81);
+      await settle();
+
+      expect(redraws).toBe(1);
+      expect(values('Freezer')).toEqual([3, 4, 5, 6, 7]);
+    });
+
+    it('should skip a reading that is already on the chart', async () => {
+      await load([freezer]);
+
+      sendReading(freezer, '2026-01-10T12:00:00Z', 5);
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5]);
+    });
+
+    it('should skip a reading older than the last point', async () => {
+      await load([freezer]);
+
+      sendReading(freezer, '2026-01-10T11:30:00Z', 99);
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5]);
+    });
+
+    it('should ignore a reading with an invalid time', async () => {
+      await load([freezer]);
+
+      sendReading(freezer, 'not a date', 6);
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5]);
+    });
+
+    it('should ignore a reading without a value', async () => {
+      await load([freezer]);
+
+      liveCallback(freezer)('gw-0', { active: true, timestamp: '2026-01-10T13:00:00Z' });
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5]);
+    });
+
+    it('should keep a zero reading', async () => {
+      await load([freezer]);
+
+      sendReading(freezer, '2026-01-10T13:00:00Z', 0);
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5, 0]);
+    });
+
+    it('should start a line for a sensor that had no history', async () => {
+      uiPanelService.sendRequestForTableInfo.and.resolveTo({});
+      await load([caldeira]);
+      expect(component.lineChartData.length).toBe(0);
+
+      sendReading(caldeira, '2026-01-10T13:00:00Z', 81);
+      await settle();
+
+      const line = component.lineChartData[0];
+      expect(line.label).toBe('Caldeira');
+      expect(line.borderColor).toBe('#00ff00');
+      expect(line.data).toEqual([{ x: Date.parse('2026-01-10T13:00:00Z'), y: 81 }]);
+    });
+
+    it('should not add readings while a custom period is shown', async () => {
+      await load([freezer]);
+      component.dateFromString = '2026-01-10T00:00';
+      component.dateToString = '2026-01-10T12:30';
+      component.onDateFilterChange();
+      await settle();
+
+      sendReading(freezer, '2026-01-10T13:00:00Z', 6);
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5]);
+    });
+
+    it('should resume when a preset is picked again', async () => {
+      await load([freezer]);
+      component.dateFromString = '2026-01-10T00:00';
+      component.onDateFilterChange();
+      await settle();
+
+      pill('24h').click();
+      await settle();
+      sendReading(freezer, '2026-01-10T13:00:00Z', 6);
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5, 6]);
+    });
+
+    it('should unsubscribe the old callbacks when the chart is reloaded', async () => {
+      await load([freezer, caldeira]);
+      const oldFreezer = liveCallback(freezer);
+      const oldCaldeira = liveCallback(caldeira);
+
+      pill('6h').click();
+      await settle();
+
+      expect(uiPanelService.removePanelSubscription).toHaveBeenCalledWith(freezer, oldFreezer);
+      expect(uiPanelService.removePanelSubscription).toHaveBeenCalledWith(caldeira, oldCaldeira);
+      expect(uiPanelService.addPanelSubscription).toHaveBeenCalledTimes(4);
+    });
+
+    it('should drop readings that were waiting when the chart was reloaded', async () => {
+      await load([freezer]);
+
+      sendReading(freezer, '2026-01-10T13:00:00Z', 6);
+      component.getTable({ selectedSensors: [freezer] });
+      await settle();
+
+      expect(values('Freezer')).toEqual([3, 4, 5]);
+    });
+
+    it('should unsubscribe when the chart is cleared', async () => {
+      await load([freezer]);
+      const callback = liveCallback(freezer);
+
+      component.clearGraphLines();
+
+      expect(uiPanelService.removePanelSubscription).toHaveBeenCalledWith(freezer, callback);
+    });
+
+    it('should not draw a line again after the chart was cleared', async () => {
+      await load([freezer]);
+      sendReading(freezer, '2026-01-10T13:00:00Z', 6);
+
+      component.clearGraphLines();
+      await settle();
+
+      expect(component.lineChartData).toEqual([]);
+    });
+
+    it('should unsubscribe when leaving the page', async () => {
+      await load([freezer, caldeira]);
+
+      fixture.destroy();
+
+      expect(uiPanelService.removePanelSubscription).toHaveBeenCalledTimes(2);
+    });
+
+    it('should ignore a slower, older response', async () => {
+      let resolveFirst!: (value: any) => void;
+      uiPanelService.sendRequestForTableInfo.and.returnValues(
+        new Promise(resolve => resolveFirst = resolve),
+        Promise.resolve({ '2': readings['2'] })
+      );
+
+      component.getTable({ selectedSensors: [freezer] });
+      component.getTable({ selectedSensors: [caldeira] });
+      await settle();
+      resolveFirst(readings);
+      await settle();
+
+      expect(component.lineChartData.map(l => l.label)).toEqual(['Caldeira']);
+      expect(uiPanelService.addPanelSubscription).toHaveBeenCalledTimes(1);
+      expect(uiPanelService.addPanelSubscription.calls.argsFor(0)[0]).toBe(caldeira);
+    });
+
+    it('should ignore a response that arrives after the chart was cleared', async () => {
+      let resolve!: (value: any) => void;
+      uiPanelService.sendRequestForTableInfo.and.returnValue(new Promise(r => resolve = r));
+
+      component.getTable({ selectedSensors: [freezer] });
+      component.clearGraphLines();
+      resolve(readings);
+      await settle();
+
+      expect(component.lineChartData).toEqual([]);
+      expect(uiPanelService.addPanelSubscription).not.toHaveBeenCalled();
+    });
+
+    describe('"Ao vivo" badge', () => {
+      it('should not show on an empty chart', () => {
+        expect(liveBadge()).toBeNull();
+      });
+
+      it('should show while a preset is active', async () => {
+        await load([freezer]);
+
+        expect(liveBadge()!.textContent!.trim()).toBe('Ao vivo');
+      });
+
+      it('should hide for a custom period', async () => {
+        await load([freezer]);
+
+        component.dateFromString = '2026-01-10T00:00';
+        component.onDateFilterChange();
+        await settle();
+
+        expect(liveBadge()).toBeNull();
+      });
     });
   });
 });

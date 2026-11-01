@@ -359,6 +359,82 @@ describe('GraphComponent', () => {
     });
   });
 
+  describe('live data', () => {
+    const initial = [{ x: T0, y: 10 }, { x: T0 + HOUR, y: 20 }];
+    const withNewPoint = [...initial, { x: T0 + 2 * HOUR, y: 30 }];
+
+    function zoomIn() {
+      component.chart!.chart!.zoom(2);
+      expect(component.chart!.chart!.isZoomedOrPanned()).toBeTrue();
+    }
+
+    beforeEach(() => {
+      component.inputInfo = [dataset(initial)];
+    });
+
+    it('should extend the axes to new points when the user has not zoomed', () => {
+      component.inputInfo = [dataset(withNewPoint)];
+
+      const scales = component.lineChartOptions.scales!;
+      expect(scales['x']!.max).toBe(T0 + 2 * HOUR);
+      expect(scales['y']!.max).toBeCloseTo(34);
+    });
+
+    it('should keep the user zoom when new points are added', () => {
+      zoomIn();
+      spyOn(component.chart!.chart!, 'resetZoom').and.callThrough();
+
+      component.inputInfo = [dataset(withNewPoint)];
+
+      expect(component.chart!.chart!.resetZoom).not.toHaveBeenCalled();
+      expect(component.chart!.chart!.isZoomedOrPanned()).toBeTrue();
+    });
+
+    it('should still let the user pan to the new points while zoomed', () => {
+      zoomIn();
+
+      component.inputInfo = [dataset(withNewPoint)];
+
+      expect(component.lineChartOptions.plugins!.zoom!.limits!['x']!.max).toBe(T0 + 2 * HOUR);
+    });
+
+    it('should refit when the lines change, even while zoomed', () => {
+      zoomIn();
+      spyOn(component.chart!.chart!, 'resetZoom').and.callThrough();
+
+      component.inputInfo = [dataset(initial, 'Outro sensor')];
+
+      expect(component.chart!.chart!.resetZoom).toHaveBeenCalled();
+    });
+
+    it('should refit when a line is added, even while zoomed', () => {
+      zoomIn();
+      spyOn(component.chart!.chart!, 'resetZoom').and.callThrough();
+
+      component.inputInfo = [dataset(initial), dataset(initial, 'B')];
+
+      expect(component.chart!.chart!.resetZoom).toHaveBeenCalled();
+    });
+
+    it('should refit when a new period is loaded, even while zoomed', () => {
+      zoomIn();
+      spyOn(component.chart!.chart!, 'resetZoom').and.callThrough();
+
+      component.inputInfo = [dataset([{ x: T0 - 5 * HOUR, y: 1 }, ...initial])];
+
+      expect(component.chart!.chart!.resetZoom).toHaveBeenCalled();
+    });
+
+    it('should refit when points are removed, even while zoomed', () => {
+      zoomIn();
+      spyOn(component.chart!.chart!, 'resetZoom').and.callThrough();
+
+      component.inputInfo = [dataset([initial[0]])];
+
+      expect(component.chart!.chart!.resetZoom).toHaveBeenCalled();
+    });
+  });
+
   describe('min / max markers', () => {
     it('should mark the lowest and highest reading of the selected line', () => {
       component.inputInfo = [dataset([
