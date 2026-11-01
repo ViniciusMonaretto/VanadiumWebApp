@@ -154,6 +154,31 @@ describe('AdvancedChartComponent', () => {
       expect(component.getDrawingMode()).toBe(DrawingMode.None);
     });
 
+    it('should stop listening to the keyboard once destroyed', () => {
+      component.toggleCrosshairRefMode();
+
+      fixture.destroy();
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+
+      expect(component.getDrawingMode()).toBe(DrawingMode.Both);
+    });
+
+    it('should remove the same listener it added', () => {
+      const added = spyOn(document, 'addEventListener').and.callThrough();
+      const removed = spyOn(document, 'removeEventListener').and.callThrough();
+      const other = TestBed.createComponent(AdvancedChartComponent);
+      other.componentInstance.dataSources = [];
+      other.detectChanges();
+
+      other.destroy();
+
+      const keydownAdded = added.calls.allArgs().filter(args => args[0] === 'keydown');
+      const keydownRemoved = removed.calls.allArgs().filter(args => args[0] === 'keydown');
+      expect(keydownAdded.length).toBe(1);
+      expect(keydownRemoved.length).toBe(1);
+      expect(keydownRemoved[0][1]).toBe(keydownAdded[0][1]);
+    });
+
     it('should ignore other keys', () => {
       component.toggleReferenceLinesModeHorizontal();
 
