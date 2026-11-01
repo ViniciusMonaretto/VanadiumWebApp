@@ -31,6 +31,7 @@ export class GraphViewComponent implements OnInit {
   lineChartData: Array<any> = [];
   clearLines: boolean = false;
   selectedSensorIds: number[] = [];
+  private selectedSensors: SensorModule[] = [];
 
   activePreset: string = 'today';
 
@@ -80,6 +81,7 @@ export class GraphViewComponent implements OnInit {
       width: '500px',
       data: {
         "uiConfig": this.uiPanelService.GetUiConfig(),
+        selectedSensorIds: this.selectedSensorIds,
         callback: (sensorData: any)=>{
           this.getTable(sensorData)
         }
@@ -96,6 +98,18 @@ export class GraphViewComponent implements OnInit {
   {
     this.dateTo = new Date(this.dateToString);
     this.dateFrom = new Date(this.dateFromString);
+    this.activePreset = '';
+
+    if (!isNaN(this.dateFrom.getTime()) && !isNaN(this.dateTo.getTime())) {
+      this.reloadSelectedSensors();
+    }
+  }
+
+  // Re-fetch the sensors already on the chart for the current period
+  private reloadSelectedSensors(): void {
+    if (this.selectedSensors.length > 0) {
+      this.getTable({ selectedSensors: this.selectedSensors });
+    }
   }
 
   setPreset(preset: string): void {
@@ -134,6 +148,8 @@ export class GraphViewComponent implements OnInit {
 
     this.dateFromString = this.toLocalDateTimeString(from);
     this.dateToString = this.toLocalDateTimeString(now);
+
+    this.reloadSelectedSensors();
   }
 
   private toLocalDateTimeString(date: Date): string {
@@ -144,6 +160,8 @@ export class GraphViewComponent implements OnInit {
   getTable(sensorData: {selectedSensors: SensorModule[]}): void {
     this.removeAllLines();
     var selectedSensors = sensorData['selectedSensors'];
+    this.selectedSensors = selectedSensors;
+    this.selectedSensorIds = selectedSensors.map(sensor => sensor.id);
     this.uiPanelService.sendRequestForTableInfo(selectedSensors
                                                       .map(sensor => sensor.id),
                                                  this.dateFrom,
@@ -160,6 +178,8 @@ export class GraphViewComponent implements OnInit {
 
   clearGraphLines(): void {
     this.removeAllLines();
+    this.selectedSensors = [];
+    this.selectedSensorIds = [];
   }
 
 }

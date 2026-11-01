@@ -150,7 +150,15 @@ export class GraphComponent {
   @Input() set resize(trigger: boolean) {
     this.fitAllGraph()
   }
-  @Input() zoomEnabled: boolean = true
+  @Input() set zoomEnabled(value: boolean) {
+    this._zoomEnabled = value;
+    // Apply the Zoom/Mover tool to the chart right away, not on the next drag
+    this.updateMouseEvents();
+  }
+  get zoomEnabled(): boolean {
+    return this._zoomEnabled;
+  }
+  private _zoomEnabled: boolean = true;
   @Input() set selectedDataLineIndex(value: number) {
     this._selectedDataLineIndex = value;
     this.updateLines();

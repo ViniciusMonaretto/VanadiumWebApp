@@ -65,6 +65,12 @@ export class GraphRequestWindowComponent implements OnInit {
 
     this.sensors = this.getAvailableSensors();
     this.filteredSensors = this.sensors;
+
+    // Keep what is already on the chart selected
+    const alreadySelected: number[] = data.selectedSensorIds ?? [];
+    this.sensors
+      .filter(sensor => alreadySelected.includes(sensor.id))
+      .forEach(sensor => this.selectedSensors.add(sensor));
   }
 
   ngOnInit(): void {

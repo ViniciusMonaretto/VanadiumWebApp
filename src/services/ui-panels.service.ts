@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FlowSensorModule, GetTableName, SensorModule } from "../models/sensor-module"
 import { SensorTypesEnum } from '../enum/sensor-type';
-import { table } from 'console';
 import { GatewayModule } from '../models/gateway-model';
 import { DialogHelper } from './dialog-helper.service';
 import { MatDialogRef } from '@angular/material/dialog';
