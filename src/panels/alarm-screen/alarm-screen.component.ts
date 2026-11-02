@@ -10,7 +10,7 @@ import { EventAlarmManagerService } from '../../services/event-alarm-manager.ser
 import { DialogHelper } from '../../services/dialog-helper.service';
 import { IoButtonComponent } from '../../components/io-button/io-button.component';
 import { EventAlarmModule } from '../../models/event-alarm-module';
-import { AlarmLevel } from '../../enum/alarm-type';
+import { AlarmKind, AlarmLevel } from '../../enum/alarm-type';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -57,6 +57,14 @@ export class AlarmViewComponent implements OnInit {
         return AlarmLevel.INFO
     }
     return AlarmLevel.WARNING
+  }
+
+  isAnomaly(alarm: EventAlarmModule): boolean {
+    return alarm.kind === AlarmKind.ANOMALY
+  }
+
+  getMessage(alarm: EventAlarmModule): string {
+    return this.isAnomaly(alarm) ? 'Falha detectada (IoCloud Predict)' : alarm.name
   }
 
   isLevelCritical(level: AlarmLevel): boolean {

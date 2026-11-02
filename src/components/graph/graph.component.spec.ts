@@ -42,6 +42,49 @@ describe('GraphComponent', () => {
     expect(component.chart?.chart).toBeTruthy();
   });
 
+  describe('faultMarkers', () => {
+    const marker = (id: number, x: number) => ({ id, x, label: `Falha · S${id}`, color: '#ff0000' });
+
+    it('should draw a dashed vertical line at each fault start', () => {
+      component.inputInfo = [dataset([{ x: T0, y: 1 }, { x: T0 + 2 * HOUR, y: 2 }])];
+      component.faultMarkers = [marker(1, T0 + HOUR)];
+
+      const line = annotations()['faultLine0'];
+      expect(line.type).toBe('line');
+      expect(line.scaleID).toBe('x');
+      expect(line.value).toBe(T0 + HOUR);
+      expect(line.borderDash).toEqual([6, 4]);
+      expect(line.borderColor).toBe('#ff0000');
+    });
+
+    it('should label each line with the fault text', () => {
+      component.inputInfo = [dataset([{ x: T0, y: 1 }, { x: T0 + 2 * HOUR, y: 2 }])];
+      component.faultMarkers = [marker(1, T0 + HOUR), marker(2, T0 + 90 * 60 * 1000)];
+
+      expect(annotations()['faultLabel0'].content).toBe('Falha · S1');
+      expect(annotations()['faultLabel1'].xValue).toBe(T0 + 90 * 60 * 1000);
+    });
+
+    it('should keep the fault lines when reference lines change', () => {
+      component.inputInfo = [dataset([{ x: T0, y: 1 }, { x: T0 + 2 * HOUR, y: 2 }])];
+      component.faultMarkers = [marker(1, T0 + HOUR)];
+
+      component.clearLines = true;
+
+      expect(annotations()['faultLine0']).toBeDefined();
+    });
+
+    it('should remove the lines when the markers are cleared', () => {
+      component.inputInfo = [dataset([{ x: T0, y: 1 }, { x: T0 + 2 * HOUR, y: 2 }])];
+      component.faultMarkers = [marker(1, T0 + HOUR)];
+
+      component.faultMarkers = [];
+
+      expect(annotations()['faultLine0']).toBeUndefined();
+      expect(component.faultMarkers).toEqual([]);
+    });
+  });
+
   describe('inputInfo', () => {
     it('should keep the datasets and apply the point settings', () => {
       component.inputInfo = [dataset([{ x: T0, y: 1 }], 'A'), dataset([{ x: T0, y: 2 }], 'B')];

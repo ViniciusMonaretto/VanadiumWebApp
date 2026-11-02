@@ -135,6 +135,16 @@ export enum DrawingMode {
   Both = 3
 }
 
+/** A fault detected by IoCloud Predict: drawn as a dashed vertical line where it started. */
+export interface FaultMarker {
+  /** Event id, so the same fault is never drawn twice */
+  id: number;
+  /** Fault start (ms since epoch) */
+  x: number;
+  label: string;
+  color: string;
+}
+
 @Component({
   selector: 'graph',
   templateUrl: './graph.component.html',
@@ -146,6 +156,15 @@ export class GraphComponent {
   @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
   @Input() blockFitAll: boolean = false
+
+  @Input() set faultMarkers(value: FaultMarker[] | null) {
+    this._faultMarkers = value ?? [];
+    this.updateLines();
+  }
+  get faultMarkers(): FaultMarker[] {
+    return this._faultMarkers;
+  }
+  private _faultMarkers: FaultMarker[] = [];
 
   @Input() set resize(trigger: boolean) {
     this.fitAllGraph()
@@ -980,6 +999,43 @@ export class GraphComponent {
             padding: 3,
             borderRadius: 3,
             borderColor: 'rgba(72, 71, 70, 0.8)',
+            borderWidth: 1
+          };
+        }
+      }
+    });
+
+    // IoCloud Predict faults: dashed line at the start of each one, labelled at the top
+    this._faultMarkers.forEach((marker, index) => {
+      annotations[`faultLine${index}`] = {
+        type: 'line',
+        scaleID: 'x',
+        value: marker.x,
+        borderColor: marker.color,
+        borderWidth: 2,
+        borderDash: [6, 4],
+        drawTime: 'afterDatasetsDraw'
+      };
+
+      if (this.chart?.chart) {
+        const yScale = this.chart.chart.scales['y'];
+        if (yScale) {
+          annotations[`faultLabel${index}`] = {
+            type: 'label',
+            xValue: marker.x,
+            yValue: yScale.max - (yScale.max - yScale.min) * 0.04, // Grudado no topo
+            content: marker.label,
+            position: { x: 'start', y: 'center' },
+            xAdjust: 4,
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            color: marker.color,
+            font: {
+              size: 11,
+              weight: 'bold'
+            },
+            padding: 3,
+            borderRadius: 3,
+            borderColor: marker.color,
             borderWidth: 1
           };
         }

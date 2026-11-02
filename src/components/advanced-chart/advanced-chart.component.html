@@ -4,6 +4,13 @@
         <div class="chart-title-area">
             <h2 class="chart-title">Gráfico Avançado</h2>
             <span class="source-count">{{ dataSources.length }} fonte{{ dataSources.length !== 1 ? 's' : '' }}</span>
+            <span class="fault-count" *ngIf="faultMarkers.length > 0"
+                title="Início de falha detectada pelo IoCloud Predict (linha tracejada)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="2" x2="12" y2="22" stroke-dasharray="4 3" />
+                </svg>
+                {{ faultMarkers.length }} falha{{ faultMarkers.length !== 1 ? 's' : '' }} detectada{{ faultMarkers.length !== 1 ? 's' : '' }}
+            </span>
         </div>
 
         <!-- Toolbar -->
@@ -80,7 +87,8 @@
     <div class="canvas-wrapper" [class.marker-mode]="false"
         [class.reference-mode]="crosshairRefMode || referenceLinesModeVertical || referenceLinesModeHorizontal">
         <graph style="height: 100%;" 
-            [inputInfo]="$any(dataSources)" 
+            [inputInfo]="$any(dataSources)"
+            [faultMarkers]="faultMarkers"
             [drawingMode]="getDrawingMode()"
             [selectedDataLineIndex]="-1"
             [zoomEnabled]="activeTool == 'zoom'"

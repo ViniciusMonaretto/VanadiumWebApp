@@ -10,6 +10,9 @@ import { UiPanelService } from '../../services/ui-panels.service';
 import { GraphRequestWindowComponent } from '../../components/graph-request-window/graph-request-window.component';
 import { AdvancedChartComponent } from '../../components/advanced-chart/advanced-chart.component';
 import { SensorModule } from '../../models/sensor-module';
+import { EventAlarmModule } from '../../models/event-alarm-module';
+import { EventAlarmManagerService } from '../../services/event-alarm-manager.service';
+import { AlarmKind } from '../../enum/alarm-type';
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
@@ -28,6 +31,9 @@ describe('GraphViewComponent', () => {
   let element: HTMLElement;
   let uiPanelService: jasmine.SpyObj<UiPanelService>;
   let dialog: jasmine.SpyObj<MatDialog>;
+  let alarmService: jasmine.SpyObj<EventAlarmManagerService>;
+  let liveAlarmListener: (events: EventAlarmModule[]) => void;
+  let stopAlarmListener: jasmine.Spy;
 
   const freezer = sensor(1, 'Freezer', '#ff0000');
   const caldeira = sensor(2, 'Caldeira', '#00ff00');
@@ -68,13 +74,21 @@ describe('GraphViewComponent', () => {
     uiPanelService.GetUiConfig.and.returnValue(uiConfig as any);
     uiPanelService.sendRequestForTableInfo.and.callFake(() => Promise.resolve(readings));
     dialog = jasmine.createSpyObj('MatDialog', ['open']);
+    alarmService = jasmine.createSpyObj('EventAlarmManagerService', ['getAnomalyEvents', 'addNewEventsListener']);
+    alarmService.getAnomalyEvents.and.returnValue(Promise.resolve([]));
+    stopAlarmListener = jasmine.createSpy('stopAlarmListener');
+    alarmService.addNewEventsListener.and.callFake((listener: any) => {
+      liveAlarmListener = listener;
+      return stopAlarmListener;
+    });
 
     await TestBed.configureTestingModule({
       imports: [GraphViewComponent],
       providers: [
         provideCharts(),
         { provide: UiPanelService, useValue: uiPanelService },
-        { provide: MatDialog, useValue: dialog }
+        { provide: MatDialog, useValue: dialog },
+        { provide: EventAlarmManagerService, useValue: alarmService }
       ]
     })
     // The page injects MatDialog itself; make sure it gets the spy, not the module's provider
@@ -397,6 +411,111 @@ describe('GraphViewComponent', () => {
       limpar.click();
 
       expect(component.lineChartData).toEqual([]);
+    });
+  });
+
+  describe('IoCloud Predict faults', () => {
+    function fault(id: number, panelId: number, timestamp: string, kind = AlarmKind.ANOMALY): EventAlarmModule {
+      const e = new EventAlarmModule();
+      e.id = id;
+      e.panelId = panelId;
+      e.timestamp = timestamp as any;
+      e.kind = kind;
+      return e;
+    }
+    const chart = () =>
+      fixture.debugElement.query(By.directive(AdvancedChartComponent)).componentInstance as AdvancedChartComponent;
+
+    it('should request the faults of the selected sensors for the current period', async () => {
+      await load([freezer, caldeira]);
+
+      const [ids, from, to] = alarmService.getAnomalyEvents.calls.mostRecent().args;
+      expect(ids).toEqual([1, 2]);
+      expect(from).toBe(component.dateFrom);
+      expect(to).toBe(component.dateTo);
+    });
+
+    it('should mark each fault start with the sensor colour and name', async () => {
+      alarmService.getAnomalyEvents.and.returnValue(Promise.resolve([
+        fault(7, 1, '2026-01-10T11:00:00Z'),
+        fault(8, 2, '2026-01-10T11:30:00Z'),
+      ]));
+
+      await load([freezer, caldeira]);
+
+      expect(component.faultMarkers).toEqual([
+        { id: 7, x: Date.parse('2026-01-10T11:00:00Z'), label: 'Falha · Freezer', color: '#ff0000' },
+        { id: 8, x: Date.parse('2026-01-10T11:30:00Z'), label: 'Falha · Caldeira', color: '#00ff00' },
+      ]);
+      expect(chart().faultMarkers).toBe(component.faultMarkers);
+      expect(element.querySelector('.fault-count')!.textContent!.replace(/\s+/g, ' ').trim())
+        .toBe('2 falhas detectadas');
+    });
+
+    it('should ignore threshold events, other sensors and invalid times', async () => {
+      alarmService.getAnomalyEvents.and.returnValue(Promise.resolve([
+        fault(1, 1, '2026-01-10T11:00:00Z', AlarmKind.THRESHOLD),
+        fault(2, 99, '2026-01-10T11:00:00Z'),
+        fault(3, 1, 'not a date'),
+      ]));
+
+      await load([freezer]);
+
+      expect(component.faultMarkers).toEqual([]);
+      expect(element.querySelector('.fault-count')).toBeNull();
+    });
+
+    it('should keep the chart working when the faults cannot be loaded', async () => {
+      spyOn(console, 'warn');
+      alarmService.getAnomalyEvents.and.returnValue(Promise.reject('no such hub method'));
+
+      await load([freezer]);
+
+      expect(component.lineChartData.map(l => l.label)).toEqual(['Freezer']);
+      expect(component.faultMarkers).toEqual([]);
+    });
+
+    it('should drop the markers of a previous load', async () => {
+      alarmService.getAnomalyEvents.and.returnValue(Promise.resolve([fault(7, 1, '2026-01-10T11:00:00Z')]));
+      await load([freezer]);
+      alarmService.getAnomalyEvents.and.returnValue(Promise.resolve([]));
+
+      await load([caldeira]);
+
+      expect(component.faultMarkers).toEqual([]);
+    });
+
+    it('should add a fault reported live while the chart is live', async () => {
+      await load([freezer]);
+
+      liveAlarmListener([fault(9, 1, '2026-01-10T12:30:00Z')]);
+      liveAlarmListener([fault(9, 1, '2026-01-10T12:30:00Z')]); // same event again
+
+      expect(component.faultMarkers.map(m => m.id)).toEqual([9]);
+    });
+
+    it('should not add live faults for sensors off the chart or on a custom period', async () => {
+      await load([freezer]);
+      liveAlarmListener([fault(9, 2, '2026-01-10T12:30:00Z')]);
+      expect(component.faultMarkers).toEqual([]);
+
+      component.activePreset = '';
+      liveAlarmListener([fault(10, 1, '2026-01-10T12:30:00Z')]);
+      expect(component.faultMarkers).toEqual([]);
+    });
+
+    it('should clear the markers with the lines', async () => {
+      alarmService.getAnomalyEvents.and.returnValue(Promise.resolve([fault(7, 1, '2026-01-10T11:00:00Z')]));
+      await load([freezer]);
+
+      component.clearGraphLines();
+
+      expect(component.faultMarkers).toEqual([]);
+    });
+
+    it('should stop listening when the page is destroyed', () => {
+      fixture.destroy();
+      expect(stopAlarmListener).toHaveBeenCalled();
     });
   });
 

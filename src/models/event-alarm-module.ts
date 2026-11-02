@@ -1,4 +1,4 @@
-import { AlarmLevel } from "../enum/alarm-type";
+import { AlarmKind, AlarmLevel } from "../enum/alarm-type";
 import { SensorTypesEnum } from "../enum/sensor-type";
 import { SensorModule } from "./sensor-module";
 
@@ -10,6 +10,8 @@ export class EventAlarmModule{
     public value: Number = 0
     public name: string = ""
     public level: AlarmLevel = AlarmLevel.WARNING
+    /** ANOMALY = fault detected by IoCloud Predict; ``timestamp`` is when the fault started. */
+    public kind: AlarmKind = AlarmKind.THRESHOLD
 
     public panelName: string = ""
     public panelType: SensorTypesEnum = SensorTypesEnum.PRESSAO

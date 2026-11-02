@@ -102,13 +102,13 @@
             <span class="alarm-sensor">{{ alarm.panelName }}</span>
             <span class="alarm-device">{{ alarm.panelType }}</span>
           </div>
-          <div class="alarm-message">{{ alarm.name }}</div>
+          <div class="alarm-message">{{ getMessage(alarm) }}</div>
           <div class="alarm-meta">
             <span class="meta-item">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
               </svg>
-              Valor: {{ alarm.value }}
+              {{ isAnomaly(alarm) ? 'Valor na detecção' : 'Valor' }}: {{ alarm.value }}
             </span>
             <!-- <span class="meta-item">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

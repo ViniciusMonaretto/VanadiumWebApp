@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DrawingMode, GraphComponent } from "../graph/graph.component";
+import { DrawingMode, FaultMarker, GraphComponent } from "../graph/graph.component";
 
 
 @Component({
@@ -27,6 +27,8 @@ export class AdvancedChartComponent implements OnInit, AfterViewInit, OnDestroy,
   @ViewChild('chartCanvas') chartCanvas!: ElementRef<HTMLCanvasElement>;
 
   @Input() dataSources: any;
+  /** IoCloud Predict faults to mark on the chart (dashed line at each start). */
+  @Input() faultMarkers: FaultMarker[] = [];
   @Output() requestClearDataSources = new EventEmitter<any>();
 
   activeTool: 'zoom' | 'pan' = 'zoom';
