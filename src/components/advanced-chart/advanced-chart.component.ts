@@ -44,8 +44,11 @@ export class AdvancedChartComponent implements OnInit, AfterViewInit, OnDestroy,
     '#e3b341', '#bc8cff',
   ];
 
+  // Keep the same function reference so the listener can be removed on destroy
+  private readonly keyDownHandler = (e: KeyboardEvent) => this.onKeyDown(e);
+
   ngOnInit(): void {
-    document.addEventListener('keydown', this.onKeyDown.bind(this));
+    document.addEventListener('keydown', this.keyDownHandler);
   }
 
   ngAfterViewInit(): void {
@@ -53,7 +56,9 @@ export class AdvancedChartComponent implements OnInit, AfterViewInit, OnDestroy,
 
   ngOnChanges(changes: SimpleChanges): void {}
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    document.removeEventListener('keydown', this.keyDownHandler);
+  }
 
   private onKeyDown(e: KeyboardEvent) {
     if (e.key === 'Escape') {

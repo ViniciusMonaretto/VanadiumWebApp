@@ -5,7 +5,7 @@
     box-shadow:
       0 2px 8px rgba(0, 0, 0, 0.04),
       0 1px 2px rgba(0, 0, 0, 0.06);
-    padding: 12px;
+    padding: 16px;
     width: 100%;
     box-sizing: border-box;
     height: 200px;
@@ -15,6 +15,12 @@
     flex-direction: column;
   }
   
+  /* Raise the card (and its open menu) above its neighbours */
+  .sensor-card:hover,
+  .sensor-card:focus-within {
+    z-index: 2;
+  }
+
   .sensor-card:hover {
     transform: translateY(-3px);
     box-shadow:
@@ -25,16 +31,20 @@
   .sensor-name {
     font-size: 15px;
     font-weight: 600;
-    margin: 0 0 4px 0;
+    margin: 0 0 8px 0;
+    padding: 4px 32px 0; /* keep clear of the menu button */
     text-align: center;
     color: #1a1a2e;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   /* Status centered under name */
   .status-container {
     display: flex;
     justify-content: center;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   
   /* Value section */
@@ -61,7 +71,7 @@
   }
   
   .sensor-label {
-    margin-top: 4px;
+    margin-top: 10px;
     font-size: 12px;
     color: #6c757d;
   }
@@ -77,6 +87,7 @@
     position: absolute;
     top: 10px;
     right: 10px;
+    z-index: 5;
   }
   
   .menu-button {

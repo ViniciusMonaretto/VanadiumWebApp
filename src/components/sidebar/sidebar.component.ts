@@ -8,6 +8,7 @@ export interface NavItem {
   name: string;
   path?: string;
   action?: Function;
+  isActive?: () => boolean;
   icon: any;
 }
 

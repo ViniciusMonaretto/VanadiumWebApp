@@ -36,8 +36,8 @@ import { EventAlarmManagerService } from '../../services/event-alarm-manager.ser
 export class ManagerScreenComponent implements OnInit {
 
   navItems: NavItem[] = [
-    { name: 'Empresas',action: () => this.onOptionChange('empresas'), icon: LayoutDashboard },
-    { name: 'Usuários', action: () => this.onOptionChange('usuarios'), icon: Users },
+    { name: 'Empresas',action: () => this.onOptionChange('empresas'), isActive: () => this.activeOption === 'empresas', icon: LayoutDashboard },
+    { name: 'Usuários', action: () => this.onOptionChange('usuarios'), isActive: () => this.activeOption === 'usuarios', icon: Users },
     { name: 'Sair', action: () => this.logout(), icon: LogOut },
   ];
   

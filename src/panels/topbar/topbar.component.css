@@ -1,33 +1,34 @@
 .top-bar {
   display: flex;
-  margin-top: 12px;
-  margin-right: 12px;
-  margin-left: 12px;
-  /* margin-bottom: 6px; */
+  flex-shrink: 0;
+  margin: 12px 12px 0;
   align-items: center;
   justify-content: space-between; /* distribute items across full width */
-  padding: 12px 12px;
+  padding: 12px 20px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
 }
 
 .top-bar-left,
 .top-bar-right {
   display: flex;
   align-items: center;
-  gap: 32px; /* spacing between items inside each side */
+  gap: 24px; /* spacing between items inside each side */
 }
 
 .top-bar-item {
   display: flex;
   align-items: center;
   gap: 8px; /* spacing between icon and text */
-
+  white-space: nowrap;
 }
 
 .top-bar-item .icon {
-  font-size: 16px;
-  gap: 8;
+  display: flex;
   color: #3D5BAE;
 }

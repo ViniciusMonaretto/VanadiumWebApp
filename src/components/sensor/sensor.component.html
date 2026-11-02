@@ -2,13 +2,14 @@
 
   <!-- Three dots -->
   <div class="menu-wrapper">
-    <button class="menu-button" (click)="toggleMenu()">
+    <button type="button" class="menu-button" (click)="toggleMenu()" title="Opções" aria-label="Opções do sensor"
+      [attr.aria-expanded]="menuOpen">
       <span class="dot"></span>
       <span class="dot"></span>
       <span class="dot"></span>
     </button>
 
-    <div *ngIf="menuOpen" class="menu-dropdown">
+    <div *ngIf="menuOpen" class="menu-dropdown" (click)="menuOpen = false">
       <button class="menu-item settings" (click)="openSettingsDialog()">
         Configurações
       </button>
@@ -22,7 +23,7 @@
   </div>
 
   <!-- Title -->
-  <h2 class="sensor-name">{{ sensorInfo.name }}</h2>
+  <h2 class="sensor-name" [title]="sensorInfo.name">{{ sensorInfo.name }}</h2>
 
   <!-- Status -->
   <div class="status-container">

@@ -37,11 +37,16 @@
       <!-- Sensor List -->
       <div class="dialog-body">
         <div class="sensor-list">
-          <label
+          <div
             class="sensor-row"
+            role="checkbox"
+            tabindex="0"
+            [attr.aria-checked]="isSensorSelected(sensor)"
             [class.sensor-row--active]="isSensorSelected(sensor)"
             *ngFor="let sensor of filteredSensors; trackBy: trackBySensorId"
-            [for]="'sensor-' + sensor.id">
+            (click)="toggleSensor(sensor)"
+            (keydown.space)="$event.preventDefault(); toggleSensor(sensor)"
+            (keydown.enter)="toggleSensor(sensor)">
   
             <!-- Color indicator -->
             <span class="color-dot" [style.background]="sensor.color"></span>
@@ -62,17 +67,18 @@
               title="Alterar cor">
   
             <!-- Toggle switch -->
-            <div class="toggle-wrapper" (click)="$event.preventDefault(); toggleSensor(sensor)">
+            <div class="toggle-wrapper">
               <input
                 type="checkbox"
-                [id]="'sensor-' + sensor.id"
+                tabindex="-1"
+                aria-hidden="true"
                 [checked]="isSensorSelected(sensor)"
                 class="toggle-native">
               <span class="toggle-track">
                 <span class="toggle-thumb"></span>
               </span>
             </div>
-          </label>
+          </div>
   
           <!-- Empty state -->
           <div class="empty-state" *ngIf="filteredSensors.length === 0">
@@ -88,6 +94,6 @@
 
 </mat-dialog-content>
 <mat-dialog-actions style="display: flex; gap: 10px;">
-    <io-button style="height: 30px;" variant="danger" (clicked)="onNoClick()">Cancelar</io-button>
+    <io-button style="height: 30px;" variant="secondary" (clicked)="onNoClick()">Cancelar</io-button>
     <io-button style="height: 30px;" variant="primary" [disabled]="!validForm()" (clicked)="onAddCLick()">Adicionar</io-button>
 </mat-dialog-actions>

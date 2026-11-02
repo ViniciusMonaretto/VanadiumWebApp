@@ -24,9 +24,9 @@ export class ListOfUsersComponent {
     getGridStyle(): Record<string, string> {
         return {
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))',
-            gap: '10px',
-            paddingBottom: '10px'
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: '16px',
+            paddingBottom: '4px'
         };
     }
 

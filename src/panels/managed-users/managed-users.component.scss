@@ -1,18 +1,28 @@
 .group-div-display {
     display: flex;
-    height: calc(100% - 30px);
-    width: calc(100% - 30px);
+    box-sizing: border-box;
+    height: 100%;
+    width: 100%;
     flex-direction: column;
-    padding: 15px;
+    gap: 16px;
 }
 
-.group-header {
-    width: 100%;
-    font-size: xx-large;
-    padding-bottom: 20px;
-    color: #262626;
+.page-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    margin: 2px 0 0;
 }
 
 .main-screen-style {
-    height: calc(100% - 40px);
+    flex: 1;
+    min-height: 0;
 }

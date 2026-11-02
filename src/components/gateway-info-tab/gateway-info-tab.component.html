@@ -2,7 +2,7 @@
   
   <!-- Header -->
   <div class="device-header">
-    <h2 class="device-name">{{ gateway.name }}</h2>
+    <h2 class="device-name" [title]="gateway.name">{{ gateway.name }}</h2>
 
     <div class="device-header-right">
       <span
@@ -16,7 +16,11 @@
       <!-- Three dots menu -->
       <div class="menu-wrapper">
         <button
+          type="button"
           class="menu-button"
+          title="Opções"
+          aria-label="Opções do dispositivo"
+          [attr.aria-expanded]="menuOpen"
           (click)="toggleMenu()"
         >
           ⋮
@@ -30,7 +34,7 @@
             class="menu-item delete"
             (click)="handleDelete()"
           >
-            Delete
+            Remover
           </button>
         </div>
       </div>
@@ -52,17 +56,17 @@
     <div class="device-info">
 
       <div class="info-item">
-        <span class="info-label">IP Address:</span>
+        <span class="info-label">Endereço IP</span>
         <span class="info-value">{{ gateway.ip }}</span>
       </div>
 
       <div class="info-item">
-        <span class="info-label">Uptime:</span>
+        <span class="info-label">Tempo ativo</span>
         <span class="info-value">{{ formatUptime(gateway.uptime) }}</span>
       </div>
 
       <div class="info-item">
-        <span class="info-label">Last Activity:</span>
+        <span class="info-label">Última atividade</span>
         <span class="info-value">{{ gateway.lastActivity }}</span>
       </div>
 

@@ -1,6 +1,5 @@
 <div style="height: 100%;">
-  <div class="group-header">Usuários</div>
-  <div style="height: calc(100% - 56px); overflow-y: auto;">
+  <div style="height: 100%; overflow-y: auto;">
     <div class="main-group-div" [ngStyle]="getGridStyle()">
       <div class="user-card flex-item"
            *ngFor="let user of users"
@@ -17,8 +16,8 @@
         <div class="user-card-type">{{ getUserTypeLabel(user.userType) }}</div>
       </div>
       <div *ngIf="canEdit" class="add-wrapper">
-        <io-button style="height: 122px; width: 402px;" variant="primary" (clicked)="addUser.emit()">
-          <mat-icon style="font-size: 50px; height: 50px; width: 50px;">add</mat-icon>
+        <io-button variant="primary" ariaLabel="Adicionar usuário" title="Adicionar usuário" (clicked)="addUser.emit()">
+          <mat-icon style="font-size: 36px; height: 36px; width: 36px;">add</mat-icon>
         </io-button>
       </div>
     </div>

@@ -4,7 +4,7 @@
   </div>
 
   <nav class="sidebar-nav">
-    
+
     <!-- ROUTE ITEMS -->
     <ng-container *ngFor="let item of navItems">
 
@@ -15,19 +15,24 @@
         routerLinkActive="active"
         class="sidebar-item"
         [title]="item.name"
+        [attr.aria-label]="item.name"
       >
-        <lucide-icon [img]="item.icon" size="28"></lucide-icon>
+        <lucide-icon [img]="item.icon" size="22"></lucide-icon>
       </a>
 
       <!-- If it has an action → it's a button -->
-      <a
+      <button
         *ngIf="item.action"
+        type="button"
         class="sidebar-item"
+        [class.active]="item.isActive?.()"
+        [attr.aria-current]="item.isActive?.() ? 'page' : null"
         [title]="item.name"
+        [attr.aria-label]="item.name"
         (click)="handleAction(item)"
       >
-        <lucide-icon [img]="item.icon" size="28"></lucide-icon>
-      </a>
+        <lucide-icon [img]="item.icon" size="22"></lucide-icon>
+      </button>
 
     </ng-container>
 

@@ -35,10 +35,10 @@ import { TopbarComponent } from '../topbar/topbar.component';
 export class MainScreenComponent implements OnInit {
 
   navItems: NavItem[] = [
-    { name: 'Monitor',action: () => this.setSensor(""), icon: LayoutDashboard },
-    { name: 'Gráficos', action: () => this.setStatusLog(), icon: LineChart },
-    { name: 'Dispositivos', action: () => this.setGatewayScreen(), icon: Cpu },
-    { name: 'Alarmes', action: () => this.setAlertScreen(), icon: Bell },
+    { name: 'Monitor',action: () => this.setSensor(""), isActive: () => this.isSensorSelected(), icon: LayoutDashboard },
+    { name: 'Gráficos', action: () => this.setStatusLog(), isActive: () => this.isStatusLogSelected(), icon: LineChart },
+    { name: 'Dispositivos', action: () => this.setGatewayScreen(), isActive: () => this.isGatewaySelected(), icon: Cpu },
+    { name: 'Alarmes', action: () => this.setAlertScreen(), isActive: () => this.isStatusAlertSelected(), icon: Bell },
     { name: 'Selecionar outra empresa', action: () => this.disselectEnterprise(), icon: History },
     { name: 'Sair', action: () => this.logout(), icon: LogOut },
   ];

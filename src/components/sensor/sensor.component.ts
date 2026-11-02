@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, HostListener, ElementRef } from '@angular/core';
 import { FlowSensorModule, SensorModule } from '../../models/sensor-module';
 import { SensorTypesEnum } from '../../enum/sensor-type';
 
@@ -24,10 +24,18 @@ export class SensorComponent implements OnInit {
   public sensorTypes = Object.values(SensorTypesEnum);
   public menuOpen = false;
 
-  constructor() { }
+  constructor(private elementRef: ElementRef) { }
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
+  }
+
+  // Close the card menu when clicking anywhere outside of it
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (this.menuOpen && !this.elementRef.nativeElement.querySelector('.menu-wrapper')?.contains(event.target)) {
+      this.menuOpen = false;
+    }
   }
 
   getMeasureIcon(): String {

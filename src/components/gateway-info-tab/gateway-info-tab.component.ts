@@ -1,4 +1,4 @@
-import { Component,  EventEmitter,  Input, Output, } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GatewayModule } from '../../models/gateway-model';
 
@@ -16,8 +16,18 @@ export class GatewayInfoTabComponent {
 
   menuOpen = false;
 
+  constructor(private elementRef: ElementRef) { }
+
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
+  }
+
+  // Close the card menu when clicking anywhere outside of it
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (this.menuOpen && !this.elementRef.nativeElement.querySelector('.menu-wrapper')?.contains(event.target)) {
+      this.menuOpen = false;
+    }
   }
 
   handleDelete() {

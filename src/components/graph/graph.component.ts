@@ -150,7 +150,15 @@ export class GraphComponent {
   @Input() set resize(trigger: boolean) {
     this.fitAllGraph()
   }
-  @Input() zoomEnabled: boolean = true
+  @Input() set zoomEnabled(value: boolean) {
+    this._zoomEnabled = value;
+    // Apply the Zoom/Mover tool to the chart right away, not on the next drag
+    this.updateMouseEvents();
+  }
+  get zoomEnabled(): boolean {
+    return this._zoomEnabled;
+  }
+  private _zoomEnabled: boolean = true;
   @Input() set selectedDataLineIndex(value: number) {
     this._selectedDataLineIndex = value;
     this.updateLines();
@@ -206,6 +214,9 @@ export class GraphComponent {
       tension: 0 // Force straight lines between points
     }));
 
+    const keepUserView = this.isOnlyAppend(this.lineChartData.datasets, datasetsWithPoints) &&
+      !!this.chart?.chart?.isZoomedOrPanned();
+
     this.lineChartData =
     {
       datasets: datasetsWithPoints
@@ -214,8 +225,24 @@ export class GraphComponent {
     this.calculateMargin(datasetsWithPoints)
 
     this.updateZoomLimits()
-    this.fitAllGraph()
+    // Live readings must not throw away the user's zoom/pan
+    if (!keepUserView) {
+      this.fitAllGraph()
+    }
     this.updateLines()
+  }
+
+  // True when the new data is the same lines with points only added at the end
+  private isOnlyAppend(previous: any[], next: any[]): boolean {
+    if (previous.length === 0 || previous.length !== next.length) {
+      return false;
+    }
+    return next.every((dataset, i) => {
+      const before = previous[i];
+      return dataset.label === before.label &&
+        dataset.data.length >= before.data.length &&
+        (before.data.length === 0 || dataset.data[0]?.x === before.data[0]?.x);
+    });
   }
 
   lineChartOptions: ChartOptions<'line'> = {
